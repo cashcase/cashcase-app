@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math';
 
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
@@ -132,10 +133,10 @@ class _DatePickerState extends State<DatePicker> {
                   var date = DateTime(
                     _focusDate.year,
                     months.indexWhere((e) => e == month) + 1,
-                    _focusDate.day,
+                    min(_focusDate.day, DateTime.now().day),
                   );
-                  _focusDate = date;
                   key = GlobalKey();
+                  _focusDate = date;
                   setState(() => {});
                 },
                 initial: months[_focusDate.month - 1],
@@ -149,8 +150,8 @@ class _DatePickerState extends State<DatePicker> {
                 onChange: (year) {
                   var date = DateTime(
                       int.parse(year), _focusDate.month, _focusDate.day);
-                  _focusDate = date;
                   key = GlobalKey();
+                  _focusDate = date;
                   setState(() => {});
                 },
                 initial: _focusDate.year.toString(),

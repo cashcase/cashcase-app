@@ -75,6 +75,8 @@ class _ViewState extends State<View> {
                       ),
                       Expanded(
                         child: ListView.builder(
+                          padding: const EdgeInsets.only(
+                              bottom: kFloatingActionButtonMargin + 48),
                           shrinkWrap: true,
                           itemCount: expenses.length,
                           itemBuilder: (BuildContext context, int index) {
