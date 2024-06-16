@@ -1,9 +1,11 @@
+import 'dart:math';
+import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/src/components/datepicker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 class ExpensesView extends ResponsiveViewState {
   ExpensesView() : super(create: () => ExpensesController());
@@ -34,9 +36,24 @@ class _ViewState extends State<View> {
     _future = ExpensesController().getExpenses();
   }
 
-  String? selectedValue = "Food";
+  String? selectedValue = ExpenseCategory.values[0].name;
 
   bool isSaving = true;
+
+  List<Expense> expenses = List.generate(25, (i) {
+    final _random = new Random();
+    var category =
+        ExpenseCategory.values[_random.nextInt(ExpenseCategory.values.length)];
+    var type = ExpenseType.values[_random.nextInt(ExpenseType.values.length)];
+    var by = ExpenseBy.values[_random.nextInt(ExpenseBy.values.length)];
+    return Expense(
+      type: type,
+      by: by,
+      category: category,
+      amount: (100 * i).toDouble(),
+      date: DateTime.now(),
+    );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +65,71 @@ class _ViewState extends State<View> {
           return Container(
             child: Stack(
               children: [
+                Container(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: DatePicker(),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: expenses.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            var expense = expenses[index];
+                            var isSaving = expense.type == ExpenseType.saved;
+                            return Padding(
+                              padding: EdgeInsets.all(0),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.all(8),
+                                subtitle: Text(
+                                  expense.date.toString().split(" ")[0],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                ),
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      expense.category.name.toCamelCase(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(),
+                                    ),
+                                    Text(
+                                      "${isSaving ? "+" : "-"} "
+                                      "${expense.amount}",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                            color: isSaving
+                                                ? Colors.green
+                                                : Colors.red,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                ),
                 Positioned(
                   top: 0,
                   child: Container(
-                    height: 32,
+                    height: 40,
                     color: Colors.black87,
                     width: MediaQuery.of(context).size.width,
                     child: Row(
@@ -60,7 +138,7 @@ class _ViewState extends State<View> {
                         Text(
                           "Today",
                           style:
-                              Theme.of(context).textTheme.titleMedium!.copyWith(
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
                                     color: Colors.white,
                                   ),
                         ),
@@ -72,10 +150,10 @@ class _ViewState extends State<View> {
                               "+ ${snapshot.data!.saved}",
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyLarge!
+                                  .titleLarge!
                                   .copyWith(
                                     color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w500,
                                   ),
                             ),
                             SizedBox(width: 10),
@@ -83,10 +161,10 @@ class _ViewState extends State<View> {
                               "- ${snapshot.data!.spent}",
                               style: Theme.of(context)
                                   .textTheme
-                                  .bodyLarge!
+                                  .titleLarge!
                                   .copyWith(
                                     color: Colors.red,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w500,
                                   ),
                             )
                           ],
@@ -157,14 +235,15 @@ class _ViewState extends State<View> {
                                   selectedValue = newValue;
                                 });
                               },
-                              items: ["Food", "Clothing", "Shelter"]
-                                  .map((document) {
+                              items: ExpenseCategory.values
+                                  .map((e) => e.name)
+                                  .map((category) {
                                 return DropdownMenuItem<String>(
-                                  value: document,
+                                  value: category,
                                   child: FittedBox(
                                     fit: BoxFit.fitWidth,
                                     child: Text(
-                                      document,
+                                      category.toCamelCase(),
                                       style: TextStyle(fontSize: 18),
                                     ),
                                   ),
