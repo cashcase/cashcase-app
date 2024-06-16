@@ -3,9 +3,9 @@
 <img src="logo.svg"/>
 </p>
 
-<h3 align="center">cashcase - Made with Clarc</h3>
+<h3 align="center">CashCase - Expense Manager</h3>
 
 <hr/>
 
 > [!IMPORTANT]  
-> This is a work in progress.
+> This is an in progress implementation of the Cashcase Expense Manager App.
