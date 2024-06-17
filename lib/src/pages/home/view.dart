@@ -1,3 +1,4 @@
+import 'package:cashcase/src/components/group-avatar.dart';
 import 'package:cashcase/src/pages/account/view.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:cashcase/src/pages/expenses/view.dart';
@@ -100,6 +101,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         .copyWith(color: Colors.orangeAccent),
                   )
                 ],
+              ),
+              GroupAvatar(
+                users: ["AP", "DS"],
               )
             ],
           ),
