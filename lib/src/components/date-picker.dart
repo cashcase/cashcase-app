@@ -63,6 +63,8 @@ class _DropdownState extends State<Dropdown> {
 }
 
 class DatePicker extends StatefulWidget {
+  Function(DateTime) onDateChange;
+  DatePicker({required this.onDateChange});
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
@@ -116,14 +118,15 @@ class _DatePickerState extends State<DatePicker> {
       ),
       focusDate: _focusDate,
       firstDate: DateTime(_focusDate.year, _focusDate.month, 1),
-      onDateChange: (selectedDate) {
-        setState(() {
-          _focusDate = selectedDate;
-        });
+      onDateChange: (date) {
+        if (_focusDate == date) return;
+        _focusDate = date;
+        widget.onDateChange(_focusDate);
+        setState(() {});
       },
       headerBuilder: (context, date) {
         return Container(
-          padding: EdgeInsets.only(top: 32, bottom: 12, left: 8, right: 8),
+          padding: EdgeInsets.only(top: 8, bottom: 12, left: 8, right: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -135,8 +138,10 @@ class _DatePickerState extends State<DatePicker> {
                     months.indexWhere((e) => e == month) + 1,
                     min(_focusDate.day, DateTime.now().day),
                   );
+                  if (_focusDate == date) return;
                   key = GlobalKey();
                   _focusDate = date;
+                  widget.onDateChange(_focusDate);
                   setState(() => {});
                 },
                 initial: months[_focusDate.month - 1],
@@ -150,8 +155,10 @@ class _DatePickerState extends State<DatePicker> {
                 onChange: (year) {
                   var date = DateTime(
                       int.parse(year), _focusDate.month, _focusDate.day);
+                  if (_focusDate == date) return;
                   key = GlobalKey();
                   _focusDate = date;
+                  widget.onDateChange(_focusDate);
                   setState(() => {});
                 },
                 initial: _focusDate.year.toString(),
@@ -175,10 +182,6 @@ class _DatePickerState extends State<DatePicker> {
       ) {
         return InkResponse(
           splashFactory: NoSplash.splashFactory,
-          // You can use `InkResponse` to make your widget clickable.
-          // The `onTap` callback responsible for triggering the `onDateChange`
-          // callback and animating to the selected date if the `selectionMode` is
-          // SelectionMode.autoCenter() or SelectionMode.alwaysFirst().
           onTap: onTap,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.0),

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class ExpensesView extends ResponsiveViewState {
   ExpensesView() : super(create: () => ExpensesController());
@@ -28,75 +29,55 @@ class View extends StatefulWidget {
 }
 
 class _ViewState extends State<View> {
-  late Future<ExpensesResponse?> _future;
+  late Future<List<Expense>?> _future;
+
+  bool isSaving = false;
+  late String? typeOfAddingValue;
+
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _future = ExpensesController().getExpenses();
-
-    const users = [
-      ["Abhimanyu", "Pandian"],
-      ["Divyaa", "Subramaniam"]
-    ];
-
-    expenses = List.generate(25, (i) {
-      final _random = new Random();
-      var category = (isSaving ? SavingsCategories : SpentCategories)[_random
-          .nextInt((isSaving ? SavingsCategories : SpentCategories).length)];
-      var type = ExpenseType.values[_random.nextInt(ExpenseType.values.length)];
-      var oneOfTwo = _random.nextInt(2);
-      var firstName = users[oneOfTwo][0];
-      var lastName = users[oneOfTwo][1];
-      return Expense.fromJson({
-        "type": type,
-        "category": category,
-        "amount": (100 * i).toDouble(),
-        "date": DateTime.now(),
-        "user": {
-          "id": "$firstName$lastName",
-          "firstName": firstName,
-          "lastName": lastName,
-        }
-      });
-    });
-    selectedValue = (isSaving ? SavingsCategories : SpentCategories)[0];
+    _future = ExpensesController().getExpenses(selectedDate);
+    typeOfAddingValue = (isSaving ? SavingsCategories : SpentCategories)[0];
   }
-
-  bool isSaving = false;
-  late String? selectedValue;
-
-  late List<Expense> expenses;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<ExpensesResponse?>(
+      body: FutureBuilder<List<Expense>?>(
         future: _future,
         builder: (context, snapshot) {
           if (!snapshot.hasData) return Container();
+          List<Expense> expenses = snapshot.data!;
           return Container(
             child: Stack(
               children: [
-                Positioned(
-                  top: 0,
-                  child: renderHeader(snapshot),
-                ),
-                Container(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        child: DatePicker(),
+                // Positioned(
+                //   top: 0,
+                //   child: renderHeader(snapshot),
+                // ),
+                Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 0, bottom: 0),
+                      child: DatePicker(
+                        onDateChange: (date) {
+                          selectedDate = date;
+                          _future = ExpensesController().getExpenses(date);
+                          setState(() => {});
+                        },
                       ),
-                      Expanded(
-                        child: renderExpensesList(
-                          restructureExpense(expenses),
+                    ),
+                    Expanded(
+                      child: renderGroupedExpenses(
+                        GroupedExpense.fromExpenses(
+                          expenses,
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    )
+                  ],
                 ),
                 Positioned(
                   bottom: 0,
@@ -110,80 +91,170 @@ class _ViewState extends State<View> {
     );
   }
 
-  Map<String, CollectedExpense> restructureExpense(List<Expense> expenses) {
-    Map<String, CollectedExpense> restructured = {};
-    expenses.forEach((each) {
-      if (!restructured.containsKey(each.category))
-        restructured[each.category] =
-            CollectedExpense(expenses: [], type: each.type, total: 0);
-      restructured[each.category]!.expenses.add(each);
-      restructured[each.category]!.total += each.amount;
-    });
-    return restructured;
-  }
-
-  ListView renderExpensesList(Map<String, CollectedExpense> expenses) {
-    return ListView.builder(
-        padding:
-            const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 48),
-        shrinkWrap: true,
-        itemCount: expenses.keys.length,
-        itemBuilder: (context, index) {
-          var category = expenses.keys.toList()[index];
-          var isSaving = SavingsCategories.contains(category);
-          return ExpansionTile(
-            title: Text(
-              expenses.keys.toList()[index].toCamelCase(),
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(),
-            ),
-            trailing: Text(
-              "${isSaving ? "+" : "-"} "
-              "${expenses[category]!.total}",
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                    color: isSaving ? Colors.green : Colors.red,
-                  ),
-            ),
-            tilePadding: EdgeInsets.all(8),
-            controlAffinity: ListTileControlAffinity.leading,
-            children: expenses[category]!.expenses.map((each) {
-              return ListTile(
-                contentPadding: EdgeInsets.only(left: 16, right: 8),
-                leading: CircleAvatar(
-                  backgroundColor: Colors.orangeAccent,
-                  radius: 18.0,
-                  child: Text(
-                    "${each.user.firstName[0].toUpperCase()}${each.user.lastName[0].toUpperCase()}",
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
+  Column renderGroupedExpenses(GroupedExpense expenses) {
+    var categoryExpenses = expenses.categoryExpenses.keys.toList();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(height: 16),
+        // Container(
+        //   height: 40,
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     crossAxisAlignment: CrossAxisAlignment.stretch,
+        //     children: [
+        //       Expanded(
+        //         child: Container(
+        //           decoration: BoxDecoration(
+        //               color: Colors.green.shade900,
+        //               borderRadius: BorderRadius.circular(4)),
+        //           child: Center(
+        //               child: Text(
+        //             "+${expenses.totalSaved.toString()}",
+        //             style: Theme.of(context).textTheme.titleMedium!.copyWith(
+        //                 fontWeight: FontWeight.bold, color: Colors.greenAccent),
+        //           )),
+        //         ),
+        //       ),
+        //       SizedBox(width: 8),
+        //       Expanded(
+        //         child: Container(
+        //           decoration: BoxDecoration(
+        //               color: Colors.red.shade800,
+        //               borderRadius: BorderRadius.circular(4)),
+        //           padding: EdgeInsets.symmetric(vertical: 6, horizontal: 3),
+        //           child: Center(
+        //             child: Text(
+        //               "-${expenses.totalSpent.toString()}",
+        //               style: Theme.of(context).textTheme.titleMedium!.copyWith(
+        //                   fontWeight: FontWeight.bold,
+        //                   color: Colors.red.shade100),
+        //             ),
+        //           ),
+        //         ),
+        //       )
+        //     ],
+        //   ),
+        // ),
+        // SizedBox(height: 8),
+        Expanded(
+          child: ListView.builder(
+            padding:
+                const EdgeInsets.only(bottom: kFloatingActionButtonMargin + 48),
+            shrinkWrap: true,
+            itemCount: categoryExpenses.length,
+            itemBuilder: (context, index) {
+              var category = categoryExpenses[index];
+              var isSaving = expenses.categoryExpenses[category]!.isSaving;
+              var amount = expenses.categoryExpenses[category]!.amount;
+              if (amount == 0) return Container();
+              var userExpenses =
+                  expenses.categoryExpenses[category]!.userExpenses;
+              return Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
                 ),
-                subtitle: Text(
-                  each.date.toString().split(" ")[0],
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: Colors.grey.shade600,
+                child: ExpansionTile(
+                  backgroundColor: Colors.black45,
+                  collapsedIconColor: isSaving ? Colors.green : Colors.red,
+                  iconColor: isSaving ? Colors.green : Colors.red,
+                  title: Text(
+                    categoryExpenses[index].toCamelCase(),
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(),
+                  ),
+                  trailing: Text(
+                    "${isSaving ? "+" : "-"} "
+                    "${amount}",
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                          color: isSaving ? Colors.green : Colors.red,
+                        ),
+                  ),
+                  tilePadding: EdgeInsets.symmetric(horizontal: 8),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  children: userExpenses.keys.toList().map((userId) {
+                    var userExpense = expenses
+                        .categoryExpenses[category]!.userExpenses[userId]!;
+                    var amount = userExpense.amount;
+                    if (amount == 0) return Container();
+                    var userExpenseIds = userExpense.expenses.keys.toList();
+                    return ExpansionTile(
+                      title: Text(
+                        userId.replaceAll("_", " ").toCamelCase(),
+                        style:
+                            Theme.of(context).textTheme.titleLarge!.copyWith(),
                       ),
-                ),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      each.category.toCamelCase(),
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(),
-                    ),
-                    Text(
-                      "${isSaving ? "+" : "-"} "
-                      "${each.amount}",
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: isSaving ? Colors.green : Colors.red,
+                      controlAffinity: ListTileControlAffinity.trailing,
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.orangeAccent,
+                        radius: 18.0,
+                        child: Text(
+                          "${userId.split("_")[0][0].toUpperCase()}${userId.split("_")[1][0].toUpperCase()}",
+                          style: TextStyle(
+                            color: Colors.black,
                           ),
-                    ),
-                  ],
+                        ),
+                      ),
+                      trailing: Text(
+                        "${isSaving ? "+" : "-"} "
+                        "${amount}",
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                              color: isSaving ? Colors.green : Colors.red,
+                            ),
+                      ),
+                      tilePadding: EdgeInsets.all(8).copyWith(left: 16),
+                      children: userExpenseIds.map((expenseId) {
+                        var expense = userExpense.expenses[expenseId]!;
+                        if (expense.amount <= 0) return Container();
+                        return ListTile(
+                          contentPadding: EdgeInsets.only(left: 16, right: 8),
+                          leading: Container(width: 36),
+                          subtitle: Text(
+                            DateFormat().format(expense.date),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  color: Colors.grey.shade600,
+                                ),
+                          ),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                (expense.notes ?? "").isNotEmpty
+                                    ? expense.notes
+                                    : expense.category.toCamelCase(),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(),
+                              ),
+                              Text(
+                                "${isSaving ? "+" : "-"} "
+                                "${expense.amount}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(
+                                      color:
+                                          isSaving ? Colors.green : Colors.red,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  }).toList(),
                 ),
               );
-            }).toList(),
-          );
-        });
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Container renderHeader(AsyncSnapshot<ExpensesResponse?> snapshot) {
@@ -237,7 +308,7 @@ class _ViewState extends State<View> {
           MaterialButton(
             onPressed: () {
               isSaving = !isSaving;
-              selectedValue =
+              typeOfAddingValue =
                   (isSaving ? SavingsCategories : SpentCategories)[0];
               setState(() => {});
             },
@@ -279,14 +350,14 @@ class _ViewState extends State<View> {
                   "For what?",
                   textAlign: TextAlign.left,
                 ),
-                value: selectedValue,
+                value: typeOfAddingValue,
                 alignment: Alignment.centerLeft,
                 onChanged:
                     (isSaving ? SavingsCategories : SpentCategories).length == 1
                         ? null
                         : (newValue) {
                             setState(() {
-                              selectedValue = newValue;
+                              typeOfAddingValue = newValue;
                             });
                           },
                 items: (isSaving ? SavingsCategories : SpentCategories)

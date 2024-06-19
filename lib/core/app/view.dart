@@ -24,7 +24,7 @@ class BaseView extends StatefulWidget {
       : _themeData = themeData {
     app = MaterialApp.router(
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData.dark().copyWith(),
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
           PointerDeviceKind.mouse,
