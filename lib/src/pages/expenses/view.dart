@@ -1,5 +1,5 @@
-import 'dart:math';
 import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/routes.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:flutter/material.dart';
@@ -36,11 +36,169 @@ class _ViewState extends State<View> {
 
   DateTime selectedDate = DateTime.now();
 
+  Future<List<Expense>> get expensesFuture =>
+      context.once<ExpensesController>().getExpenses(selectedDate);
+
   @override
   void initState() {
-    super.initState();
-    _future = ExpensesController().getExpenses(selectedDate);
+    _future = expensesFuture;
     typeOfAddingValue = (isSaving ? SavingsCategories : SpentCategories)[0];
+    super.initState();
+  }
+
+  Future saveExpense(String notes) async {
+    Navigator.pop(context);
+    return true;
+  }
+
+  Future showExpenseDetails(Expense expense) {
+    var isSaved = expense.type == ExpenseType.saved;
+    TextEditingController notesController =
+        TextEditingController(text: expense.notes ?? "");
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      barrierColor: Colors.black87,
+      builder: (_) => Wrap(
+        children: [
+          Container(
+            padding: EdgeInsets.only(bottom: 40),
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          isSaved ? Colors.green.shade800 : Colors.red.shade800,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: isSaved
+                                  ? Colors.green.shade600
+                                  : Colors.red.shade500,
+                              radius: 24.0,
+                              child: Text(
+                                "${expense.user.firstName[0].toUpperCase()}${expense.user.lastName[0].toUpperCase()}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ),
+                            SizedBox(width: 16),
+                            Text(
+                              "${expense.user.firstName.toCamelCase()}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(
+                                    color: isSaved
+                                        ? Colors.green.shade100
+                                        : Colors.red.shade100,
+                                  ),
+                            )
+                          ],
+                        ),
+                        Text(
+                          "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .copyWith(
+                                color: isSaved
+                                    ? Colors.green.shade100
+                                    : Colors.red.shade100,
+                              ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      color: Colors.black38,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            DateFormat().format(expense.date),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(),
+                          ),
+                          Text(
+                            expense.category.toCamelCase(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      child: TextField(
+                        controller: notesController,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Notes',
+                          focusedBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.white24, width: 1.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide:
+                                BorderSide(color: Colors.white12, width: 1.0),
+                          ),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              saveExpense(notesController.text);
+                            },
+                            child: Icon(
+                              Icons.check_rounded,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ),
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 5,
+                        minLines: 5,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -54,10 +212,6 @@ class _ViewState extends State<View> {
           return Container(
             child: Stack(
               children: [
-                // Positioned(
-                //   top: 0,
-                //   child: renderHeader(snapshot),
-                // ),
                 Column(
                   children: [
                     Padding(
@@ -65,7 +219,7 @@ class _ViewState extends State<View> {
                       child: DatePicker(
                         onDateChange: (date) {
                           selectedDate = date;
-                          _future = ExpensesController().getExpenses(date);
+                          _future = expensesFuture;
                           setState(() => {});
                         },
                       ),
@@ -96,47 +250,56 @@ class _ViewState extends State<View> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(height: 16),
-        // Container(
-        //   height: 40,
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     crossAxisAlignment: CrossAxisAlignment.stretch,
-        //     children: [
-        //       Expanded(
-        //         child: Container(
-        //           decoration: BoxDecoration(
-        //               color: Colors.green.shade900,
-        //               borderRadius: BorderRadius.circular(4)),
-        //           child: Center(
-        //               child: Text(
-        //             "+${expenses.totalSaved.toString()}",
-        //             style: Theme.of(context).textTheme.titleMedium!.copyWith(
-        //                 fontWeight: FontWeight.bold, color: Colors.greenAccent),
-        //           )),
-        //         ),
-        //       ),
-        //       SizedBox(width: 8),
-        //       Expanded(
-        //         child: Container(
-        //           decoration: BoxDecoration(
-        //               color: Colors.red.shade800,
-        //               borderRadius: BorderRadius.circular(4)),
-        //           padding: EdgeInsets.symmetric(vertical: 6, horizontal: 3),
-        //           child: Center(
-        //             child: Text(
-        //               "-${expenses.totalSpent.toString()}",
-        //               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-        //                   fontWeight: FontWeight.bold,
-        //                   color: Colors.red.shade100),
-        //             ),
-        //           ),
-        //         ),
-        //       )
-        //     ],
-        //   ),
-        // ),
-        // SizedBox(height: 8),
+        SizedBox(height: 8),
+        Container(
+          // height: 40,
+          padding: EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 8,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.black,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Saved",
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          color: Colors.green.shade800,
+                        ),
+                  ),
+                  Text(
+                    "${expenses.totalSaved.toString()}",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          color: Colors.green.shade800,
+                        ),
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    "Spent",
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          color: Colors.red.shade800,
+                        ),
+                  ),
+                  Text(
+                    "${expenses.totalSpent.toString()}",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                          color: Colors.red.shade800,
+                        ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
         Expanded(
           child: ListView.builder(
             padding:
@@ -208,6 +371,9 @@ class _ViewState extends State<View> {
                         var expense = userExpense.expenses[expenseId]!;
                         if (expense.amount <= 0) return Container();
                         return ListTile(
+                          onTap: () {
+                            showExpenseDetails(expense);
+                          },
                           contentPadding: EdgeInsets.only(left: 16, right: 8),
                           leading: Container(width: 36),
                           subtitle: Text(
@@ -254,46 +420,6 @@ class _ViewState extends State<View> {
           ),
         ),
       ],
-    );
-  }
-
-  Container renderHeader(AsyncSnapshot<ExpensesResponse?> snapshot) {
-    return Container(
-      height: 40,
-      color: Colors.black87,
-      width: MediaQuery.of(context).size.width,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            "Today",
-            style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  color: Colors.white,
-                ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "+ ${snapshot.data!.saved}",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                "- ${snapshot.data!.spent}",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                      color: Colors.red,
-                      fontWeight: FontWeight.w500,
-                    ),
-              )
-            ],
-          )
-        ],
-      ),
     );
   }
 

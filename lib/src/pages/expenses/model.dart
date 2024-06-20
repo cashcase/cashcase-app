@@ -1,19 +1,4 @@
-import 'dart:convert';
-
 class ExpensesPageData {}
-
-class ExpensesResponse {
-  double spent;
-  double saved;
-  ExpensesResponse({required this.spent, required this.saved});
-
-  static fromJson(dynamic data) {
-    return new ExpensesResponse(
-      spent: 100,
-      saved: 500.41,
-    );
-  }
-}
 
 class ExpenseBy {
   String firstName;
@@ -154,7 +139,8 @@ class GroupedExpense {
           },
         );
       }
-      expense.totalSaved += each.amount;
+      if (each.type == ExpenseType.saved) expense.totalSaved += each.amount;
+      else expense.totalSpent += each.amount;
       expense.categoryExpenses[each.category]!.amount += each.amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.id]!
           .amount += each.amount;
@@ -204,22 +190,3 @@ class UserExpense {
     }.toString();
   }
 }
-
-// {
-//   total: 100,
-//   categoryExpenses: {
-//     food: {
-//       total: 1000,
-//       userExpenses: {
-//         ap: {
-//           total: 100,
-//           expenses: {
-//             "213": {
-            
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
