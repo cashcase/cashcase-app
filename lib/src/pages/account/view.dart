@@ -39,7 +39,7 @@ class _ViewState extends State<View> {
               StatefulBuilder(builder: (context, setState) {
                 return Container(
                   width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(vertical: 32, horizontal: 32)
+                  padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
                       .copyWith(
                     top: 24,
                   ),
@@ -180,7 +180,7 @@ class _ViewState extends State<View> {
                   children: [
                     Icon(
                       Icons.warning_rounded,
-                      color: Colors.yellow,
+                      color: Colors.red,
                       size: 100,
                     ),
                     SizedBox(height: 24),
@@ -189,14 +189,16 @@ class _ViewState extends State<View> {
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    SizedBox(height: 24),
+                    SizedBox(height: 12),
+                    Divider(),
+                    SizedBox(height: 12),
                     Theme(
                       data: ThemeData(splashFactory: NoSplash.splashFactory),
                       child: Row(
                         children: [
                           Expanded(
                             child: MaterialButton(
-                              color: Colors.red,
+                              color: Colors.black,
                               onPressed: () {},
                               child: Center(
                                 child: Text(
@@ -215,7 +217,7 @@ class _ViewState extends State<View> {
                           SizedBox(width: 8),
                           Expanded(
                             child: MaterialButton(
-                              color: Colors.green,
+                              color: Colors.white,
                               onPressed: () => Navigator.pop(context),
                               child: Center(
                                 child: Text(
@@ -224,7 +226,7 @@ class _ViewState extends State<View> {
                                       .textTheme
                                       .bodyLarge!
                                       .copyWith(
-                                          color: Colors.green.shade50,
+                                          color: Colors.black,
                                           fontWeight: FontWeight.w500),
                                 ),
                               ),
@@ -252,7 +254,10 @@ class _ViewState extends State<View> {
           StatefulBuilder(builder: (context, setState) {
             return Container(
               width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(32).copyWith(top: 20),
+              padding:
+                  EdgeInsets.symmetric(vertical: 32, horizontal: 16).copyWith(
+                top: 24,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -271,9 +276,9 @@ class _ViewState extends State<View> {
                               .copyWith()),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 4),
                   Divider(),
-                  SizedBox(height: 8),
+                  SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -283,12 +288,12 @@ class _ViewState extends State<View> {
                               .textTheme
                               .headlineSmall!
                               .copyWith(color: Colors.grey)),
-                      SizedBox(width: 8),
+                      SizedBox(width: 4),
                       Text("${user.firstName} ${user.lastName}",
                           style: Theme.of(context).textTheme.headlineSmall!),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -303,7 +308,7 @@ class _ViewState extends State<View> {
                           style: Theme.of(context).textTheme.headlineSmall!),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  SizedBox(height: 8),
                   TextField(
                     controller: keyController,
                     decoration: InputDecoration(
@@ -337,6 +342,50 @@ class _ViewState extends State<View> {
                     textAlignVertical: TextAlignVertical.center,
                     maxLines: 1,
                     minLines: 1,
+                  ),
+                  SizedBox(height: 8),
+                  Theme(
+                    data: ThemeData(splashFactory: NoSplash.splashFactory),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: MaterialButton(
+                            color: Colors.black,
+                            onPressed: () => Navigator.pop(context),
+                            child: Center(
+                              child: Text(
+                                "Back",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: MaterialButton(
+                            color: Colors.orangeAccent,
+                            onPressed: () => Navigator.pop(context),
+                            child: Center(
+                              child: Text(
+                                "Save",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   )
                 ],
               ),
@@ -423,55 +472,56 @@ class _ViewState extends State<View> {
                   shrinkWrap: true,
                   itemCount: connections.length,
                   itemBuilder: (context, i) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.orangeAccent,
-                        radius: 24.0,
-                        child: Text(
-                          "${connections[i].firstName[0].toUpperCase()}"
-                          "${connections[i].lastName[0].toUpperCase()}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(
-                                color: Colors.black,
-                              ),
-                        ),
+                    return Theme(
+                      data: ThemeData(
+                        splashFactory: NoSplash.splashFactory,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                       ),
-                      title: Text(
-                        "${connections[i].firstName} ${connections[i].lastName}",
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      trailing: Container(
-                        width: 80,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () => showConnectionKey(connections[i]),
-                              child: Icon(
-                                Icons.lock_rounded,
-                                color: Colors.grey,
-                              ),
-                            ),
-                            SizedBox(width: 24),
-                            GestureDetector(
-                              onTap: () => showDeleteConnection(connections[i]),
-                              child: Icon(
-                                Icons.cancel,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      subtitle: Text(
-                        connections[i].email,
-                        style:
-                            Theme.of(context).textTheme.titleMedium!.copyWith(
-                                  color: Colors.grey,
+                      child: ListTile(
+                        onTap: () => showConnectionKey(connections[i]),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.orangeAccent,
+                          radius: 24.0,
+                          child: Text(
+                            "${connections[i].firstName[0].toUpperCase()}"
+                            "${connections[i].lastName[0].toUpperCase()}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall!
+                                .copyWith(
+                                  color: Colors.black,
                                 ),
+                          ),
+                        ),
+                        title: Text(
+                          "${connections[i].firstName} ${connections[i].lastName}",
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        trailing: Container(
+                          width: 80,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () =>
+                                    showDeleteConnection(connections[i]),
+                                child: Icon(
+                                  Icons.cancel,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        subtitle: Text(
+                          connections[i].email,
+                          style:
+                              Theme.of(context).textTheme.titleMedium!.copyWith(
+                                    color: Colors.grey,
+                                  ),
+                        ),
                       ),
                     );
                   },

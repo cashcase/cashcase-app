@@ -159,7 +159,7 @@ class _ViewState extends State<View> {
                     ),
                     Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 16,
                         vertical: 8,
                       ),
                       child: TextField(
@@ -175,21 +175,60 @@ class _ViewState extends State<View> {
                             borderSide:
                                 BorderSide(color: Colors.white12, width: 1.0),
                           ),
-                          suffixIcon: GestureDetector(
-                            onTap: () {
-                              saveExpense(notesController.text);
-                            },
-                            child: Icon(
-                              Icons.check_rounded,
-                              color: Colors.green,
-                            ),
-                          ),
                         ),
                         keyboardType: TextInputType.multiline,
                         maxLines: 5,
                         minLines: 5,
                       ),
                     ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      child: Theme(
+                        data: ThemeData(splashFactory: NoSplash.splashFactory),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: MaterialButton(
+                                color: Colors.black,
+                                onPressed: () => Navigator.pop(context),
+                                child: Center(
+                                  child: Text(
+                                    "Back",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: MaterialButton(
+                                color: Colors.orangeAccent,
+                                onPressed: () => saveExpense(notesController.text),
+                                child: Center(
+                                  child: Text(
+                                    "Save",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ],
