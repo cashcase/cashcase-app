@@ -1,5 +1,4 @@
 import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/routes.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:flutter/material.dart';
@@ -214,15 +213,12 @@ class _ViewState extends State<View> {
               children: [
                 Column(
                   children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 0, bottom: 0),
-                      child: DatePicker(
-                        onDateChange: (date) {
-                          selectedDate = date;
-                          _future = expensesFuture;
-                          setState(() => {});
-                        },
-                      ),
+                    DatePicker(
+                      onDateChange: (date) {
+                        selectedDate = date;
+                        _future = expensesFuture;
+                        setState(() => {});
+                      },
                     ),
                     Expanded(
                       child: renderGroupedExpenses(
@@ -252,7 +248,6 @@ class _ViewState extends State<View> {
       children: [
         SizedBox(height: 8),
         Container(
-          // height: 40,
           padding: EdgeInsets.symmetric(
             horizontal: 8,
             vertical: 8,

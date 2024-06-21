@@ -121,10 +121,11 @@ class GroupedExpense {
       categoryExpenses: {},
     );
     expenses.toList().forEach((each) {
+      var isSaving = each.type == ExpenseType.saved;
       if (!expense.categoryExpenses.containsKey(each.category)) {
         expense.categoryExpenses[each.category] = CategoryExpense(
           amount: 0,
-          isSaving: each.type == ExpenseType.saved,
+          isSaving: isSaving,
           userExpenses: {},
         );
       }
@@ -133,14 +134,15 @@ class GroupedExpense {
         expense.categoryExpenses[each.category]!.userExpenses[each.user.id] =
             UserExpense(
           amount: 0,
-          isSaving: each.type == ExpenseType.saved,
+          isSaving: isSaving,
           expenses: {
             each.id: each,
           },
         );
       }
-      if (each.type == ExpenseType.saved) expense.totalSaved += each.amount;
+      if (isSaving) expense.totalSaved += each.amount;
       else expense.totalSpent += each.amount;
+      
       expense.categoryExpenses[each.category]!.amount += each.amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.id]!
           .amount += each.amount;

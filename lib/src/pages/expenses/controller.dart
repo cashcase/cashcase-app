@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 
+int btwn(Random source, int start, int end) =>
+    source.nextInt(start) * (end - start) + start;
+
 class ExpensesController extends Controller {
   @override
   void initListeners() {}
@@ -12,7 +15,7 @@ class ExpensesController extends Controller {
   List<Expense> _generateRandomExpenses(
       List<String> users, ExpenseType type, List<String> category, int count) {
     List<Expense> spent = List.generate(count, (i) {
-      final _random = new Random();
+      final _random = Random();
       var isSaving = type == ExpenseType.saved;
       var category = (isSaving ? SavingsCategories : SpentCategories)[_random
           .nextInt((isSaving ? SavingsCategories : SpentCategories).length)];
@@ -22,7 +25,8 @@ class ExpensesController extends Controller {
       return Expense.fromJson({
         "type": type,
         "category": category,
-        "amount": (100 * i).toDouble(),
+        "amount": double.parse(
+            "${btwn(_random, 9, 99)}.${([00, 25, 50, 75]..shuffle()).first}"),
         "date": DateTime.now(),
         "user": {
           "id": "${firstName}_${lastName}",
@@ -38,8 +42,8 @@ class ExpensesController extends Controller {
     List<String> users = ["Abhimanyu Pandian", "Divyaa Subramaniam"];
     var saved =
         _generateRandomExpenses(users, ExpenseType.saved, SavingsCategories, 2);
-    var spent =
-        _generateRandomExpenses(users, ExpenseType.spent, SpentCategories, 25);
+    var spent = _generateRandomExpenses(
+        users, ExpenseType.spent, SpentCategories, btwn(Random(), 2, 15));
     spent.sort((Expense a, Expense b) => a.category.compareTo(b.category));
     return [...saved, ...spent];
   }

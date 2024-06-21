@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/Reports/controller.dart';
+import 'package:cashcase/src/pages/expenses/controller.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class ReportsView extends ResponsiveViewState<ReportsController> {
@@ -21,9 +25,7 @@ class View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("Reports"),
-      ),
+      body: Container(),
     );
   }
 }

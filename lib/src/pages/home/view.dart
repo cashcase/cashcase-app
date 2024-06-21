@@ -49,11 +49,11 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   }
 
   List<HomePageViewModel> Pages = [
-    HomePageViewModel(
-      label: 'Reports',
-      icon: Icons.timeline_rounded,
-      builder: (c) => ReportsView(),
-    ),
+    // HomePageViewModel(
+    //   label: 'Reports',
+    //   icon: Icons.timeline_rounded,
+    //   builder: (c) => ReportsView(),
+    // ),
     HomePageViewModel(
       label: 'Expenses',
       icon: Icons.book,
