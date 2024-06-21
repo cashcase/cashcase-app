@@ -43,7 +43,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.data?.initialPage ?? 1;
+    _selectedIndex = widget.data?.initialPage ??
+        Pages.indexWhere((e) => e.label == 'Expenses');
     pageController = PageController(initialPage: _selectedIndex);
     titleController.text = Pages[_selectedIndex].label;
   }
