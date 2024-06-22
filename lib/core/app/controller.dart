@@ -39,7 +39,7 @@ class AppController extends Controller {
 
   static const showBanner = NotificationsController.showBanner;
 
-  static final LoaderController loader = LoaderController();
+  final LoaderController loader = LoaderController();
 
   static hasTokens() {
     return Db.token.isNotEmpty && Db.refreshToken.isNotEmpty;

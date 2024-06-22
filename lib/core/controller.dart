@@ -172,7 +172,7 @@ class ControlledView<C extends Controller> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<C>(
       builder: (context, controller, child) {
-        return builder(controller, AppController());
+        return builder(controller, Provider.of<AppController>(context));
       },
     );
   }
@@ -209,25 +209,14 @@ abstract class Controller
     with WidgetsBindingObserver, RouteAware, ChangeNotifier {
   late bool _isMounted;
   late Logger logger;
-  late BuildContext context;
   late GlobalKey<State<StatefulWidget>> _globalKey;
-
-  BuildContext get _context =>
-      AppController.router.routerDelegate.navigatorKey.currentContext!;
 
   // ignore: invalid_annotation_target
   @mustCallSuper
   Controller() {
     logger = Logger('$runtimeType');
-    context = _context;
     _isMounted = true;
     initListeners();
-  }
-
-  navigate(String route, {Object? extra}) {
-    context.push(route, extra: extra).then((_) {
-      FocusManager.instance.primaryFocus?.unfocus();
-    });
   }
 
   @override

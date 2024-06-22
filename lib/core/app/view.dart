@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/app/theme.dart';
+import 'package:cashcase/core/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -61,21 +62,30 @@ class _BaseViewState extends State<BaseView> {
       create: (_) => AppController(),
       builder: (context, child) {
         return UpgradeAlert(
-          navigatorKey: AppController.router.routerDelegate.navigatorKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: ChangeNotifierProvider<ThemeModel>(
-                  create: (_) => ThemeModel(),
-                  child: Consumer<ThemeModel>(
-                    builder: (_, model, __) {
-                      return widget.app;
-                    },
-                  ),
-                ),
-              )
-            ],
+          navigatorKey: widget.app.navigatorKey,
+          child: ChangeNotifierProvider<ThemeModel>(
+            create: (_) => ThemeModel(),
+            child: Consumer<ThemeModel>(
+              builder: (_, model, __) {
+                return Stack(
+                  alignment: Alignment.topLeft,
+                  children: [
+                    widget.app,
+                    if (context.listen<AppController>().loader.active)
+                      Container(
+                        color: Colors.black87.withOpacity(0.7),
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.orangeAccent,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         );
       },

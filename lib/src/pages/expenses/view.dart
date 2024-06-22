@@ -1,3 +1,4 @@
+import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
@@ -6,6 +7,8 @@ import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:collection/collection.dart';
+import 'package:provider/provider.dart';
 
 class ExpensesView extends ResponsiveViewState {
   ExpensesView() : super(create: () => ExpensesController());
@@ -80,29 +83,45 @@ class _ViewState extends State<View> {
                         topRight: Radius.circular(16),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Stack(
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CircleAvatar(
-                              backgroundColor: isSaved
-                                  ? Colors.green.shade600
-                                  : Colors.red.shade500,
-                              radius: 24.0,
-                              child: Text(
-                                "${expense.user.firstName[0].toUpperCase()}${expense.user.lastName[0].toUpperCase()}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .copyWith(
-                                      color: Colors.white,
-                                    ),
-                              ),
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: isSaved
+                                      ? Colors.green.shade600
+                                      : Colors.red.shade500,
+                                  radius: 24.0,
+                                  child: Text(
+                                    ExpensesController()
+                                        .getUserInitials(expense.user),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall!
+                                        .copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                ),
+                                SizedBox(width: 16),
+                                Text(
+                                  "${expense.user.firstName.toCamelCase()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                        color: isSaved
+                                            ? Colors.green.shade100
+                                            : Colors.red.shade100,
+                                      ),
+                                )
+                              ],
                             ),
-                            SizedBox(width: 16),
                             Text(
-                              "${expense.user.firstName.toCamelCase()}",
+                              "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineMedium!
@@ -114,17 +133,6 @@ class _ViewState extends State<View> {
                             )
                           ],
                         ),
-                        Text(
-                          "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium!
-                              .copyWith(
-                                color: isSaved
-                                    ? Colors.green.shade100
-                                    : Colors.red.shade100,
-                              ),
-                        )
                       ],
                     ),
                   ),
@@ -211,7 +219,8 @@ class _ViewState extends State<View> {
                             Expanded(
                               child: MaterialButton(
                                 color: Colors.orangeAccent,
-                                onPressed: () => saveExpense(notesController.text),
+                                onPressed: () =>
+                                    saveExpense(notesController.text),
                                 child: Center(
                                   child: Text(
                                     "Save",
@@ -307,7 +316,7 @@ class _ViewState extends State<View> {
                         ),
                   ),
                   Text(
-                    "${expenses.totalSaved.toString()}",
+                    "+ ${expenses.totalSaved.toString()}",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                           color: Colors.green.shade800,
                         ),
@@ -324,7 +333,7 @@ class _ViewState extends State<View> {
                         ),
                   ),
                   Text(
-                    "${expenses.totalSpent.toString()}",
+                    "- ${expenses.totalSpent.toString()}",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                           color: Colors.red.shade800,
                         ),
@@ -368,6 +377,8 @@ class _ViewState extends State<View> {
                           color: isSaving ? Colors.green : Colors.red,
                         ),
                   ),
+                  leading:
+                      Icon(isSaving ? Icons.add_rounded : Icons.remove_rounded),
                   tilePadding: EdgeInsets.symmetric(horizontal: 8),
                   controlAffinity: ListTileControlAffinity.leading,
                   children: userExpenses.keys.toList().map((userId) {
@@ -378,16 +389,24 @@ class _ViewState extends State<View> {
                     var userExpenseIds = userExpense.expenses.keys.toList();
                     return ExpansionTile(
                       title: Text(
-                        userId.replaceAll("_", " ").toCamelCase(),
+                        "${userExpense.user.firstName} ${userExpense.user.lastName}"
+                            .toCamelCase(),
                         style:
                             Theme.of(context).textTheme.titleLarge!.copyWith(),
+                      ),
+                      subtitle: Text(
+                        "${userExpenseIds.length} transaction${userExpenseIds.length == 1 ? "" : "s"}",
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                       controlAffinity: ListTileControlAffinity.trailing,
                       leading: CircleAvatar(
                         backgroundColor: Colors.orangeAccent,
                         radius: 18.0,
                         child: Text(
-                          "${userId.split("_")[0][0].toUpperCase()}${userId.split("_")[1][0].toUpperCase()}",
+                          ExpensesController()
+                              .getUserInitials(userExpense.user),
                           style: TextStyle(
                             color: Colors.black,
                           ),
@@ -400,49 +419,63 @@ class _ViewState extends State<View> {
                               color: isSaving ? Colors.green : Colors.red,
                             ),
                       ),
-                      tilePadding: EdgeInsets.all(8).copyWith(left: 16),
-                      children: userExpenseIds.map((expenseId) {
+                      tilePadding: EdgeInsets.all(8).copyWith(left: 8),
+                      children: userExpenseIds.mapIndexed((i, expenseId) {
                         var expense = userExpense.expenses[expenseId]!;
                         if (expense.amount <= 0) return Container();
-                        return ListTile(
-                          onTap: () {
-                            showExpenseDetails(expense);
+                        return Dismissible(
+                          key: Key(expense.id),
+                          onDismissed: (direction) {
                           },
-                          contentPadding: EdgeInsets.only(left: 16, right: 8),
-                          leading: Container(width: 36),
-                          subtitle: Text(
-                            DateFormat().format(expense.date),
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  color: Colors.grey.shade600,
+                          child: ListTile(
+                            onTap: () {
+                              showExpenseDetails(expense);
+                            },
+                            contentPadding: EdgeInsets.only(left: 60, right: 8),
+                            leading: Text(
+                              "${i + 1}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                            ),
+                            subtitle: Text(
+                              DateFormat().format(expense.date),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium!
+                                  .copyWith(
+                                    color: Colors.grey.shade600,
+                                  ),
+                            ),
+                            title: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  (expense.notes ?? "").isNotEmpty
+                                      ? expense.notes
+                                      : expense.category.toCamelCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(),
                                 ),
-                          ),
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                (expense.notes ?? "").isNotEmpty
-                                    ? expense.notes
-                                    : expense.category.toCamelCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(),
-                              ),
-                              Text(
-                                "${isSaving ? "+" : "-"} "
-                                "${expense.amount}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium!
-                                    .copyWith(
-                                      color:
-                                          isSaving ? Colors.green : Colors.red,
-                                    ),
-                              ),
-                            ],
+                                Text(
+                                  "${isSaving ? "+" : "-"} "
+                                  "${expense.amount}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: isSaving
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),

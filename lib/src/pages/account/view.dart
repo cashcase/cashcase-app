@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cashcase/src/pages/account/model.dart';
+import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
@@ -66,7 +67,9 @@ class _ViewState extends State<View> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 8),
+                      Divider(),
+                      SizedBox(height: 8),
                       Container(
                         height: 100,
                         decoration: BoxDecoration(
@@ -152,20 +155,7 @@ class _ViewState extends State<View> {
         });
   }
 
-  List<User> connections = [
-    {
-      "firstName": "Lionel",
-      "lastName": "Messi",
-      "id": "1",
-      "email": "lionel@messi.com"
-    },
-    {
-      "firstName": "Cristiano",
-      "lastName": "Ronaldo",
-      "id": "2",
-      "email": "crisitano@ronaldo.com"
-    }
-  ].map<User>((e) => User.fromJson(e)).toList();
+  List<User> connections = ExpensesController().dummyUsers;
 
   void showDeleteConnection(User user) {
     showModalBottomSheet(
@@ -408,7 +398,7 @@ class _ViewState extends State<View> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              renderProfileCard(),
+              renderProfileCard(ExpensesController().dummyUsers.first),
               SizedBox(height: 8),
               Divider(),
               SizedBox(height: 8),
@@ -534,7 +524,7 @@ class _ViewState extends State<View> {
     );
   }
 
-  Row renderProfileCard() {
+  Row renderProfileCard(User user) {
     return Row(
       children: [
         ClipRRect(
@@ -545,7 +535,7 @@ class _ViewState extends State<View> {
             color: Colors.orangeAccent,
             child: Center(
               child: Text(
-                "AP",
+                ExpensesController().getUserInitials(user),
                 style: Theme.of(context).textTheme.displaySmall!.copyWith(
                       color: Colors.black,
                     ),
@@ -559,19 +549,19 @@ class _ViewState extends State<View> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AutoSizeText(
-                "Abhimanyu",
+                user.firstName,
                 maxLines: 1,
                 minFontSize: 24.0,
                 overflow: TextOverflow.ellipsis,
               ),
               AutoSizeText(
-                "Pandian",
+                user.lastName,
                 maxLines: 1,
                 minFontSize: 24.0,
                 overflow: TextOverflow.ellipsis,
               ),
               AutoSizeText(
-                "abhimanyu.pandian@walmart.com",
+                user.firstName,
                 maxLines: 1,
                 minFontSize: 16.0,
                 style: TextStyle(color: Colors.white54),

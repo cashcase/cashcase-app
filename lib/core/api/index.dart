@@ -38,14 +38,14 @@ class ApiHandler {
   }
 
   static Future<bool> logout() async {
-    AppController.loader.show('Logging out...');
+    // AppController.loader.show('Logging out...');
     try {
       AppController.clearTokens();
     } catch (e) {
       AppController.showBanner(
           AppNotification('Error', e.toString(), NotificationType.error));
     } finally {
-      AppController.loader.hide();
+      // AppController.loader.hide();
     }
     return Db.isLoggedIn();
   }
@@ -80,7 +80,7 @@ class ApiHandler {
   
   static Future<Response<T>?> get<T>(String path,
       {RequestCallbacks? callbacks}) async {
-    AppController.loader.show(callbacks?.message ?? 'Loading...');
+    // AppController.loader.show(callbacks?.message ?? 'Loading...');
     try {
       Response<T> response =
           await _dio.request(path, options: Options(method: 'GET'));
@@ -95,7 +95,7 @@ class ApiHandler {
       }
     } finally {
       if (callbacks?.onDone != null) await callbacks!.onDone!();
-      AppController.loader.hide();
+      // AppController.loader.hide();
     }
     return null;
   }
@@ -122,7 +122,7 @@ class ApiHandler {
       }
     } finally {
       if (callbacks?.onDone != null) await callbacks!.onDone!();
-      AppController.loader.hide();
+      // AppController.loader.hide();
     }
     return null;
   }

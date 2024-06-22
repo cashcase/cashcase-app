@@ -1,22 +1,6 @@
-class ExpensesPageData {}
+import 'package:cashcase/src/pages/account/model.dart';
 
-class ExpenseBy {
-  String firstName;
-  String lastName;
-  String id;
-  ExpenseBy({
-    required this.id,
-    required this.firstName,
-    required this.lastName,
-  });
-  static fromJson(dynamic data) {
-    return ExpenseBy(
-      id: data["id"],
-      firstName: data["firstName"],
-      lastName: data["lastName"],
-    );
-  }
-}
+class ExpensesPageData {}
 
 enum ExpenseType { saved, spent }
 
@@ -56,7 +40,7 @@ class Expense {
   double amount;
   String category;
   DateTime date;
-  ExpenseBy user;
+  User user;
   String id;
   String? notes;
   Expense({
@@ -72,7 +56,7 @@ class Expense {
   static fromJson(dynamic data) {
     return Expense(
       id: idGenerator(),
-      user: ExpenseBy.fromJson(data['user']),
+      user: User.fromJson(data['user']),
       type: data['type'],
       amount: data['amount'],
       category: data['category'],
@@ -134,15 +118,18 @@ class GroupedExpense {
         expense.categoryExpenses[each.category]!.userExpenses[each.user.id] =
             UserExpense(
           amount: 0,
+          user: each.user,
           isSaving: isSaving,
           expenses: {
             each.id: each,
           },
         );
       }
-      if (isSaving) expense.totalSaved += each.amount;
-      else expense.totalSpent += each.amount;
-      
+      if (isSaving)
+        expense.totalSaved += each.amount;
+      else
+        expense.totalSpent += each.amount;
+
       expense.categoryExpenses[each.category]!.amount += each.amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.id]!
           .amount += each.amount;
@@ -176,8 +163,10 @@ class CategoryExpense {
 class UserExpense {
   double amount;
   bool isSaving;
+  User user;
   Map<String, Expense> expenses;
   UserExpense({
+    required this.user,
     required this.isSaving,
     required this.amount,
     required this.expenses,

@@ -28,12 +28,7 @@ dynamic onErrorInterceptor = (Auth auth, Dio dio) =>
     (DioException e, ErrorInterceptorHandler handler) async {
       if (auth.checkTokenExpiry(e.response) == true && Db.isLoggedIn()) {
         auth.refreshToken().then((TokenModel? details) async {
-          if (details != null && AppController().context.mounted) {
-            ScaffoldMessenger.of(AppController().context).showSnackBar(
-              const SnackBar(
-                content: Text("Your session was refreshed."),
-              ),
-            );
+          if (details != null) {
             AppController.setTokens(details.token, details.refreshToken);
             // Rebuilding the request and resolving it after setting tokens.
             Response refreshedResponse = await dio.request(

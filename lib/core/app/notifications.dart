@@ -33,51 +33,51 @@ class NotificationsController {
   }
 
   static showBanner(AppNotification notification, {bool autoDismiss = true}) {
-    BuildContext context = AppController().context;
-    Color color = getNotificationColor(notification.type);
-    ScaffoldMessenger.of(context).clearMaterialBanners();
-    ScaffoldMessenger.of(context).showMaterialBanner(
-      MaterialBanner(
-        padding: const EdgeInsets.all(10),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              notification.title,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Colors.white),
-            ),
-            if (notification.message != null)
-              Text(
-                notification.message!,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodySmall!
-                    .copyWith(color: Colors.white),
-              )
-          ],
-        ),
-        leading:
-            Icon(getNotificationIcon(notification.type), color: Colors.white),
-        backgroundColor: color,
-        actions: <Widget>[
-          GestureDetector(
-            onTap: ScaffoldMessenger.of(context).hideCurrentMaterialBanner,
-            child: const Text(
-              'Dismiss',
-            ),
-          ),
-        ],
-      ),
-    );
-    if (!autoDismiss) return;
-    debouncer = Debouncer(milliseconds: notification.milliseconds).run(() {
-      try {
-        if (debouncer != null) debouncer!.cancel();
-        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-      } finally {}
-    });
+  //   BuildContext context = AppController().context;
+  //   Color color = getNotificationColor(notification.type);
+  //   ScaffoldMessenger.of(context).clearMaterialBanners();
+  //   ScaffoldMessenger.of(context).showMaterialBanner(
+  //     MaterialBanner(
+  //       padding: const EdgeInsets.all(10),
+  //       content: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             notification.title,
+  //             style: Theme.of(context)
+  //                 .textTheme
+  //                 .bodyMedium!
+  //                 .copyWith(color: Colors.white),
+  //           ),
+  //           if (notification.message != null)
+  //             Text(
+  //               notification.message!,
+  //               style: Theme.of(context)
+  //                   .textTheme
+  //                   .bodySmall!
+  //                   .copyWith(color: Colors.white),
+  //             )
+  //         ],
+  //       ),
+  //       leading:
+  //           Icon(getNotificationIcon(notification.type), color: Colors.white),
+  //       backgroundColor: color,
+  //       actions: <Widget>[
+  //         GestureDetector(
+  //           onTap: ScaffoldMessenger.of(context).hideCurrentMaterialBanner,
+  //           child: const Text(
+  //             'Dismiss',
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  //   if (!autoDismiss) return;
+  //   debouncer = Debouncer(milliseconds: notification.milliseconds).run(() {
+  //     try {
+  //       if (debouncer != null) debouncer!.cancel();
+  //       ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+  //     } finally {}
+  //   });
   }
 }

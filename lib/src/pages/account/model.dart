@@ -19,4 +19,13 @@ class User {
       email: data['email'],
     );
   }
+
+  toJson() {
+    return {
+      "id": this.id,
+      "firstName": this.firstName,
+      "lastName": this.lastName,
+      "email": this.email
+    };
+  }
 }
