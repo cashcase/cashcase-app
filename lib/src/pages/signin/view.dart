@@ -1,12 +1,30 @@
+import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/src/pages/signin/controller.dart';
+import 'package:cashcase/src/pages/signin/model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SigninView extends StatefulWidget {
+class SigninView extends BaseWidget {
+  SigninPageData? data;
+  SigninView({
+    super.key,
+    this.data,
+  });
+
   @override
-  State<SigninView> createState() => _SigninViewState();
+  BaseConsumer build(BuildContext context) {
+    return BaseConsumer<SigninController>(builder: (controller, app) {
+      return SigninWidget();
+    });
+  }
 }
 
-class _SigninViewState extends State<SigninView> {
+class SigninWidget extends StatefulWidget {
+  @override
+  State<SigninWidget> createState() => _SigninWidgetState();
+}
+
+class _SigninWidgetState extends State<SigninWidget> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -32,8 +50,7 @@ class _SigninViewState extends State<SigninView> {
                         backgroundColor: Colors.transparent,
                         child: ClipOval(
                           child: Image(
-                            width: 120,
-                              image: AssetImage('assets/logo.png')),
+                              width: 120, image: AssetImage('assets/logo.png')),
                         ),
                       ),
                     ),
@@ -41,7 +58,7 @@ class _SigninViewState extends State<SigninView> {
                       "CashCase",
                       style: GoogleFonts.homemadeApple().copyWith(
                         fontSize: 42,
-                        color: const Color.fromARGB(255, 255, 171, 64),
+                        color: Colors.orangeAccent,
                       ),
                     )
                   ],
@@ -75,7 +92,7 @@ class _SigninViewState extends State<SigninView> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Colors.blue,
+                              color: Colors.blue.shade400,
                             ),
                           ),
                         )
@@ -90,8 +107,8 @@ class _SigninViewState extends State<SigninView> {
                         hintText: 'Username',
                         hintStyle: TextStyle(color: Colors.grey),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.grey, width: 1.0),
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -112,15 +129,15 @@ class _SigninViewState extends State<SigninView> {
                             !showPassword
                                 ? Icons.visibility_rounded
                                 : Icons.visibility_off_rounded,
-                              color: Colors.grey.shade700,
+                            color: Colors.grey.shade700,
                           ),
                         ),
                         border: OutlineInputBorder(),
                         hintText: 'Password',
                         hintStyle: TextStyle(color: Colors.grey),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.grey, width: 1.0),
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
@@ -133,7 +150,11 @@ class _SigninViewState extends State<SigninView> {
                       children: [
                         Expanded(
                           child: MaterialButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              // context
+                              //     .once<SigninController>()
+                              //     .login("messi", "test@123");
+                            },
                             child: Text("Login",
                                 style: TextStyle(
                                   fontSize: 16,

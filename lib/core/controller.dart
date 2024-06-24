@@ -12,57 +12,25 @@ enum ScreenSizeType {
   mobile,
 }
 
-typedef ViewBuilder = Widget Function(BuildContext context);
+abstract class BasePage extends StatefulWidget {
+  @override
+  final Key? key;
+  final RouteObserver? routeObserver;
 
-abstract class ResponsiveViewState<C extends Controller>
-    extends StatelessWidget {
-  C Function() create;
-  ResponsiveViewState({
-    required this.create,
-  });
-
-  Widget get watchView;
-
-  Widget get mobileView;
-
-  Widget get tabletView;
-
-  Widget get desktopView;
-
-  Widget get view {
-    return ScreenTypeLayout.builder(
-      mobile: (_) => mobileView,
-      tablet: (_) => tabletView,
-      desktop: (_) => desktopView,
-      watch: (_) => watchView,
-    );
-  }
-
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<C>(
-      create: (context) => create(),
-      builder: (_, __) {
-        return ControlledView<C>(
-          builder: (controller, app) {
-            return view;
-          },
-        );
-      },
-    );
-  }
+  const BasePage({this.routeObserver, this.key}) : super(key: key);
 }
 
-abstract class ResponsivePageState<Page extends ResponsiveView,
-    C extends Controller> extends PageState<Page, C> {
-  ResponsivePageState(super.controller);
+abstract class BaseView<Page extends BasePage, C extends Controller>
+    extends PageState<Page, C> {
+  BaseView(super.controller);
 
-  AppView get watchView;
+  BaseWidget get watchView;
 
-  AppView get mobileView;
+  BaseWidget get mobileView;
 
-  AppView get tabletView;
+  BaseWidget get tabletView;
 
-  AppView get desktopView;
+  BaseWidget get desktopView;
 
   @override
   @nonVirtual
@@ -76,7 +44,26 @@ abstract class ResponsivePageState<Page extends ResponsiveView,
   }
 }
 
-abstract class PageState<Page extends ResponsiveView, C extends Controller>
+abstract class BaseWidget extends StatelessWidget {
+  const BaseWidget({super.key});
+  @override
+  BaseConsumer build(BuildContext context);
+}
+
+class BaseConsumer<C extends Controller> extends StatelessWidget {
+  final Widget Function(C controller, AppController app) builder;
+  const BaseConsumer({super.key, required this.builder});
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<C>(
+      builder: (context, controller, child) {
+        return builder(controller, context.once<AppController>());
+      },
+    );
+  }
+}
+
+abstract class PageState<Page extends BasePage, C extends Controller>
     extends State<Page> {
   final GlobalKey<State<StatefulWidget>> globalKey =
       GlobalKey<State<StatefulWidget>>();
@@ -129,7 +116,7 @@ abstract class PageState<Page extends ResponsiveView, C extends Controller>
   void deactivate() {
     _logger.info(
         'Deactivating $runtimeType. (This is usually called right before dispose)');
-    _controller.onDeactivated();
+    if (_controller._isMounted) _controller.onDeactivated();
     super.deactivate();
   }
 
@@ -137,7 +124,7 @@ abstract class PageState<Page extends ResponsiveView, C extends Controller>
   @mustCallSuper
   void reassemble() {
     _logger.info('Reassembling $runtimeType.');
-    _controller.onReassembled();
+    if (_controller._isMounted) _controller.onReassembled();
     super.reassemble();
   }
 
@@ -145,43 +132,9 @@ abstract class PageState<Page extends ResponsiveView, C extends Controller>
   @mustCallSuper
   void dispose() {
     _logger.info('Disposing $runtimeType.');
-    _controller.onDisposed();
+    if (_controller._isMounted) _controller.onDisposed();
     super.dispose();
   }
-}
-
-abstract class ResponsiveView extends StatefulWidget {
-  @override
-  final Key? key;
-  final RouteObserver? routeObserver;
-
-  const ResponsiveView({this.routeObserver, this.key}) : super(key: key);
-}
-
-//
-typedef ControlledBuilder<C extends Controller> = Widget Function(
-    C controller, AppController app);
-
-//
-class ControlledView<C extends Controller> extends StatelessWidget {
-  final ControlledBuilder<C> builder;
-
-  const ControlledView({super.key, required this.builder});
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<C>(
-      builder: (context, controller, child) {
-        return builder(controller, Provider.of<AppController>(context));
-      },
-    );
-  }
-}
-
-abstract class AppView extends StatelessWidget {
-  const AppView({super.key});
-  @override
-  ControlledView build(BuildContext context);
 }
 
 extension ContextExtension on BuildContext {

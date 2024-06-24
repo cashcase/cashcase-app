@@ -50,7 +50,12 @@ class AuthHandlers implements Auth {
 void main(List<String> args) {
   start(
     appName: "cashcase",
-    downstreamUri: Uri(),
+    downstreamUri: Uri(
+      scheme: "http",
+      host: "localhost",
+      port: 8888,
+      path: "v0"
+    ),
     auth: AuthHandlers(),
     themeData: themeData,
   );

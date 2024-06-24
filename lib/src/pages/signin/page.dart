@@ -1,20 +1,28 @@
-
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
+import 'package:cashcase/src/pages/signin/model.dart';
 import 'package:cashcase/src/pages/signin/view.dart';
 import 'package:flutter/material.dart';
 
-class SigninPage extends ResponsiveViewState {
-  SigninPage() : super(create: () => SigninController());
+class SigninPage extends BasePage {
+  SigninPageData? data;
+  SigninPage({super.key, this.data});
   @override
-  Widget get desktopView => SigninView();
+  State<StatefulWidget> createState() => _SigninPage();
+}
+
+class _SigninPage extends BaseView<SigninPage, SigninController> {
+  _SigninPage() : super(SigninController());
 
   @override
-  Widget get mobileView => SigninView();
+  BaseWidget get desktopView => SigninView(data: widget.data);
 
   @override
-  Widget get tabletView => SigninView();
+  BaseWidget get mobileView => SigninView(data: widget.data);
 
   @override
-  Widget get watchView => SigninView();
+  BaseWidget get tabletView => SigninView(data: widget.data);
+
+  @override
+  BaseWidget get watchView => SigninView(data: widget.data);
 }

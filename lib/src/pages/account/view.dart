@@ -6,20 +6,21 @@ import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:flutter/services.dart';
 
-class AccountView extends ResponsiveViewState {
-  AccountView() : super(create: () => AccountController());
-  @override
-  Widget get desktopView => View();
+class AccountView extends BaseWidget {
+  AccountPageData? data;
+  AccountView({
+    super.key,
+    this.data,
+  });
 
   @override
-  Widget get mobileView => View();
-
-  @override
-  Widget get tabletView => View();
-
-  @override
-  Widget get watchView => View();
+  BaseConsumer build(BuildContext context) {
+    return BaseConsumer<AccountController>(builder: (controller, app) {
+      return View();
+    });
+  }
 }
+
 
 class View extends StatefulWidget {
   @override

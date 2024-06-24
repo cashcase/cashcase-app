@@ -1,15 +1,14 @@
 import 'package:cashcase/src/components/group-avatar.dart';
-import 'package:cashcase/src/pages/account/view.dart';
+import 'package:cashcase/src/pages/account/page.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
-import 'package:cashcase/src/pages/expenses/view.dart';
+import 'package:cashcase/src/pages/expenses/page.dart';
 import 'package:cashcase/src/pages/home/model.dart';
-import 'package:cashcase/src/pages/reports/view.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:provider/provider.dart';
 
-class HomePageView extends AppView {
+class HomePageView extends BaseWidget {
   HomePageData? data;
   HomePageView({
     super.key,
@@ -17,8 +16,8 @@ class HomePageView extends AppView {
   });
 
   @override
-  ControlledView build(BuildContext context) {
-    return ControlledView<HomePageController>(builder: (controller, app) {
+  BaseConsumer build(BuildContext context) {
+    return BaseConsumer<HomePageController>(builder: (controller, app) {
       return HomePageWidget(data: data);
     });
   }
@@ -61,9 +60,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       builder: (c) => ChangeNotifierProvider<ExpensesController>(
         create: (context) => ExpensesController(),
         builder: (_, __) {
-          return ControlledView<ExpensesController>(
+          return BaseConsumer<ExpensesController>(
             builder: (controller, app) {
-              return ExpensesView();
+              return ExpensesPage();
             },
           );
         },
@@ -72,7 +71,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     HomePageViewModel(
       label: 'Account',
       icon: Icons.account_circle_rounded,
-      builder: (c) => AccountView(),
+      builder: (c) => AccountPage(),
     ),
   ];
 

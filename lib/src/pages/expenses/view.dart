@@ -1,4 +1,3 @@
-import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
@@ -8,21 +7,20 @@ import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
-import 'package:provider/provider.dart';
 
-class ExpensesView extends ResponsiveViewState {
-  ExpensesView() : super(create: () => ExpensesController());
-  @override
-  Widget get desktopView => View();
-
-  @override
-  Widget get mobileView => View();
+class ExpensesView extends BaseWidget {
+  ExpensesPageData? data;
+  ExpensesView({
+    super.key,
+    this.data,
+  });
 
   @override
-  Widget get tabletView => View();
-
-  @override
-  Widget get watchView => View();
+  BaseConsumer build(BuildContext context) {
+    return BaseConsumer<ExpensesController>(builder: (controller, app) {
+      return View();
+    });
+  }
 }
 
 class View extends StatefulWidget {
@@ -425,8 +423,7 @@ class _ViewState extends State<View> {
                         if (expense.amount <= 0) return Container();
                         return Dismissible(
                           key: Key(expense.id),
-                          onDismissed: (direction) {
-                          },
+                          onDismissed: (direction) {},
                           child: ListTile(
                             onTap: () {
                               showExpenseDetails(expense);

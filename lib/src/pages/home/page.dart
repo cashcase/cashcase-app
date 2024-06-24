@@ -4,25 +4,25 @@ import 'package:cashcase/src/pages/home/model.dart';
 import 'package:cashcase/src/pages/home/view.dart';
 import 'package:flutter/material.dart';
 
-class HomePage extends ResponsiveView {
+class HomePage extends BasePage {
   HomePageData? data;
   HomePage({super.key, this.data});
   @override
-  State<StatefulWidget> createState() => PageState();
+  State<StatefulWidget> createState() => _HomePage();
 }
 
-class PageState extends ResponsivePageState<HomePage, HomePageController> {
-  PageState() : super(HomePageController());
+class _HomePage extends BaseView<HomePage, HomePageController> {
+  _HomePage() : super(HomePageController());
 
   @override
-  AppView get desktopView => HomePageView(data: widget.data);
+  BaseWidget get desktopView => HomePageView(data: widget.data);
 
   @override
-  AppView get mobileView => HomePageView(data: widget.data);
+  BaseWidget get mobileView => HomePageView(data: widget.data);
 
   @override
-  AppView get tabletView => HomePageView(data: widget.data);
+  BaseWidget get tabletView => HomePageView(data: widget.data);
 
   @override
-  AppView get watchView => HomePageView(data: widget.data);
+  BaseWidget get watchView => HomePageView(data: widget.data);
 }
