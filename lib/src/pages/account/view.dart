@@ -155,7 +155,7 @@ class _ViewState extends State<View> {
         });
   }
 
-  List<User> connections = ExpensesController().dummyUsers;
+  List<User> connections = ExpensesController().dummyUsers.sublist(1, 3);
 
   void showDeleteConnection(User user) {
     showModalBottomSheet(

@@ -105,7 +105,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               GroupAvatar(
                 users: ExpensesController()
-                    .dummyUsers
+                    .dummyUsers.sublist(0, 2)
                     .map((e) => ExpensesController().getUserInitials(e))
                     .toList(),
               )
