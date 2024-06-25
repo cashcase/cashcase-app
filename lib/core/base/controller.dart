@@ -48,10 +48,12 @@ abstract class BaseController
   }
 
   @protected
-  void refreshUI() {
-    if (_isMounted) {
-      notifyListeners();
-    }
+  void notify() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_isMounted) {
+        notifyListeners();
+      }
+    });
   }
 
   @mustCallSuper

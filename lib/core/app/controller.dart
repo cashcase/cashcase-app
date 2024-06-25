@@ -45,12 +45,6 @@ class AppController extends BaseController {
     return Db.token.isEmpty && Db.refreshToken.isEmpty;
   }
 
-  static refresh() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      AppController().refreshUI();
-    });
-  }
-
   @override
   void initListeners() {}
 }

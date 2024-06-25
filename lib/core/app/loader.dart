@@ -1,6 +1,6 @@
-import 'package:cashcase/core/app/controller.dart';
+import 'package:cashcase/core/base/controller.dart';
 
-class LoaderController {
+class LoaderController extends BaseController {
   static final LoaderController _singleton = LoaderController._internal();
   factory LoaderController() => _singleton;
   LoaderController._internal();
@@ -11,11 +11,14 @@ class LoaderController {
 
   show([String message = 'Loading...']) {
     _loading = message;
-    AppController.refresh();
+    notify();
   }
 
   hide() {
     _loading = null;
-    AppController.refresh();
+    notify();
   }
+
+  @override
+  void initListeners() {}
 }
