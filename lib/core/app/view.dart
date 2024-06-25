@@ -12,8 +12,10 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 
 Logger logger = Logger('App');
 
-class BaseApp extends StatefulWidget {
+class BaseApp extends StatelessWidget {
   late final GoRouter router;
+  late final MaterialApp app;
+  late final StreamSubscription<InternetStatus>? listener;
 
   BaseApp({
     super.key,
@@ -36,28 +38,13 @@ class BaseApp extends StatefulWidget {
     );
   }
 
-  late final MaterialApp app;
-
-  @override
-  State<BaseApp> createState() => _BaseAppState();
-}
-
-class _BaseAppState extends State<BaseApp> {
-  late final StreamSubscription<InternetStatus>? listener;
-
-  @override
-  void dispose() {
-    if (listener != null) listener!.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AppController>(
       create: (_) => AppController(),
       builder: (context, child) {
         return UpgradeAlert(
-          navigatorKey: widget.app.navigatorKey,
+          navigatorKey: app.navigatorKey,
           child: ChangeNotifierProvider<ThemeModel>(
             create: (_) => ThemeModel(),
             child: Consumer<ThemeModel>(
@@ -65,7 +52,7 @@ class _BaseAppState extends State<BaseApp> {
                 return Stack(
                   alignment: Alignment.topLeft,
                   children: [
-                    widget.app,
+                    app,
                     if (context.listen<AppController>().loader.active)
                       Container(
                         color: Colors.black87.withOpacity(0.7),
