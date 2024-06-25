@@ -43,15 +43,6 @@ abstract class BaseView<Page extends BasePage, C extends BaseController>
 }
 
 /**
- * Step 3: Create Widget that extends BaseWidget
- */
-abstract class BaseWidget extends StatelessWidget {
-  const BaseWidget({super.key});
-  @override
-  BaseConsumer build(BuildContext context);
-}
-
-/**
  * NOT USED DIRECTLY IN CODE
  */
 class BaseConsumer<C extends BaseController> extends StatelessWidget {

@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 /**
- * Step 4: Create Controller for Page that extends Controller
+ * Step 3: Create Controller for Page that extends Controller
  */
 abstract class BaseController
     with WidgetsBindingObserver, RouteAware, ChangeNotifier {
