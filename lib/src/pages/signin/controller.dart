@@ -1,10 +1,10 @@
+import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:dio/dio.dart';
 import 'package:cashcase/core/api/index.dart';
-import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/signin/model.dart';
 
-class SigninController extends Controller {
+class SigninController extends BaseController {
   @override
   void initListeners() {}
 

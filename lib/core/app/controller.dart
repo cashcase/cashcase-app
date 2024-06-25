@@ -1,11 +1,11 @@
 import 'package:cashcase/core/api/index.dart';
 import 'package:cashcase/core/app/loader.dart';
-import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class AppController extends Controller {
+class AppController extends BaseController {
   static bool ready = false;
   static late final GoRouter router;
 

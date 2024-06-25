@@ -23,7 +23,7 @@ start({
     (ready) {
       if (ready) {
         runApp(
-          BaseView(
+          BaseApp(
             router: router,
             themeData: themeData,
           ),

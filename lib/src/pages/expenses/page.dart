@@ -1,4 +1,5 @@
-import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/core/base/page.dart';
+import 'package:cashcase/core/base/view.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:cashcase/src/pages/expenses/view.dart';

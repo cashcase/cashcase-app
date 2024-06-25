@@ -1,13 +1,12 @@
 import 'dart:math';
-
-import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 
 int btwn(Random source, int start, int end) =>
     source.nextInt(start) * (end - start) + start;
 
-class ExpensesController extends Controller {
+class ExpensesController extends BaseController {
   @override
   void initListeners() {}
 

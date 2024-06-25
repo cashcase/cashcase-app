@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/app/theme.dart';
-import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -13,10 +12,10 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 
 Logger logger = Logger('App');
 
-class BaseView extends StatefulWidget {
+class BaseApp extends StatefulWidget {
   late final GoRouter router;
 
-  BaseView({
+  BaseApp({
     super.key,
     required this.router,
     required ThemeData themeData,
@@ -40,10 +39,10 @@ class BaseView extends StatefulWidget {
   late final MaterialApp app;
 
   @override
-  State<BaseView> createState() => _BaseViewState();
+  State<BaseApp> createState() => _BaseAppState();
 }
 
-class _BaseViewState extends State<BaseView> {
+class _BaseAppState extends State<BaseApp> {
   late final StreamSubscription<InternetStatus>? listener;
 
   @override

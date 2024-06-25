@@ -1,8 +1,5 @@
 import 'package:cashcase/core/app/controller.dart';
-import 'package:cashcase/core/app/view.dart';
-import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/routes.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

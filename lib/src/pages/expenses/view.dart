@@ -2,7 +2,6 @@ import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:flutter/material.dart';
-import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';

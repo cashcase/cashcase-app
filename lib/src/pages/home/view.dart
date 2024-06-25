@@ -4,8 +4,6 @@ import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
-import 'package:cashcase/core/controller.dart';
-import 'package:provider/provider.dart';
 
 class HomePageView extends StatefulWidget {
   HomePageData? data;

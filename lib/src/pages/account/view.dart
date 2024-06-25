@@ -1,8 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:cashcase/core/app/controller.dart';
-import 'package:cashcase/core/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/routes.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
