@@ -17,7 +17,7 @@ PrettyDioLogger logger = PrettyDioLogger(
 
 dynamic onRequestInterceptor = (Auth auth) =>
     (RequestOptions options, RequestInterceptorHandler handler) async {
-      if (auth.isAuth(options.path) == false) {
+      if (auth.isAuthPath(options.path) == false) {
         options.headers.addAll({'Authorization': 'Bearer ${Db.token}'});
       }
       return handler.next(options);

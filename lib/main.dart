@@ -18,18 +18,13 @@ class AuthHandlers implements Auth {
   }
 
   @override
-  bool? isAuth(String path) {
+  bool? isAuthPath(String path) {
     return path == "/auth/refreshtoken" ||
         path == "/auth/login" ||
         path == "/auth/forgotpassword" ||
         path == "/auth/resetpassword";
   }
-
-  @override
-  Future<TokenModel?> login() {
-    throw UnimplementedError();
-  }
-
+  
   @override
   Future<TokenModel?> refreshToken() async {
     try {
