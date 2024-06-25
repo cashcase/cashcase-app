@@ -1,7 +1,7 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 extension StringConverters on String {
   toCamelCase() {
@@ -80,5 +80,30 @@ extension ColorsExt on Color {
     };
 
     return MaterialColor(value, shades);
+  }
+}
+
+extension ContextExtension on BuildContext {
+  T once<T>() {
+    return Provider.of<T>(this, listen: false);
+  }
+
+  T listen<T>() {
+    return Provider.of<T>(this, listen: true);
+  }
+
+  void clearAndReplace(String path, {Object? extra}) {
+    while (GoRouter.of(this).canPop() == true) {
+      GoRouter.of(this).pop();
+    }
+    GoRouter.of(this).pushReplacement(path, extra: extra);
+  }
+
+  void attemptPop() {
+    if (canPop()) pop();
+  }
+
+  void push(String location) {
+    GoRouter.of(this).push(location);
   }
 }

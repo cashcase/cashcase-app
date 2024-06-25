@@ -1,5 +1,5 @@
 import 'package:cashcase/core/app/controller.dart';
-import 'package:go_router/go_router.dart';
+import 'package:cashcase/core/utils/extensions.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
@@ -12,6 +12,9 @@ enum ScreenSizeType {
   mobile,
 }
 
+/**
+ * Step 1: Create Page that extends BasePage
+ */
 abstract class BasePage extends StatefulWidget {
   @override
   final Key? key;
@@ -20,6 +23,9 @@ abstract class BasePage extends StatefulWidget {
   const BasePage({this.routeObserver, this.key}) : super(key: key);
 }
 
+/**
+ * Step 2: Create View that extends BaseView
+ */
 abstract class BaseView<Page extends BasePage, C extends Controller>
     extends PageState<Page, C> {
   BaseView(super.controller);
@@ -46,129 +52,26 @@ abstract class BaseView<Page extends BasePage, C extends Controller>
   }
 }
 
+/**
+ * Step 3: Create Widget that extends BaseWidget
+ */
 abstract class BaseWidget extends StatelessWidget {
   const BaseWidget({super.key});
   @override
   BaseConsumer build(BuildContext context);
 }
 
-class BaseConsumer<C extends Controller> extends StatelessWidget {
-  final Widget Function(C controller, AppController app) builder;
-  const BaseConsumer({super.key, required this.builder});
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<C>(
-      builder: (context, controller, child) {
-        return builder(controller, context.once<AppController>());
-      },
-    );
-  }
-}
-
-abstract class PageState<Page extends BasePage, C extends Controller>
-    extends State<Page> {
-  final GlobalKey<State<StatefulWidget>> globalKey =
-      GlobalKey<State<StatefulWidget>>();
-  final C _controller;
-  late Logger _logger;
-  late ViewBuilder builder;
-
-  Widget get view;
-
-  PageState(this._controller) {
-    _controller.initController(globalKey);
-    WidgetsBinding.instance.addObserver(_controller);
-    _logger = Logger('$runtimeType');
-  }
-
-  @override
-  @mustCallSuper
-  void didChangeDependencies() {
-    if (widget.routeObserver != null) {
-      _logger.info('$runtimeType is observing route events.');
-      widget.routeObserver!.subscribe(_controller, ModalRoute.of(context)!);
-    }
-
-    _logger.info('didChangeDependencies triggered on $runtimeType');
-    _controller.onDidChangeDependencies();
-    super.didChangeDependencies();
-  }
-
-  @override
-  @nonVirtual
-  void initState() {
-    _logger.info('Initializing state of $runtimeType');
-    _controller.onInitState();
-    super.initState();
-  }
-
-  @override
-  @nonVirtual
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<C>(
-      create: (_) => _controller,
-      builder: (_, __) {
-        return view;
-      },
-    );
-  }
-
-  @override
-  @mustCallSuper
-  void deactivate() {
-    _logger.info(
-        'Deactivating $runtimeType. (This is usually called right before dispose)');
-    if (_controller._isMounted) _controller.onDeactivated();
-    super.deactivate();
-  }
-
-  @override
-  @mustCallSuper
-  void reassemble() {
-    _logger.info('Reassembling $runtimeType.');
-    if (_controller._isMounted) _controller.onReassembled();
-    super.reassemble();
-  }
-
-  @override
-  @mustCallSuper
-  void dispose() {
-    _logger.info('Disposing $runtimeType.');
-    if (_controller._isMounted) _controller.onDisposed();
-    super.dispose();
-  }
-}
-
-extension ContextExtension on BuildContext {
-  T once<T>() {
-    return Provider.of<T>(this, listen: false);
-  }
-
-  T listen<T>() {
-    return Provider.of<T>(this, listen: true);
-  }
-
-  void clearAndReplace(String path, {Object? extra}) {
-    while (GoRouter.of(this).canPop() == true) {
-      GoRouter.of(this).pop();
-    }
-    GoRouter.of(this).pushReplacement(path, extra: extra);
-  }
-
-  void attemptPop() {
-    if (canPop()) pop();
-  }
-
-  void push(String location) {
-    GoRouter.of(this).push(location);
-  }
-}
-
+/**
+ * Step 4: Create Controller for Page that extends Controller
+ */
 abstract class Controller
     with WidgetsBindingObserver, RouteAware, ChangeNotifier {
   late bool _isMounted;
   late Logger logger;
   late GlobalKey<State<StatefulWidget>> _globalKey;
+
+  BuildContext get context =>
+      AppController.router.routerDelegate.navigatorKey.currentContext!;
 
   // ignore: invalid_annotation_target
   @mustCallSuper
@@ -285,4 +188,97 @@ abstract class Controller
 
   @visibleForOverriding
   void onInitState() {}
+}
+
+/**
+ * NOT USED DIRECTLY IN CODE
+ */
+class BaseConsumer<C extends Controller> extends StatelessWidget {
+  final Widget Function(C controller, AppController app) builder;
+  const BaseConsumer({super.key, required this.builder});
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<C>(
+      builder: (context, controller, child) {
+        return builder(controller, context.once<AppController>());
+      },
+    );
+  }
+}
+
+/**
+ * NOT USED DIRECTLY IN CODE
+ */
+abstract class PageState<Page extends BasePage, C extends Controller>
+    extends State<Page> {
+  final GlobalKey<State<StatefulWidget>> globalKey =
+      GlobalKey<State<StatefulWidget>>();
+  final C _controller;
+  late Logger _logger;
+  late ViewBuilder builder;
+
+  Widget get view;
+
+  PageState(this._controller) {
+    _controller.initController(globalKey);
+    WidgetsBinding.instance.addObserver(_controller);
+    _logger = Logger('$runtimeType');
+  }
+
+  @override
+  @mustCallSuper
+  void didChangeDependencies() {
+    if (widget.routeObserver != null) {
+      _logger.info('$runtimeType is observing route events.');
+      widget.routeObserver!.subscribe(_controller, ModalRoute.of(context)!);
+    }
+
+    _logger.info('didChangeDependencies triggered on $runtimeType');
+    _controller.onDidChangeDependencies();
+    super.didChangeDependencies();
+  }
+
+  @override
+  @nonVirtual
+  void initState() {
+    _logger.info('Initializing state of $runtimeType');
+    _controller.onInitState();
+    super.initState();
+  }
+
+  @override
+  @nonVirtual
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<C>(
+      create: (_) => _controller,
+      builder: (_, __) {
+        return view;
+      },
+    );
+  }
+
+  @override
+  @mustCallSuper
+  void deactivate() {
+    _logger.info(
+        'Deactivating $runtimeType. (This is usually called right before dispose)');
+    if (_controller._isMounted) _controller.onDeactivated();
+    super.deactivate();
+  }
+
+  @override
+  @mustCallSuper
+  void reassemble() {
+    _logger.info('Reassembling $runtimeType.');
+    if (_controller._isMounted) _controller.onReassembled();
+    super.reassemble();
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    _logger.info('Disposing $runtimeType.');
+    if (_controller._isMounted) _controller.onDisposed();
+    super.dispose();
+  }
 }

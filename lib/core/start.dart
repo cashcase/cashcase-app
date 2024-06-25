@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 
 start({
   AssetImage? appLogo,
-  required String appName,
   required Uri downstreamUri,
   required Auth auth,
   required ThemeData themeData,
@@ -17,17 +16,14 @@ start({
   WidgetsFlutterBinding.ensureInitialized();
   if (kDebugMode) HttpOverrides.global = DebugCertificate();
   AppController.init(
-    downstreamUri: downstreamUri,
-    appName: appName,
     auth: auth,
-    appLogo: appLogo,
     router: router,
+    downstreamUri: downstreamUri,
   ).then(
     (ready) {
       if (ready) {
         runApp(
           BaseView(
-            title: appName,
             router: router,
             themeData: themeData,
           ),

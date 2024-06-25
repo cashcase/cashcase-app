@@ -49,7 +49,6 @@ class AuthHandlers implements Auth {
 
 void main(List<String> args) {
   start(
-    appName: "cashcase",
     downstreamUri: Uri(
       scheme: "http",
       host: "localhost",

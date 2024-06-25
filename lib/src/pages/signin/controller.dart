@@ -10,13 +10,13 @@ class SigninController extends Controller {
 
   SigninController({SigninPageData? data});
 
-  Future<ResponseModel<TokenDetails>> login(
+  Future<ResponseModel<TokenModel>> login(
       String username, String password) async {
     Response? response = await ApiHandler.post(
         "/auth/login", {"username": username, "password": password});
-    return ResponseModel.build<TokenDetails>(
+    return ResponseModel.build<TokenModel>(
       response,
-      (data) => TokenDetails.fromJson(data),
+      (data) => TokenModel.fromJson(data),
     );
   }
 }

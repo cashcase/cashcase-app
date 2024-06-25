@@ -1,5 +1,4 @@
 import 'package:cashcase/core/api/index.dart';
-import 'package:flutter/material.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:cashcase/core/app/controller.dart';

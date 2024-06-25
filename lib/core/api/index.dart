@@ -116,7 +116,6 @@ class ApiHandler {
       if (callbacks?.onSuccess != null) await callbacks!.onSuccess!();
       return response;
     } catch (e) {
-      print(e);
       if (callbacks?.onError != null)
         await callbacks!.onError!();
       else

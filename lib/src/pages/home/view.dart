@@ -41,16 +41,7 @@ class _HomePageWidgetState extends State<HomePageView> {
     HomePageViewModel(
       label: 'Expenses',
       icon: Icons.book,
-      builder: (c) => ChangeNotifierProvider<ExpensesController>(
-        create: (context) => ExpensesController(),
-        builder: (_, __) {
-          return BaseConsumer<ExpensesController>(
-            builder: (controller, app) {
-              return ExpensesPage();
-            },
-          );
-        },
-      ),
+      builder: (c) => ExpensesPage(),
     ),
     HomePageViewModel(
       label: 'Account',
@@ -88,7 +79,8 @@ class _HomePageWidgetState extends State<HomePageView> {
               ),
               GroupAvatar(
                 users: ExpensesController()
-                    .dummyUsers.sublist(0, 1)
+                    .dummyUsers
+                    .sublist(0, 1)
                     .map((e) => ExpensesController().getUserInitials(e))
                     .toList(),
               )

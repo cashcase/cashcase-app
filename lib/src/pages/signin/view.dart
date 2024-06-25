@@ -1,6 +1,7 @@
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/app/view.dart';
 import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/routes.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
 import 'package:flutter/material.dart';
@@ -165,6 +166,7 @@ class _SigninViewState extends State<SigninView> {
                                 setState(() => {});
                                 if (usernameError == null &&
                                     passwordError == null) {
+                                  context.once<AppController>().loader.show();
                                   context
                                       .once<SigninController>()
                                       .login(
@@ -172,14 +174,16 @@ class _SigninViewState extends State<SigninView> {
                                         passwordController.text,
                                       )
                                       .then((e) {
+                                    context.once<AppController>().loader.hide();
                                     if (e.status) {
                                       AppController.setTokens(
                                         e.data!.token,
                                         e.data!.refreshToken,
                                       );
-                                      context.push("/");
+                                      context.clearAndReplace("/");
                                     }
                                   }).catchError((e) {
+                                    context.once<AppController>().loader.hide();
                                     usernameError =
                                         'Please enter a valid username.';
                                     passwordError =

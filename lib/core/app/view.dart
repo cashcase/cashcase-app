@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/app/theme.dart';
 import 'package:cashcase/core/controller.dart';
+import 'package:cashcase/core/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -13,14 +14,13 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 Logger logger = Logger('App');
 
 class BaseView extends StatefulWidget {
-  late final String title;
   late final GoRouter router;
 
-  BaseView(
-      {super.key,
-      required this.title,
-      required this.router,
-      required ThemeData themeData}) {
+  BaseView({
+    super.key,
+    required this.router,
+    required ThemeData themeData,
+  }) {
     app = MaterialApp.router(
       themeMode: ThemeMode.dark,
       darkTheme: themeData,
@@ -32,7 +32,6 @@ class BaseView extends StatefulWidget {
           PointerDeviceKind.unknown
         },
       ),
-      title: title,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

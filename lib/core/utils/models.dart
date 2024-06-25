@@ -17,11 +17,17 @@ class TokenModel {
   TokenModel({required this.token, required this.refreshToken});
 
   toJson() {
-    return {"token": token, "refreshToken": refreshToken};
+    return {
+      "token": token,
+      "refreshToken": refreshToken,
+    };
   }
 
   static fromJson(dynamic data) {
-    return TokenModel(token: data['token'], refreshToken: data['refreshToken']);
+    return TokenModel(
+      token: data['token'],
+      refreshToken: data['refreshToken'],
+    );
   }
 }
 
