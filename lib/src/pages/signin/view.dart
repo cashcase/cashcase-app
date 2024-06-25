@@ -1,30 +1,12 @@
-import 'package:cashcase/core/controller.dart';
-import 'package:cashcase/src/pages/signin/controller.dart';
-import 'package:cashcase/src/pages/signin/model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SigninView extends BaseWidget {
-  SigninPageData? data;
-  SigninView({
-    super.key,
-    this.data,
-  });
-
+class SigninView extends StatefulWidget {
   @override
-  BaseConsumer build(BuildContext context) {
-    return BaseConsumer<SigninController>(builder: (controller, app) {
-      return SigninWidget();
-    });
-  }
+  State<SigninView> createState() => _SigninViewState();
 }
 
-class SigninWidget extends StatefulWidget {
-  @override
-  State<SigninWidget> createState() => _SigninWidgetState();
-}
-
-class _SigninWidgetState extends State<SigninWidget> {
+class _SigninViewState extends State<SigninView> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 

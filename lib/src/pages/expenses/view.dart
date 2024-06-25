@@ -8,27 +8,12 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 
-class ExpensesView extends BaseWidget {
-  ExpensesPageData? data;
-  ExpensesView({
-    super.key,
-    this.data,
-  });
-
+class ExpensesView extends StatefulWidget {
   @override
-  BaseConsumer build(BuildContext context) {
-    return BaseConsumer<ExpensesController>(builder: (controller, app) {
-      return View();
-    });
-  }
+  State<ExpensesView> createState() => _ViewState();
 }
 
-class View extends StatefulWidget {
-  @override
-  State<View> createState() => _ViewState();
-}
-
-class _ViewState extends State<View> {
+class _ViewState extends State<ExpensesView> {
   late Future<List<Expense>?> _future;
 
   bool isSaving = false;

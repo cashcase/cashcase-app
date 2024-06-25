@@ -15,14 +15,14 @@ class _ReportsPage extends BaseView<ReportsPage, ReportsController> {
   _ReportsPage() : super(ReportsController());
 
   @override
-  BaseWidget get desktopView => ReportsView(data: widget.data);
+  Widget get desktopView => ReportsView();
 
   @override
-  BaseWidget get mobileView => ReportsView(data: widget.data);
+  Widget get mobileView => ReportsView();
 
   @override
-  BaseWidget get tabletView => ReportsView(data: widget.data);
+  Widget get tabletView => ReportsView();
 
   @override
-  BaseWidget get watchView => ReportsView(data: widget.data);
+  Widget get watchView => ReportsView();
 }

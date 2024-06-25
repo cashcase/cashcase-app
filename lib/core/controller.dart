@@ -24,23 +24,25 @@ abstract class BaseView<Page extends BasePage, C extends Controller>
     extends PageState<Page, C> {
   BaseView(super.controller);
 
-  BaseWidget get watchView;
+  Widget get watchView;
 
-  BaseWidget get mobileView;
+  Widget get mobileView;
 
-  BaseWidget get tabletView;
+  Widget get tabletView;
 
-  BaseWidget get desktopView;
+  Widget get desktopView;
 
   @override
   @nonVirtual
   Widget get view {
-    return ScreenTypeLayout.builder(
-      mobile: (_) => mobileView,
-      tablet: (_) => tabletView,
-      desktop: (_) => desktopView,
-      watch: (_) => watchView,
-    );
+    return BaseConsumer<C>(builder: (controller, app) {
+      return ScreenTypeLayout.builder(
+        mobile: (_) => mobileView,
+        tablet: (_) => tabletView,
+        desktop: (_) => desktopView,
+        watch: (_) => watchView,
+      );
+    });
   }
 }
 

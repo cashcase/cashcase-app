@@ -15,14 +15,14 @@ class _SigninPage extends BaseView<SigninPage, SigninController> {
   _SigninPage() : super(SigninController());
 
   @override
-  BaseWidget get desktopView => SigninView(data: widget.data);
+  Widget get desktopView => SigninView();
 
   @override
-  BaseWidget get mobileView => SigninView(data: widget.data);
+  Widget get mobileView => SigninView();
 
   @override
-  BaseWidget get tabletView => SigninView(data: widget.data);
+  Widget get tabletView => SigninView();
 
   @override
-  BaseWidget get watchView => SigninView(data: widget.data);
+  Widget get watchView => SigninView();
 }

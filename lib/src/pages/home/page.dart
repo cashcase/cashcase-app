@@ -15,14 +15,14 @@ class _HomePage extends BaseView<HomePage, HomePageController> {
   _HomePage() : super(HomePageController());
 
   @override
-  BaseWidget get desktopView => HomePageView(data: widget.data);
+  Widget get desktopView => HomePageView();
 
   @override
-  BaseWidget get mobileView => HomePageView(data: widget.data);
+  Widget get mobileView => HomePageView();
 
   @override
-  BaseWidget get tabletView => HomePageView(data: widget.data);
+  Widget get tabletView => HomePageView();
 
   @override
-  BaseWidget get watchView => HomePageView(data: widget.data);
+  Widget get watchView => HomePageView();
 }

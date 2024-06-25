@@ -5,36 +5,20 @@ import 'package:cashcase/src/pages/expenses/page.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/core/controller.dart';
-import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:provider/provider.dart';
 
-class HomePageView extends BaseWidget {
+class HomePageView extends StatefulWidget {
   HomePageData? data;
   HomePageView({
-    super.key,
-    this.data,
-  });
-
-  @override
-  BaseConsumer build(BuildContext context) {
-    return BaseConsumer<HomePageController>(builder: (controller, app) {
-      return HomePageWidget(data: data);
-    });
-  }
-}
-
-class HomePageWidget extends StatefulWidget {
-  HomePageData? data;
-  HomePageWidget({
     Key? key,
     this.data,
   }) : super(key: key);
 
   @override
-  State<HomePageWidget> createState() => _HomePageWidgetState();
+  State<HomePageView> createState() => _HomePageWidgetState();
 }
 
-class _HomePageWidgetState extends State<HomePageWidget> {
+class _HomePageWidgetState extends State<HomePageView> {
   late int _selectedIndex;
   late final PageController pageController;
   final TextEditingController titleController = TextEditingController();
@@ -104,7 +88,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
               GroupAvatar(
                 users: ExpensesController()
-                    .dummyUsers.sublist(0, 2)
+                    .dummyUsers.sublist(0, 1)
                     .map((e) => ExpensesController().getUserInitials(e))
                     .toList(),
               )

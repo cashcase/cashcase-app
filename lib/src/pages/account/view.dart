@@ -2,32 +2,19 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/material.dart';
-import 'package:cashcase/core/controller.dart';
-import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:flutter/services.dart';
 
-class AccountView extends BaseWidget {
+class AccountView extends StatefulWidget {
   AccountPageData? data;
   AccountView({
     super.key,
     this.data,
   });
-
   @override
-  BaseConsumer build(BuildContext context) {
-    return BaseConsumer<AccountController>(builder: (controller, app) {
-      return View();
-    });
-  }
+  State<AccountView> createState() => _ViewState();
 }
 
-
-class View extends StatefulWidget {
-  @override
-  State<View> createState() => _ViewState();
-}
-
-class _ViewState extends State<View> {
+class _ViewState extends State<AccountView> {
   String encryptionKey = "quick brown fox walked in the rain";
 
   void showEncryptionKey() {

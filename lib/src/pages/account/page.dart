@@ -7,22 +7,23 @@ import 'package:flutter/material.dart';
 class AccountPage extends BasePage {
   AccountPageData? data;
   AccountPage({super.key, this.data});
+  
   @override
-  State<StatefulWidget> createState() => _AccountPage();
+  BaseView<AccountPage, AccountController> createState() => _AccountPage();
 }
 
 class _AccountPage extends BaseView<AccountPage, AccountController> {
   _AccountPage() : super(AccountController());
 
   @override
-  BaseWidget get desktopView => AccountView(data: widget.data);
+  Widget get desktopView => AccountView(data: widget.data);
 
   @override
-  BaseWidget get mobileView => AccountView(data: widget.data);
+  Widget get mobileView => AccountView(data: widget.data);
 
   @override
-  BaseWidget get tabletView => AccountView(data: widget.data);
+  Widget get tabletView => AccountView(data: widget.data);
 
   @override
-  BaseWidget get watchView => AccountView(data: widget.data);
+  Widget get watchView => AccountView(data: widget.data);
 }
