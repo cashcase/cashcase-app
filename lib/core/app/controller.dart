@@ -21,7 +21,6 @@ class AppController extends Controller {
     required Uri downstreamUri,
     required String appName,
     required GoRouter router,
-    required ThemeData themeData,
     required Auth auth,
   }) async {
     if (ready == true) return ready;
@@ -37,8 +36,6 @@ class AppController extends Controller {
     return ready;
   }
 
-  static const showBanner = NotificationsController.showBanner;
-
   final LoaderController loader = LoaderController();
 
   static hasTokens() {
@@ -53,6 +50,7 @@ class AppController extends Controller {
   static clearTokens() {
     Db.token = '';
     Db.refreshToken = '';
+    return Db.token.isEmpty && Db.refreshToken.isEmpty;
   }
 
   static refresh() {

@@ -42,16 +42,14 @@ class ApiHandler {
     try {
       AppController.clearTokens();
     } catch (e) {
-      AppController.showBanner(
-          AppNotification('Error', e.toString(), NotificationType.error));
-    } finally {
-      // AppController.loader.hide();
-    }
+      log.severe(e);
+    } finally {}
     return Db.isLoggedIn();
   }
 
   static Dio create(Uri uri) {
     final options = BaseOptions(
+      receiveDataWhenStatusError: true,
       baseUrl: uri.toString(),
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
@@ -63,6 +61,7 @@ class ApiHandler {
       retries: retries.length,
       retryDelays: retries.map<Duration>((e) => Duration(seconds: e)).toList(),
     ));
+
     return dio;
   }
 
@@ -77,7 +76,7 @@ class ApiHandler {
     // TODO: Do a downstream reachabiliy check here.
     return true;
   }
-  
+
   static Future<Response<T>?> get<T>(String path,
       {RequestCallbacks? callbacks}) async {
     // AppController.loader.show(callbacks?.message ?? 'Loading...');
@@ -90,8 +89,7 @@ class ApiHandler {
       if (callbacks?.onError != null) {
         await callbacks!.onError!();
       } else {
-        AppController.showBanner(
-            AppNotification('Error', e.toString(), NotificationType.error));
+        log.severe(e);
       }
     } finally {
       if (callbacks?.onDone != null) await callbacks!.onDone!();
@@ -109,25 +107,27 @@ class ApiHandler {
       Response<T> response = await _dio.request(
         path,
         data: data,
-        options: Options(method: method, headers: headers),
+        options: Options(
+          method: method,
+          headers: headers,
+          validateStatus: (_) => true,
+        ),
       );
       if (callbacks?.onSuccess != null) await callbacks!.onSuccess!();
       return response;
     } catch (e) {
-      if (callbacks?.onError != null) {
+      print(e);
+      if (callbacks?.onError != null)
         await callbacks!.onError!();
-      } else {
-        AppController.showBanner(
-            AppNotification('Error', e.toString(), NotificationType.error));
-      }
+      else
+        log.severe(e);
     } finally {
       if (callbacks?.onDone != null) await callbacks!.onDone!();
-      // AppController.loader.hide();
     }
     return null;
   }
 
-  static Future<Response<dynamic>?> post<T>(String path, dynamic data,
+  static Future<Response<T>?> post<T>(String path, dynamic data,
       {RequestCallbacks? callbacks,
       Map<String, String> headers = const {
         'Content-Type': 'application/json'
@@ -136,7 +136,7 @@ class ApiHandler {
         headers: headers, callbacks: callbacks);
   }
 
-  static Future<Response<dynamic>?> patch<T>(String path, dynamic data,
+  static Future<Response<T>?> patch<T>(String path, dynamic data,
       {RequestCallbacks? callbacks,
       Map<String, String> headers = const {
         'Content-Type': 'application/json'
@@ -145,7 +145,7 @@ class ApiHandler {
         headers: headers, callbacks: callbacks);
   }
 
-  static Future<Response<dynamic>?> put<T>(String path, dynamic data,
+  static Future<Response<T>?> put<T>(String path, dynamic data,
       {RequestCallbacks? callbacks,
       Map<String, String> headers = const {
         'Content-Type': 'application/json'

@@ -158,6 +158,10 @@ extension ContextExtension on BuildContext {
   void attemptPop() {
     if (canPop()) pop();
   }
+
+  void push(String location) {
+    GoRouter.of(this).push(location);
+  }
 }
 
 abstract class Controller

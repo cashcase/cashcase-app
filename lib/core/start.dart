@@ -21,7 +21,6 @@ start({
     appName: appName,
     auth: auth,
     appLogo: appLogo,
-    themeData: themeData,
     router: router,
   ).then(
     (ready) {
@@ -34,7 +33,6 @@ start({
           ),
         );
       }
-      // TODO: Else show error page
     },
   );
 }

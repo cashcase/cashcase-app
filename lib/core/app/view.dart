@@ -15,17 +15,15 @@ Logger logger = Logger('App');
 class BaseView extends StatefulWidget {
   late final String title;
   late final GoRouter router;
-  late final ThemeData _themeData;
 
   BaseView(
       {super.key,
       required this.title,
       required this.router,
-      required ThemeData themeData})
-      : _themeData = themeData {
+      required ThemeData themeData}) {
     app = MaterialApp.router(
       themeMode: ThemeMode.dark,
-      darkTheme: ThemeData.dark().copyWith(),
+      darkTheme: themeData,
       scrollBehavior: const MaterialScrollBehavior().copyWith(
         dragDevices: {
           PointerDeviceKind.mouse,
@@ -35,7 +33,6 @@ class BaseView extends StatefulWidget {
         },
       ),
       title: title,
-      theme: _themeData,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
     );

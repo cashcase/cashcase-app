@@ -7,7 +7,7 @@ GoRouter router = GoRouter(routes: [
   GoRoute(
     path: '/',
     builder: (_, state) {
-      if (!AppController.hasTokens()) {
+      if (AppController.hasTokens()) {
         return HomePage();
       } else {
         return SigninPage();
