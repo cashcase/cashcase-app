@@ -1,5 +1,6 @@
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -96,6 +97,7 @@ class _SigninViewState extends State<SigninView> {
                           hintText: 'Username',
                           hintStyle: TextStyle(color: Colors.grey),
                           errorText: usernameError,
+                          errorMaxLines: 2,
                           errorStyle: TextStyle(color: Colors.red),
                           errorBorder: OutlineInputBorder(
                             borderSide:
@@ -128,6 +130,7 @@ class _SigninViewState extends State<SigninView> {
                             ),
                           ),
                           errorText: passwordError,
+                          errorMaxLines: 2,
                           errorStyle: TextStyle(color: Colors.red),
                           errorBorder: OutlineInputBorder(
                             borderSide:
@@ -154,11 +157,18 @@ class _SigninViewState extends State<SigninView> {
                               onPressed: () {
                                 usernameError = null;
                                 passwordError = null;
-                                if (usernameController.text.isEmpty) {
-                                  usernameError = "Please enter username.";
+
+                                if (!RegExp(
+                                        "^(?=.{5,20}\$)(?![_.])(?!.*[_.]{2})[a-z0-9._]+(?<![_.])\$")
+                                    .hasMatch(usernameController.text)) {
+                                  usernameError =
+                                      "Username must be 5-20 alphanumeric chars and only . or _ special chars allowed.";
                                 }
-                                if (passwordController.text.isEmpty) {
-                                  passwordError = "Please enter password.";
+                                if (!RegExp(
+                                        "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@\$]).{8,20}\$")
+                                    .hasMatch(passwordController.text)) {
+                                  passwordError =
+                                      "Password must contain atleast 1 uppercase, 1 lowercase, 1 digit and 1 special char (!@\$) and between 8-20 chars.";
                                 }
                                 setState(() => {});
                                 if (usernameError == null &&
@@ -181,11 +191,10 @@ class _SigninViewState extends State<SigninView> {
                                     }
                                   }).catchError((e) {
                                     context.once<AppController>().loader.hide();
-                                    usernameError =
-                                        'Please enter a valid username.';
-                                    passwordError =
-                                        'Please enter a valid password.';
-                                    setState(() => {});
+                                    context
+                                        .once<AppController>()
+                                        .addNotification(NotificationType.error,
+                                            "Invalid Username or Password.");
                                   });
                                 }
                               },

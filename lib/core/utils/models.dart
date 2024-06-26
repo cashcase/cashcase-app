@@ -2,13 +2,11 @@ import 'package:dio/dio.dart';
 
 enum NotificationType { success, error, info, warn }
 
-class AppNotification {
-  String title;
-  String? message;
+class NotificationModel {
+  String message;
   int milliseconds;
   NotificationType type;
-  AppNotification(this.title, this.message, this.type,
-      {this.milliseconds = 5000});
+  NotificationModel(this.message, this.type, {this.milliseconds = 5000});
 }
 
 class TokenModel {

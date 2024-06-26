@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:cashcase/core/app/controller.dart';
+import 'package:cashcase/core/app/notification.dart';
 import 'package:cashcase/core/app/theme.dart';
 import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/core/utils/models.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
@@ -49,6 +51,8 @@ class BaseApp extends StatelessWidget {
             create: (_) => ThemeModel(),
             child: Consumer<ThemeModel>(
               builder: (_, model, __) {
+                var notification =
+                    context.listen<AppController>().currentNotification;
                 return Stack(
                   alignment: Alignment.topLeft,
                   children: [
@@ -64,6 +68,16 @@ class BaseApp extends StatelessWidget {
                           ),
                         ),
                       ),
+                    AnimatedPositioned(
+                      duration: Duration(milliseconds: 100),
+                      top: notification != null ? 0 : -240,
+                      child: notification != null
+                          ? AppNotification(
+                              type: notification.type,
+                              message: notification.message,
+                            )
+                          : Container(),
+                    ),
                   ],
                 );
               },
