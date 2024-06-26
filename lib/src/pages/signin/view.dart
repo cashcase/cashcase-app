@@ -28,27 +28,29 @@ class _SigninViewState extends State<SigninView> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.black,
+                color: Colors.orange.withOpacity(0.15),
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       child: CircleAvatar(
-                        radius: 100,
-                        backgroundColor: Colors.transparent,
+                        radius: 64,
+                        backgroundColor: Colors.orangeAccent,
                         child: ClipOval(
                           child: Image(
-                              width: 120, image: AssetImage('assets/logo.png')),
+                            width: 120,
+                            image: AssetImage('assets/logo.png'),
+                          ),
                         ),
                       ),
                     ),
                     Text(
-                      "CashCase",
-                      style: GoogleFonts.homemadeApple().copyWith(
-                        fontSize: 42,
-                        color: Colors.orangeAccent,
-                      ),
+                      "CASHCASE",
+                      style: GoogleFonts.abel().copyWith(
+                          fontSize: 42,
+                          color: Colors.orangeAccent,
+                          fontWeight: FontWeight.bold),
                     )
                   ],
                 ),
