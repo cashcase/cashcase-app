@@ -9,3 +9,8 @@
 
 > [!IMPORTANT]  
 > This is an in progress implementation of the Cashcase Expense Manager App.
+
+
+## Colors
+1. Blue : #243D69
+2. Orange : #FFAB40
