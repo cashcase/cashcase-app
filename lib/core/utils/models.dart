@@ -21,7 +21,7 @@ class TokenModel {
     };
   }
 
-  static fromJson(dynamic data) {
+  static TokenModel fromJson(dynamic data) {
     return TokenModel(
       token: data['token'],
       refreshToken: data['refreshToken'],
@@ -48,7 +48,7 @@ class ResponseModel<T> {
   });
 
   static ok<T>(T data) {
-    return ResponseModel(status: true, data: data);
+    return ResponseModel<T>(status: true, data: data);
   }
 
   static notOk(dynamic error) {

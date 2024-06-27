@@ -2,6 +2,7 @@ import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
+import 'package:cashcase/src/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -79,7 +80,7 @@ class _SigninViewState extends State<SigninView> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () => context.push("/signup"),
                             child: Text(
                               "New Here? Sign up!",
                               style: TextStyle(
@@ -152,27 +153,16 @@ class _SigninViewState extends State<SigninView> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             child: MaterialButton(
                               onPressed: () {
-                                usernameError = null;
-                                passwordError = null;
-
-                                if (!RegExp(
-                                        "^(?=.{5,20}\$)(?![_.])(?!.*[_.]{2})[a-z0-9._]+(?<![_.])\$")
-                                    .hasMatch(usernameController.text)) {
-                                  usernameError =
-                                      "Username must be 5-20 alphanumeric chars and only . or _ special chars allowed.";
-                                }
-                                if (!RegExp(
-                                        "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@\$]).{8,20}\$")
-                                    .hasMatch(passwordController.text)) {
-                                  passwordError =
-                                      "Password must contain atleast 1 uppercase, 1 lowercase, 1 digit and 1 special char (!@\$) and between 8-20 chars.";
-                                }
+                                usernameError =
+                                    isValidUsername(usernameController.text);
+                                passwordError =
+                                    isValidPassword(passwordController.text);
                                 setState(() => {});
                                 if (usernameError == null &&
                                     passwordError == null) {
@@ -184,13 +174,16 @@ class _SigninViewState extends State<SigninView> {
                                         passwordController.text,
                                       )
                                       .then((e) {
-                                    context.once<AppController>().loader.hide();
                                     if (e.status) {
                                       AppController.setTokens(
                                         e.data!.token,
                                         e.data!.refreshToken,
                                       );
                                       context.clearAndReplace("/");
+                                      context
+                                          .once<AppController>()
+                                          .loader
+                                          .hide();
                                     }
                                   }).catchError((e) {
                                     context.once<AppController>().loader.hide();

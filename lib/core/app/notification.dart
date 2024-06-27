@@ -54,7 +54,7 @@ class AppNotification extends StatelessWidget {
           height: 160,
           width: MediaQuery.of(context).size.width,
           child: Padding(
-            padding: EdgeInsets.all(4).copyWith(
+            padding: EdgeInsets.all(12).copyWith(
               top: MediaQuery.of(context).padding.top,
             ),
             child: Container(

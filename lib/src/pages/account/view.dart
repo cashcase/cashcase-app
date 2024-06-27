@@ -1,5 +1,6 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
@@ -151,75 +152,18 @@ class _ViewState extends State<AccountView> {
     showModalBottomSheet(
         context: context,
         builder: (context) {
-          return Wrap(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                padding: EdgeInsets.all(32).copyWith(top: 20),
-                child: Column(
-                  children: [
-                    Icon(
-                      Icons.warning_rounded,
-                      color: Colors.red,
-                      size: 100,
-                    ),
-                    SizedBox(height: 24),
-                    Text(
-                      "Are you sure you want \n to remove ${user.firstName} ${user.lastName} from your connections?",
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    SizedBox(height: 12),
-                    Divider(),
-                    SizedBox(height: 12),
-                    Theme(
-                      data: ThemeData(splashFactory: NoSplash.splashFactory),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MaterialButton(
-                              color: Colors.black,
-                              onPressed: () {},
-                              child: Center(
-                                child: Text(
-                                  "Yes",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        color: Colors.red.shade50,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: MaterialButton(
-                              color: Colors.white,
-                              onPressed: () => Navigator.pop(context),
-                              child: Center(
-                                child: Text(
-                                  "No",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+          return ConfirmationDialog(
+              message:
+                  "Are you sure you want \n to remove ${user.firstName} ${user.lastName} from your connections?",
+              icon: Icon(
+                Icons.warning_rounded,
+                color: Colors.red,
+                size: 100,
               ),
-            ],
-          );
+              okLabel: "Yes",
+              cancelLabel: "No",
+              onOk: () => {},
+              onCancel: () => Navigator.pop(context));
         });
   }
 
@@ -562,7 +506,24 @@ class _ViewState extends State<AccountView> {
         ),
         GestureDetector(
           onTap: () {
-            context.once<AccountController>().logout();
+            showModalBottomSheet(
+                context: context,
+                builder: (_) {
+                  return ConfirmationDialog(
+                      message: "Are you sure you want to logout?",
+                      icon: Icon(
+                        Icons.warning_rounded,
+                        color: Colors.orange,
+                        size: 100,
+                      ),
+                      okLabel: "Yes",
+                      cancelLabel: "No",
+                      onOk: () {
+                        context.once<AccountController>().logout();
+                        Navigator.pop(context);
+                      },
+                      onCancel: () => Navigator.pop(context));
+                });
           },
           child: Icon(
             Icons.logout_rounded,
