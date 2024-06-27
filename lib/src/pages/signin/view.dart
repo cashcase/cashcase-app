@@ -29,7 +29,7 @@ class _SigninViewState extends State<SigninView> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.orangeAccent.withOpacity(0.25),
+                color: Colors.blueAccent.withOpacity(0.25),
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
