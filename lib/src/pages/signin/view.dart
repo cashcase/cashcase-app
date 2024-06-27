@@ -73,14 +73,17 @@ class _SigninViewState extends State<SigninView> {
                         children: [
                           Text(
                             "Login",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade400,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium!
+                                .copyWith(color: Colors.grey.shade400),
                           ),
                           GestureDetector(
-                            onTap: () => context.push("/signup"),
+                            onTap: () {
+                              passwordError = null;
+                              usernameError = null;
+                              context.push("/signup");
+                            },
                             child: Text(
                               "New Here? Sign up!",
                               style: TextStyle(

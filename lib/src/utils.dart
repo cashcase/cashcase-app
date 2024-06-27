@@ -17,7 +17,7 @@ String? isValidPassword(String value) {
 
 String? isValidName(String value, {optional = false}) {
   if (!optional && value.isEmpty) return "Field cannot be empty";
-  if (!RegExp("^[a-zA-Z]{3,20}\$").hasMatch(value)) {
+  if (!RegExp("^[a-zA-Z]{${optional ? "0" : "3"},20}\$").hasMatch(value)) {
     return "Field must be 3-20 chars long and must contain only alphabets.";
   }
   return null;

@@ -89,7 +89,6 @@ class _SignupViewState extends State<SignupView> {
             )
             .then((e) {
           appController.loader.hide();
-          print(e);
           if (e.status) {
             appController.addNotification(
               NotificationType.success,
@@ -98,7 +97,6 @@ class _SignupViewState extends State<SignupView> {
             Navigator.of(context).pop();
           }
         }).catchError((e) {
-          print(e);
           appController.loader.hide();
           appController.addNotification(
             NotificationType.error,
