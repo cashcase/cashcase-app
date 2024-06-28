@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/confirm.dart';
+import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
@@ -18,7 +19,13 @@ class AccountView extends StatefulWidget {
 }
 
 class _ViewState extends State<AccountView> {
-  String encryptionKey = "quick brown fox walked in the rain";
+  late Future<String?> future;
+
+  @override
+  void initState() {
+    future = AppDb.getEncryptionKey();
+    super.initState();
+  }
 
   void showEncryptionKey() {
     bool showingKey = false;
@@ -28,119 +35,146 @@ class _ViewState extends State<AccountView> {
         builder: (context) {
           return Wrap(
             children: [
-              StatefulBuilder(builder: (context, setState) {
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
-                      .copyWith(
-                    top: 24,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            showingKey
-                                ? Icons.lock_open_rounded
-                                : Icons.lock_rounded,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 16),
-                          Text(
-                            "Your Encrpytion Key",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium!
-                                .copyWith(
-                                  color: Colors.white,
-                                ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8),
-                      Divider(),
-                      SizedBox(height: 8),
-                      Container(
-                        height: 100,
-                        decoration: BoxDecoration(
+              FutureBuilder(
+                  future: future,
+                  builder: (context, snapshot) {
+                    var isDone =
+                        snapshot.connectionState == ConnectionState.done;
+                    if (!isDone) {
+                      return Container(
+                        height: 200,
+                        child: Center(
+                          child: CircularProgressIndicator(
                             color: Colors.orangeAccent,
-                            borderRadius: BorderRadius.circular(4)),
-                        child: Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(
-                            child: showingKey
-                                ? Text(
-                                    encryptionKey,
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium!
-                                        .copyWith(
-                                          color: Colors.black,
-                                        ),
-                                  )
-                                : Text(
-                                    "●●● ●●● ●●●\n●●● ●●●",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.black),
-                                  ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      Theme(
-                        data: ThemeData(splashFactory: NoSplash.splashFactory),
-                        child: Row(
+                      );
+                    }
+                    return StatefulBuilder(builder: (context, setState) {
+                      return Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding:
+                            EdgeInsets.symmetric(vertical: 32, horizontal: 16)
+                                .copyWith(
+                          top: 24,
+                        ),
+                        child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: GestureDetector(
-                                child: MaterialButton(
-                                  onPressed: () {
-                                    setState(() => showingKey = !showingKey);
-                                  },
-                                  color: showingKey ? Colors.red : Colors.black,
-                                  child: Center(
-                                    child: Text(
-                                      "${showingKey ? "Hide" : "Show"} Key",
-                                      style: TextStyle(
-                                        color: Colors.red.shade50,
+                            Row(
+                              children: [
+                                Icon(
+                                  showingKey
+                                      ? Icons.lock_open_rounded
+                                      : Icons.lock_rounded,
+                                  color: Colors.white,
+                                ),
+                                SizedBox(width: 16),
+                                Text(
+                                  "Your Encrpytion Key",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(
+                                        color: Colors.white,
                                       ),
-                                    ),
-                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8),
+                            Divider(),
+                            SizedBox(height: 8),
+                            Container(
+                              height: 100,
+                              decoration: BoxDecoration(
+                                  color: Colors.orangeAccent,
+                                  borderRadius: BorderRadius.circular(4)),
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: showingKey
+                                      ? Text(
+                                          snapshot.data!,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headlineMedium!
+                                              .copyWith(
+                                                color: Colors.black,
+                                              ),
+                                        )
+                                      : Text(
+                                          "●●● ●●● ●●●\n●●● ●●●",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: Colors.black),
+                                        ),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: MaterialButton(
-                                onPressed: () async {
-                                  copiedKey = true;
-                                  setState(() => {});
-                                  await Clipboard.setData(
-                                    ClipboardData(text: encryptionKey),
-                                  );
-                                },
-                                color: copiedKey ? Colors.green : Colors.black,
-                                child: Center(
-                                  child: Text(
-                                    copiedKey ? "Copied!" : "Copy Key",
-                                    style: TextStyle(
-                                      color: Colors.green.shade50,
+                            SizedBox(height: 16),
+                            Theme(
+                              data: ThemeData(
+                                  splashFactory: NoSplash.splashFactory),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: GestureDetector(
+                                      child: MaterialButton(
+                                        onPressed: () {
+                                          setState(
+                                              () => showingKey = !showingKey);
+                                        },
+                                        color: showingKey
+                                            ? Colors.red
+                                            : Colors.black,
+                                        child: Center(
+                                          child: Text(
+                                            "${showingKey ? "Hide" : "Show"} Key",
+                                            style: TextStyle(
+                                              color: Colors.red.shade50,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: MaterialButton(
+                                      onPressed: () async {
+                                        copiedKey = true;
+                                        setState(() => {});
+                                        await Clipboard.setData(
+                                          ClipboardData(
+                                            text: snapshot.data!,
+                                          ),
+                                        );
+                                      },
+                                      color: copiedKey
+                                          ? Colors.green
+                                          : Colors.black,
+                                      child: Center(
+                                        child: Text(
+                                          copiedKey ? "Copied!" : "Copy Key",
+                                          style: TextStyle(
+                                            color: Colors.green.shade50,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                             )
                           ],
                         ),
-                      )
-                    ],
-                  ),
-                );
-              })
+                      );
+                    });
+                  })
             ],
           );
         });

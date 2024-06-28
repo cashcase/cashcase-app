@@ -65,6 +65,7 @@ class _HomePageWidgetState extends State<HomePageView> {
             context.once<AppController>().loader.show();
           var noKey = isDone && snapshot.data == null;
           return SafeArea(
+            top: false,
             child: Stack(
               children: [
                 if (!isDone)
