@@ -54,8 +54,8 @@ class ApiHandler {
 
   static Future<Response<T>?> get<T>(String path) async {
     try {
-      Response<T> response =
-          await _dio.request(path, options: Options(method: 'GET'));
+      Response<T> response = await _dio.request(path,
+          options: Options(method: 'GET', validateStatus: (_) => true));
       return response;
     } catch (e) {
       log.severe(e);

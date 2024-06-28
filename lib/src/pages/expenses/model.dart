@@ -114,8 +114,8 @@ class GroupedExpense {
         );
       }
       if (!expense.categoryExpenses[each.category]!.userExpenses
-          .containsKey(each.user.id)) {
-        expense.categoryExpenses[each.category]!.userExpenses[each.user.id] =
+          .containsKey(each.user.username)) {
+        expense.categoryExpenses[each.category]!.userExpenses[each.user.username] =
             UserExpense(
           amount: 0,
           user: each.user,
@@ -131,9 +131,9 @@ class GroupedExpense {
         expense.totalSpent += each.amount;
 
       expense.categoryExpenses[each.category]!.amount += each.amount;
-      expense.categoryExpenses[each.category]!.userExpenses[each.user.id]!
+      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .amount += each.amount;
-      expense.categoryExpenses[each.category]!.userExpenses[each.user.id]!
+      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .expenses[each.id] = each;
     });
     return expense;

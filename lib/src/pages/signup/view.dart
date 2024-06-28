@@ -87,22 +87,26 @@ class _SignupViewState extends State<SignupView> {
               firstNameController.text,
               lastNameController.text,
             )
-            .then((e) {
+            .then((r) {
           appController.loader.hide();
-          if (e.status) {
+          r.fold(
+              (err) => appController.addNotification(
+                    NotificationType.error,
+                    err.message ??
+                        'Unable to sign you up. Please try again later.',
+                  ), (_) {
             appController.addNotification(
               NotificationType.success,
               "Successfully signed up!",
             );
             Navigator.of(context).pop();
-          }
+          });
         }).catchError((e) {
-          appController.loader.hide();
           appController.addNotification(
             NotificationType.error,
-            e?.error ?? 'Unable to sign you up!',
+            'Unable to sign you up!',
           );
-        });
+        }).whenComplete(appController.loader.hide);
       }
     } else
       setState(() => {});

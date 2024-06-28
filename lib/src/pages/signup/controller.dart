@@ -1,8 +1,10 @@
 import 'package:cashcase/core/base/controller.dart';
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:dio/dio.dart';
 import 'package:cashcase/core/api/index.dart';
 import 'package:cashcase/src/pages/signup/model.dart';
+import 'package:either_dart/either.dart';
 
 class SignupController extends BaseController {
   @override
@@ -10,7 +12,7 @@ class SignupController extends BaseController {
 
   SignupController({SignupPageData? data});
 
-  Future<ResponseModel> signup(
+  Future<Either<AppError, ResponseModel>> signup(
     String username,
     String password,
     String firstName,
@@ -22,7 +24,7 @@ class SignupController extends BaseController {
       "firstName": firstName,
       "lastName": lastName,
     });
-    return ResponseModel.build<dynamic>(
+    return ResponseModel.respond<ResponseModel>(
       response,
       (data) => data,
     );

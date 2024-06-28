@@ -178,14 +178,21 @@ class _SigninViewState extends State<SigninView> {
                                         usernameController.text,
                                         passwordController.text,
                                       )
-                                      .then((e) {
-                                    if (e.status) {
+                                      .then((r) {
+                                    r.fold(
+                                        (err) => context
+                                            .once<AppController>()
+                                            .addNotification(
+                                                NotificationType.error,
+                                                err.message ??
+                                                    "Unable to login. Please try again later."),
+                                        (auth) {
                                       AppDb.setCurrentUser(
                                               usernameController.text)
                                           .then((currentUser) {
                                         AppController.setTokens(
-                                          e.data!.token,
-                                          e.data!.refreshToken,
+                                          auth.token,
+                                          auth.refreshToken,
                                         );
                                         context.clearAndReplace("/");
                                         context
@@ -193,13 +200,7 @@ class _SigninViewState extends State<SigninView> {
                                             .loader
                                             .hide();
                                       });
-                                    }
-                                  }).catchError((e) {
-                                    context.once<AppController>().loader.hide();
-                                    context
-                                        .once<AppController>()
-                                        .addNotification(NotificationType.error,
-                                            "Invalid Username or Password.");
+                                    });
                                   });
                                 }
                               },

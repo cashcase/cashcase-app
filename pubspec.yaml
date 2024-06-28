@@ -47,6 +47,7 @@ dependencies:
   word_generator:
   flutter_secure_storage:
   action_slider:
+  either_dart:
 
 
   # The following adds the Cupertino Icons font to your application.

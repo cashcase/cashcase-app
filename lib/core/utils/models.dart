@@ -1,4 +1,7 @@
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:dio/dio.dart';
+import 'package:either_dart/either.dart';
+import 'package:logging/logging.dart';
 
 enum NotificationType { success, error, info, warn }
 
@@ -37,6 +40,8 @@ class RequestCallbacks {
   RequestCallbacks({this.message, this.onSuccess, this.onError, this.onDone});
 }
 
+Logger log = Logger('ResponseModel');
+
 class ResponseModel<T> {
   bool status;
   dynamic error;
@@ -55,10 +60,20 @@ class ResponseModel<T> {
     return ResponseModel(status: false, error: error);
   }
 
-  static build<T>(Response? response, T Function(dynamic data) builder) {
-    if (response == null || response.data['status'] == false) {
-      throw ResponseModel.notOk(response?.data['error']);
+  static Either<AppError, T> respond<T>(
+    Response? response,
+    T Function(dynamic data) builder,
+  ) {
+    try {
+      if (response?.data['status'])
+        return Right(builder(response!.data['data']));
+      throw response?.data['error'];
+    } catch (e) {
+      log.shout(e);
+      return Left(AppError(
+        key: AppErrorType.ApiError,
+        message: e.toString(),
+      ));
     }
-    return ResponseModel.ok<T>(builder(response.data['data']));
   }
 }

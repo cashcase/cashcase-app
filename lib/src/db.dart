@@ -6,9 +6,10 @@ class UserNotSetException implements Exception {
 }
 
 class AppDb extends Db {
-  static String getEncryptionKeyString(String user__) =>
-      "__cashcase_key_$user__";
+  static String getEncryptionKeyString(String user) => "__cashcase_key_$user";
   static final String USER = "__cashcase_user__";
+  static String getCurrentConnection(String user) =>
+      "__cashcase_current_connection_$user";
 
   static Future<bool> setCurrentUser(String userId) async {
     var status = await Db.store.setString(USER, userId);

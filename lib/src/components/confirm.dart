@@ -35,9 +35,7 @@ class ConfirmationDialog extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              SizedBox(height: 12),
-              Divider(),
-              SizedBox(height: 12),
+              SizedBox(height: 24),
               Theme(
                 data: ThemeData(splashFactory: NoSplash.splashFactory),
                 child: Row(
