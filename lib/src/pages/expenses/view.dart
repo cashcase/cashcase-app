@@ -472,7 +472,7 @@ class _ViewState extends State<ExpensesView> {
   }
 
   Container renderFooter() {
-    var sortedItems = (isSaving ? SavingsCategories : SpentCategories);
+    var sortedItems = [...(isSaving ? SavingsCategories : SpentCategories)];
     sortedItems.sort((a, b) => a.toString().compareTo(b.toString()));
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8),

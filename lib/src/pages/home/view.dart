@@ -66,6 +66,7 @@ class _HomePageWidgetState extends State<HomePageView> {
           var noKey = isDone && snapshot.data == null;
           return SafeArea(
             top: false,
+            bottom: false,
             child: Stack(
               children: [
                 if (!isDone)
