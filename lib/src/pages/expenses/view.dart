@@ -472,6 +472,8 @@ class _ViewState extends State<ExpensesView> {
   }
 
   Container renderFooter() {
+    var sortedItems = (isSaving ? SavingsCategories : SpentCategories);
+    sortedItems.sort((a, b) => a.toString().compareTo(b.toString()));
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8),
       height: 54,
@@ -534,9 +536,7 @@ class _ViewState extends State<ExpensesView> {
                               typeOfAddingValue = newValue;
                             });
                           },
-                items: (isSaving ? SavingsCategories : SpentCategories)
-                    .map((e) => e)
-                    .map((category) {
+                items: sortedItems.map((e) => e).map((category) {
                   return DropdownMenuItem<String>(
                     value: category,
                     child: FittedBox(

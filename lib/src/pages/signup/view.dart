@@ -120,7 +120,7 @@ class _SignupViewState extends State<SignupView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Sign up!",
+                "Create Account",
                 style: Theme.of(context).textTheme.displaySmall!.copyWith(),
               ),
               SizedBox(height: 24),
@@ -156,7 +156,7 @@ class _SignupViewState extends State<SignupView> {
                 "Username",
                 usernameError,
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 8),
               Text(
                 "Enter a strong password",
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(),

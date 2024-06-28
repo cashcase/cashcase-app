@@ -13,7 +13,7 @@ const SavingsCategories = [
   // "misc"
 ];
 
-const SpentCategories = [
+var SpentCategories = [
   "housing",
   "food",
   "transport",

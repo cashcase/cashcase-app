@@ -1,6 +1,7 @@
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
+import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/signin/controller.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _SigninViewState extends State<SigninView> {
 
   @override
   Widget build(BuildContext context) {
+    print(AppDb.getRandomKey());
     return Scaffold(
       body: Center(
         child: Column(
@@ -29,7 +31,7 @@ class _SigninViewState extends State<SigninView> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.blueAccent.withOpacity(0.25),
+                color: Colors.orangeAccent.withOpacity(0.25),
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -75,7 +77,7 @@ class _SigninViewState extends State<SigninView> {
                             "Login",
                             style: Theme.of(context)
                                 .textTheme
-                                .headlineMedium!
+                                .headlineSmall!
                                 .copyWith(color: Colors.grey.shade400),
                           ),
                           GestureDetector(
@@ -89,7 +91,7 @@ class _SigninViewState extends State<SigninView> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.blue.shade400,
+                                color: Colors.blueAccent,
                               ),
                             ),
                           )
@@ -120,7 +122,7 @@ class _SigninViewState extends State<SigninView> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(height: 16),
                       TextField(
                         controller: passwordController,
                         style: TextStyle(color: Colors.grey),
@@ -178,15 +180,19 @@ class _SigninViewState extends State<SigninView> {
                                       )
                                       .then((e) {
                                     if (e.status) {
-                                      AppController.setTokens(
-                                        e.data!.token,
-                                        e.data!.refreshToken,
-                                      );
-                                      context.clearAndReplace("/");
-                                      context
-                                          .once<AppController>()
-                                          .loader
-                                          .hide();
+                                      AppDb.setCurrentUser(
+                                              usernameController.text)
+                                          .then((currentUser) {
+                                        AppController.setTokens(
+                                          e.data!.token,
+                                          e.data!.refreshToken,
+                                        );
+                                        context.clearAndReplace("/");
+                                        context
+                                            .once<AppController>()
+                                            .loader
+                                            .hide();
+                                      });
                                     }
                                   }).catchError((e) {
                                     context.once<AppController>().loader.hide();

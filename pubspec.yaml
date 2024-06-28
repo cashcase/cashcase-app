@@ -44,6 +44,9 @@ dependencies:
   easy_date_timeline: 
   auto_size_text:
   fl_chart:
+  word_generator:
+  flutter_secure_storage:
+  action_slider:
 
 
   # The following adds the Cupertino Icons font to your application.

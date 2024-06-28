@@ -1,4 +1,5 @@
 import 'package:cashcase/core/app/controller.dart';
+import 'package:cashcase/src/pages/set-encryption-key/page.dart';
 import 'package:cashcase/src/pages/signin/page.dart';
 import 'package:cashcase/src/pages/signup/page.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +20,12 @@ GoRouter router = GoRouter(routes: [
     path: '/signup',
     builder: (_, state) {
       return SignupPage();
+    },
+  ),
+  GoRoute(
+    path: '/setkey',
+    builder: (_, state) {
+      return SetKeyPage();
     },
   ),
 ]);
