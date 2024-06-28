@@ -16,11 +16,14 @@ class _SetKeyViewState extends State<SetKeyView> {
   ActionSliderController sliderController = ActionSliderController();
 
   String? keyCopied = null;
+  bool confirmed = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        automaticallyImplyLeading: !confirmed,
+      ),
       body: Container(
         padding: EdgeInsets.all(16).copyWith(bottom: 40),
         child: Column(
@@ -140,12 +143,13 @@ class _SetKeyViewState extends State<SetKeyView> {
                   color: Colors.black,
                 ),
                 action: (controller) async {
+                  setState(() => confirmed = true);
                   controller.loading();
                   await Future.delayed(const Duration(seconds: 1));
                   await AppDb.setEncryptionKey(keyController.text);
                   controller.success();
                   context.once<AppController>().loader.show();
-                  context.push("/");
+                  context.clearAndReplace("/");
                 },
               )
           ],
