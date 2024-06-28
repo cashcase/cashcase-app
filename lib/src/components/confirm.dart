@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   String message;
-  Icon icon;
+  Icon? icon;
   String okLabel;
   Color? okColor;
   String cancelLabel;
@@ -11,9 +11,9 @@ class ConfirmationDialog extends StatelessWidget {
   void Function()? onCancel;
   ConfirmationDialog({
     required this.message,
-    required this.icon,
     required this.okLabel,
     required this.cancelLabel,
+    this.icon,
     this.okColor,
     this.cancelColor,
     this.onOk,
@@ -28,7 +28,12 @@ class ConfirmationDialog extends StatelessWidget {
           padding: EdgeInsets.all(32).copyWith(top: 20),
           child: Column(
             children: [
-              icon,
+              icon ??
+                  Icon(
+                    Icons.warning_rounded,
+                    color: Colors.orangeAccent,
+                    size: 100,
+                  ),
               SizedBox(height: 24),
               Text(
                 message,
@@ -61,7 +66,7 @@ class ConfirmationDialog extends StatelessWidget {
                     SizedBox(width: 8),
                     Expanded(
                       child: MaterialButton(
-                        color: cancelColor ?? Colors.white,
+                        color: cancelColor ?? Colors.orangeAccent,
                         onPressed: onCancel,
                         child: Center(
                           child: Text(

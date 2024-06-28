@@ -59,11 +59,8 @@ class _HomePageWidgetState extends State<HomePageView> {
         future: future,
         builder: (context, snapshot) {
           var isDone = snapshot.connectionState == ConnectionState.done;
-          if (isDone)
-            context.once<AppController>().loader.hide();
-          else
-            context.once<AppController>().loader.show();
           var noKey = isDone && snapshot.data == null;
+          var currentConn = AppDb.getCurrentConnection();
           return SafeArea(
             top: false,
             bottom: false,
@@ -103,14 +100,12 @@ class _HomePageWidgetState extends State<HomePageView> {
                                 )
                               ],
                             ),
-                            GroupAvatar(
-                              users: ExpensesController()
-                                  .dummyUsers
-                                  .sublist(0, 1)
-                                  .map((e) =>
-                                      ExpensesController().getUserInitials(e))
-                                  .toList(),
-                            )
+                            if (currentConn != null)
+                              GroupAvatar(
+                                users: [currentConn]
+                                    .map((e) => e.getInitials())
+                                    .toList(),
+                              )
                           ],
                         ),
                       ),

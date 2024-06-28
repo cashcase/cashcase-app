@@ -122,7 +122,7 @@ class _SigninViewState extends State<SigninView> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 8),
                       TextField(
                         controller: passwordController,
                         style: TextStyle(color: Colors.grey),
@@ -158,7 +158,7 @@ class _SigninViewState extends State<SigninView> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(
@@ -179,6 +179,7 @@ class _SigninViewState extends State<SigninView> {
                                         passwordController.text,
                                       )
                                       .then((r) {
+                                    context.once<AppController>().loader.hide();
                                     r.fold(
                                         (err) => context
                                             .once<AppController>()
@@ -190,15 +191,14 @@ class _SigninViewState extends State<SigninView> {
                                       AppDb.setCurrentUser(
                                               usernameController.text)
                                           .then((currentUser) {
+                                        context
+                                            .once<AppController>()
+                                            .clearNotifications();
                                         AppController.setTokens(
                                           auth.token,
                                           auth.refreshToken,
                                         );
                                         context.clearAndReplace("/");
-                                        context
-                                            .once<AppController>()
-                                            .loader
-                                            .hide();
                                       });
                                     });
                                   });

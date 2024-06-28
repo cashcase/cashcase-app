@@ -104,4 +104,11 @@ class ApiHandler {
       }}) async {
     return await _update(path, "PUT", data, headers: headers);
   }
+
+  static Future<Response<T>?> delete<T>(String path, dynamic data,
+      {Map<String, String> headers = const {
+        'Content-Type': 'application/json'
+      }}) async {
+    return await _update(path, "DELETE", data, headers: headers);
+  }
 }

@@ -45,4 +45,36 @@ class AccountController extends BaseController {
       (data) => null,
     );
   }
+
+  Future<Either<AppError, void>> acceptRequest(String username) async {
+    Response? response = await ApiHandler.put("/request/accept/$username", {});
+    return ResponseModel.respond(
+      response,
+      (data) => null,
+    );
+  }
+
+  Future<Either<AppError, void>> deleteConnection(String username) async {
+    Response? response = await ApiHandler.delete("/connection/$username", {});
+    return ResponseModel.respond(
+      response,
+      (data) => null,
+    );
+  }
+
+  Future<Either<AppError, void>> rejectRequest(String username) async {
+    Response? response = await ApiHandler.put("/request/reject/$username", {});
+    return ResponseModel.respond(
+      response,
+      (data) => null,
+    );
+  }
+
+  Future<Either<AppError, void>> revokeRequest(String username) async {
+    Response? response = await ApiHandler.put("/request/revoke/$username", {});
+    return ResponseModel.respond(
+      response,
+      (data) => null,
+    );
+  }
 }

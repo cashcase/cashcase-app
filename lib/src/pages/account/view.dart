@@ -27,6 +27,15 @@ class _ViewState extends State<AccountView> {
   late Future<String?> getEncryptionKey;
   late Future<Either<AppError, ProfileModel>> getProfile;
 
+  TextEditingController findUserController = TextEditingController();
+  String? findUserError = null;
+
+  void refresh() {
+    setState(() {
+      getProfile = context.once<AccountController>().getDetails();
+    });
+  }
+
   @override
   void initState() {
     getEncryptionKey = AppDb.getEncryptionKey();
@@ -34,160 +43,678 @@ class _ViewState extends State<AccountView> {
     super.initState();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: getProfile,
+        builder: (context, snapshot) {
+          var isDone = snapshot.connectionState == ConnectionState.done;
+          if (!isDone)
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Colors.orangeAccent,
+                ),
+              ),
+            );
+
+          if (!snapshot.hasData) renderError();
+          return snapshot.data!.fold(
+            (_) => renderError(),
+            (profile) {
+              return Scaffold(
+                body: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        renderProfileCard(profile.details),
+                        ...renderKeySection(),
+                        ...renderUserSearch(profile),
+                        if (profile.connections.isNotEmpty)
+                          ...renderConnections(profile),
+                        if (profile.received.isNotEmpty)
+                          ...renderReceivedRequests(profile),
+                        if (profile.sent.isNotEmpty)
+                          ...renderSentRequests(profile)
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        });
+  }
+
+  List<Widget> renderKeySection() {
+    return [
+      SizedBox(height: 8),
+      Divider(),
+      SizedBox(height: 8),
+      GestureDetector(
+        onTap: showEncryptionKey,
+        child: Card(
+          color: Colors.transparent,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Encryption Key", style: TextStyle(fontSize: 20)),
+              Container(
+                child: IconButton.filled(
+                  style: IconButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                      splashFactory: NoSplash.splashFactory),
+                  onPressed: showEncryptionKey,
+                  color: Colors.black,
+                  icon: Icon(
+                    Icons.password_rounded,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      )
+    ];
+  }
+
+  List<Widget> renderUserSearch(ProfileModel profile) {
+    return [
+      SizedBox(height: 8),
+      Divider(),
+      SizedBox(height: 8),
+      Text(
+        "Connect",
+        style: TextStyle(fontSize: 20),
+        textAlign: TextAlign.left,
+      ),
+      SizedBox(height: 8),
+      TextField(
+        controller: findUserController,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(),
+          hintText: 'Find People',
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white24, width: 1.0),
+          ),
+          errorText: findUserError,
+          errorMaxLines: 2,
+          errorStyle: TextStyle(color: Colors.red),
+          errorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1.0),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.white12, width: 1.0),
+          ),
+          suffixIcon: GestureDetector(
+            onTap: () {
+              if (findUserController.text.isEmpty) return;
+              findUserError = isValidUsername(findUserController.text);
+              setState(() => {});
+              if (findUserController.text == AppDb.getCurrentUser()) {
+                return context.once<AppController>().addNotification(
+                    NotificationType.info,
+                    "You cannot send a request to yourself.");
+              }
+
+              if (profile.connections.indexWhere(
+                      (e) => e.username == findUserController.text) >=
+                  0) {
+                return context.once<AppController>().addNotification(
+                    NotificationType.info, "Already connected.");
+              }
+
+              if (profile.sent.indexWhere(
+                      (e) => e.username == findUserController.text) >=
+                  0) {
+                return context.once<AppController>().addNotification(
+                    NotificationType.info,
+                    "Already sent a connection request to user.");
+              }
+
+              if (profile.received.indexWhere(
+                      (e) => e.username == findUserController.text) >=
+                  0) {
+                return context.once<AppController>().addNotification(
+                    NotificationType.info,
+                    "Already received a connection request from user.");
+              }
+
+              if (findUserError == null) {
+                context
+                    .once<AccountController>()
+                    .findUser(findUserController.text)
+                    .then((r) {
+                  r.fold(
+                    (error) {
+                      context.once<AppController>().addNotification(
+                            NotificationType.error,
+                            error.message ??
+                                "Unable to search for users. "
+                                    "Please try again later.",
+                          );
+                    },
+                    confirmConnection,
+                  );
+                });
+              }
+              ;
+            },
+            child: Icon(Icons.search),
+          ),
+        ),
+      )
+    ];
+  }
+
+  List<Widget> renderConnections(ProfileModel profile) {
+    return [
+      SizedBox(height: 16),
+      Text(
+        "Connections (${profile.connections.length})",
+        style: TextStyle(fontSize: 20),
+        textAlign: TextAlign.left,
+      ),
+      SizedBox(height: 16),
+      renderConnectionList(
+        profile.connections,
+        canSeeDetails: true,
+        rightOptionIcon: Icon(
+          Icons.cancel_rounded,
+          color: Colors.red,
+        ),
+        onRightOption: (user) {
+          showModalBottomSheet(
+            context: context,
+            builder: (_) {
+              return ConfirmationDialog(
+                message:
+                    "Do you want to \nremove ${user.firstName} from your connections?",
+                okLabel: "No",
+                cancelColor: Colors.red,
+                cancelLabel: "Yes",
+                onOk: () => Navigator.pop(context),
+                onCancel: () {
+                  context
+                      .once<AccountController>()
+                      .deleteConnection(user.username)
+                      .then((r) {
+                    r.fold((err) {
+                      context.once<AppController>().addNotification(
+                          NotificationType.success,
+                          err.message ??
+                              "Could not remove connection. Please try again later");
+                    }, (_) {
+                      context.once<AppController>().addNotification(
+                          NotificationType.success, "Removed connection.");
+                      Navigator.pop(context);
+                      profile.connections
+                          .removeWhere((e) => e.username == user.username);
+                      refresh();
+                    });
+                  });
+                },
+              );
+            },
+          );
+        },
+      )
+    ];
+  }
+
+  List<Widget> renderReceivedRequests(ProfileModel profile) {
+    return [
+      SizedBox(height: 8),
+      Divider(),
+      SizedBox(height: 8),
+      Text(
+        "Received (${profile.received.length})",
+        style: TextStyle(fontSize: 20),
+        textAlign: TextAlign.left,
+      ),
+      SizedBox(height: 16),
+      renderConnectionList(
+        profile.received,
+        rightOptionIcon: Icon(
+          Icons.cancel_rounded,
+          color: Colors.red,
+        ),
+        leftOptionIcon: Icon(
+          Icons.check_rounded,
+          color: Colors.green,
+        ),
+        onLeftOption: (user) {
+          showModalBottomSheet(
+            context: context,
+            builder: (_) {
+              return ConfirmationDialog(
+                message: "Do you want to \naccept ${user.firstName}'s request?",
+                okLabel: "No",
+                cancelLabel: "Yes",
+                onOk: () => Navigator.pop(context),
+                onCancel: () {
+                  context
+                      .once<AccountController>()
+                      .acceptRequest(user.username)
+                      .then(
+                    (r) {
+                      r.fold(
+                        (err) {
+                          context.once<AppController>().addNotification(
+                              NotificationType.success,
+                              err.message ??
+                                  "Could not accept connection request. Please try again later");
+                        },
+                        (_) {
+                          context.once<AppController>().addNotification(
+                              NotificationType.success,
+                              "Connection Request was accepted.");
+                          Navigator.pop(context);
+                          refresh();
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+        onRightOption: (user) {
+          showModalBottomSheet(
+            context: context,
+            builder: (_) {
+              return ConfirmationDialog(
+                message: "Do you want to \nreject ${user.firstName}'s request?",
+                okLabel: "No",
+                cancelColor: Colors.red,
+                cancelLabel: "Yes",
+                onOk: () => Navigator.pop(context),
+                onCancel: () {
+                  context
+                      .once<AccountController>()
+                      .rejectRequest(user.username)
+                      .then((r) {
+                    r.fold((err) {
+                      context.once<AppController>().addNotification(
+                          NotificationType.success,
+                          err.message ??
+                              "Could not reject connection request. Please try again later");
+                    }, (_) {
+                      context.once<AppController>().addNotification(
+                          NotificationType.success,
+                          "Connection Request was rejected.");
+                      Navigator.pop(context);
+                      profile.received
+                          .removeWhere((e) => e.username == user.username);
+                      refresh();
+                    });
+                  });
+                },
+              );
+            },
+          );
+        },
+      )
+    ];
+  }
+
+  List<Widget> renderSentRequests(ProfileModel profile) {
+    return [
+      SizedBox(height: 8),
+      Divider(),
+      SizedBox(height: 8),
+      Text(
+        "Sent (${profile.sent.length})",
+        style: TextStyle(fontSize: 20),
+        textAlign: TextAlign.left,
+      ),
+      SizedBox(height: 16),
+      renderConnectionList(profile.sent,
+          rightOptionIcon: Icon(
+            Icons.cancel_rounded,
+            color: Colors.red,
+          ), onRightOption: (user) {
+        showModalBottomSheet(
+          context: context,
+          builder: (_) {
+            return ConfirmationDialog(
+              message:
+                  "Do you want to \nrevoke connection request to ${user.firstName}?",
+              okLabel: "No",
+              cancelColor: Colors.red,
+              cancelLabel: "Yes",
+              onOk: () => Navigator.pop(context),
+              onCancel: () {
+                context
+                    .once<AccountController>()
+                    .revokeRequest(user.username)
+                    .then((r) {
+                  r.fold((err) {
+                    context.once<AppController>().addNotification(
+                        NotificationType.success,
+                        err.message ??
+                            "Could not revoke connection request. Please try again later");
+                  }, (_) {
+                    context.once<AppController>().addNotification(
+                        NotificationType.success,
+                        "Connection Request was revoked.");
+                    Navigator.pop(context);
+                    profile.sent
+                        .removeWhere((e) => e.username == user.username);
+                    setState(() => {});
+                  });
+                });
+              },
+            );
+          },
+        );
+      })
+    ];
+  }
+
+  Row renderProfileCard(User user) {
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4.0),
+          child: Container(
+            height: 80.0,
+            width: 80.0,
+            color: Colors.orangeAccent,
+            child: Center(
+              child: Text(
+                ExpensesController().getUserInitials(user),
+                style: Theme.of(context).textTheme.displaySmall!.copyWith(
+                      color: Colors.black,
+                    ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AutoSizeText(
+                user.firstName,
+                maxLines: 1,
+                minFontSize: 24.0,
+                overflow: TextOverflow.ellipsis,
+              ),
+              AutoSizeText(
+                user.lastName,
+                maxLines: 1,
+                minFontSize: 24.0,
+                overflow: TextOverflow.ellipsis,
+              ),
+              AutoSizeText(
+                "ID: ${user.username}",
+                maxLines: 1,
+                minFontSize: 16.0,
+                style: TextStyle(color: Colors.white54),
+                overflow: TextOverflow.ellipsis,
+              )
+            ],
+          ),
+        ),
+        GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+                context: context,
+                builder: (_) {
+                  return ConfirmationDialog(
+                      message: "Are you sure you want to logout?",
+                      icon: Icon(
+                        Icons.warning_rounded,
+                        color: Colors.orange,
+                        size: 100,
+                      ),
+                      okLabel: "Yes",
+                      cancelLabel: "No",
+                      onOk: () {
+                        context.once<AccountController>().logout();
+                        Navigator.pop(context);
+                      },
+                      onCancel: () => Navigator.pop(context));
+                });
+          },
+          child: Icon(
+            Icons.logout_rounded,
+            color: Colors.red,
+          ),
+        )
+      ],
+    );
+  }
+
+  ListView renderConnectionList(
+    List<User> list, {
+    Icon? leftOptionIcon,
+    Icon? rightOptionIcon,
+    void Function(User user)? onLeftOption,
+    void Function(User user)? onRightOption,
+    bool canSeeDetails = false,
+  }) {
+    return ListView.builder(
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: list.length,
+      itemBuilder: (context, i) {
+        return Theme(
+          data: ThemeData(
+            splashFactory: NoSplash.splashFactory,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: ListTile(
+            onTap: canSeeDetails ? () => showConnectionKey(list[i]) : null,
+            contentPadding: EdgeInsets.symmetric(horizontal: 8),
+            leading: CircleAvatar(
+              backgroundColor: Colors.orangeAccent,
+              radius: 24.0,
+              child: Text(
+                "${list[i].firstName[0].toUpperCase()}"
+                "${list[i].lastName[0].toUpperCase()}",
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Colors.black,
+                    ),
+              ),
+            ),
+            title: Text(
+              "${list[i].firstName} ${list[i].lastName}",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            trailing: Container(
+              width: 80,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  if (leftOptionIcon != null)
+                    GestureDetector(
+                      onTap: () =>
+                          {if (onLeftOption != null) onLeftOption(list[i])},
+                      child: leftOptionIcon,
+                    ),
+                  SizedBox(width: 32),
+                  if (rightOptionIcon != null)
+                    GestureDetector(
+                      onTap: () =>
+                          {if (onRightOption != null) onRightOption(list[i])},
+                      child: rightOptionIcon,
+                    ),
+                ],
+              ),
+            ),
+            subtitle: Text(
+              "ID: ${list[i].username}",
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                    color: Colors.grey,
+                  ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void showEncryptionKey() {
     bool showingKey = false;
     bool copiedKey = false;
     showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Wrap(
-            children: [
-              FutureBuilder(
-                  future: getEncryptionKey,
-                  builder: (context, snapshot) {
-                    var isDone =
-                        snapshot.connectionState == ConnectionState.done;
-                    if (!isDone) {
-                      return Container(
-                        height: 200,
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.orangeAccent,
+      context: context,
+      builder: (context) {
+        return Wrap(
+          children: [
+            FutureBuilder(
+                future: getEncryptionKey,
+                builder: (context, snapshot) {
+                  var isDone = snapshot.connectionState == ConnectionState.done;
+                  if (!isDone) {
+                    return Container(
+                      height: 200,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: Colors.orangeAccent,
+                        ),
+                      ),
+                    );
+                  }
+                  return StatefulBuilder(builder: (context, setState) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 32, horizontal: 16)
+                              .copyWith(
+                        top: 24,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                showingKey
+                                    ? Icons.lock_open_rounded
+                                    : Icons.lock_rounded,
+                                color: Colors.white,
+                              ),
+                              SizedBox(width: 16),
+                              Text(
+                                "Your Encrpytion Key",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium!
+                                    .copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ],
                           ),
-                        ),
-                      );
-                    }
-                    return StatefulBuilder(builder: (context, setState) {
-                      return Container(
-                        width: MediaQuery.of(context).size.width,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 32, horizontal: 16)
-                                .copyWith(
-                          top: 24,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  showingKey
-                                      ? Icons.lock_open_rounded
-                                      : Icons.lock_rounded,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 16),
-                                Text(
-                                  "Your Encrpytion Key",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(
-                                        color: Colors.white,
+                          SizedBox(height: 8),
+                          Divider(),
+                          SizedBox(height: 8),
+                          Container(
+                            height: 100,
+                            decoration: BoxDecoration(
+                                color: Colors.orangeAccent,
+                                borderRadius: BorderRadius.circular(4)),
+                            child: Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(
+                                child: showingKey
+                                    ? Text(
+                                        snapshot.data!,
+                                        textAlign: TextAlign.center,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headlineMedium!
+                                            .copyWith(
+                                              color: Colors.black,
+                                            ),
+                                      )
+                                    : Text(
+                                        "●●● ●●● ●●●\n●●● ●●●",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.black),
                                       ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8),
-                            Divider(),
-                            SizedBox(height: 8),
-                            Container(
-                              height: 100,
-                              decoration: BoxDecoration(
-                                  color: Colors.orangeAccent,
-                                  borderRadius: BorderRadius.circular(4)),
-                              child: Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(
-                                  child: showingKey
-                                      ? Text(
-                                          snapshot.data!,
-                                          textAlign: TextAlign.center,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineMedium!
-                                              .copyWith(
-                                                color: Colors.black,
-                                              ),
-                                        )
-                                      : Text(
-                                          "●●● ●●● ●●●\n●●● ●●●",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 20,
-                                              color: Colors.black),
-                                        ),
-                                ),
                               ),
                             ),
-                            SizedBox(height: 16),
-                            Theme(
-                              data: ThemeData(
-                                  splashFactory: NoSplash.splashFactory),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: GestureDetector(
-                                      child: MaterialButton(
-                                        onPressed: () {
-                                          setState(
-                                              () => showingKey = !showingKey);
-                                        },
-                                        color: showingKey
-                                            ? Colors.red
-                                            : Colors.black,
-                                        child: Center(
-                                          child: Text(
-                                            "${showingKey ? "Hide" : "Show"} Key",
-                                            style: TextStyle(
-                                              color: Colors.red.shade50,
-                                            ),
+                          ),
+                          SizedBox(height: 16),
+                          Theme(
+                            data: ThemeData(
+                                splashFactory: NoSplash.splashFactory),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    child: MaterialButton(
+                                      onPressed: () {
+                                        setState(
+                                            () => showingKey = !showingKey);
+                                      },
+                                      color: showingKey
+                                          ? Colors.red
+                                          : Colors.black,
+                                      child: Center(
+                                        child: Text(
+                                          "${showingKey ? "Hide" : "Show"} Key",
+                                          style: TextStyle(
+                                            color: Colors.red.shade50,
                                           ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
-                                  Expanded(
-                                    child: MaterialButton(
-                                      onPressed: () async {
-                                        copiedKey = true;
-                                        setState(() => {});
-                                        await Clipboard.setData(
-                                          ClipboardData(
-                                            text: snapshot.data!,
-                                          ),
-                                        );
-                                      },
-                                      color: copiedKey
-                                          ? Colors.green
-                                          : Colors.black,
-                                      child: Center(
-                                        child: Text(
-                                          copiedKey ? "Copied!" : "Copy Key",
-                                          style: TextStyle(
-                                            color: Colors.green.shade50,
-                                          ),
+                                ),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: MaterialButton(
+                                    onPressed: () async {
+                                      copiedKey = true;
+                                      setState(() => {});
+                                      await Clipboard.setData(
+                                        ClipboardData(
+                                          text: snapshot.data!,
+                                        ),
+                                      );
+                                    },
+                                    color:
+                                        copiedKey ? Colors.green : Colors.black,
+                                    child: Center(
+                                      child: Text(
+                                        copiedKey ? "Copied!" : "Copy Key",
+                                        style: TextStyle(
+                                          color: Colors.green.shade50,
                                         ),
                                       ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    });
-                  })
-            ],
-          );
-        });
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  });
+                })
+          ],
+        );
+      },
+    );
   }
-
-  List<User> connections = ExpensesController().dummyUsers.sublist(1, 3);
 
   void showDeleteConnection(User user) {
     showModalBottomSheet(
@@ -248,7 +775,7 @@ class _ViewState extends State<AccountView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text("User",
+                      Text("Full Name",
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall!
@@ -263,7 +790,7 @@ class _ViewState extends State<AccountView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text("Email",
+                      Text("Username/ID",
                           style: Theme.of(context)
                               .textTheme
                               .headlineSmall!
@@ -361,9 +888,6 @@ class _ViewState extends State<AccountView> {
     );
   }
 
-  TextEditingController findUserController = TextEditingController();
-  String? findUserError = null;
-
   void confirmConnection(User user) {
     if (user.username == AppDb.getCurrentUser()) {
       return context.once<AppController>().addNotification(
@@ -398,6 +922,7 @@ class _ViewState extends State<AccountView> {
                             ), (_) {
                       context.once<AppController>().addNotification(
                           NotificationType.success, "Sent connection request!");
+                      refresh();
                     });
                   }).whenComplete(() => Navigator.pop(context));
                 });
@@ -417,322 +942,6 @@ class _ViewState extends State<AccountView> {
           ),
         ),
       ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: getProfile,
-        builder: (context, snapshot) {
-          var isDone = snapshot.connectionState == ConnectionState.done;
-          if (!isDone)
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.orangeAccent,
-                ),
-              ),
-            );
-
-          if (!snapshot.hasData) renderError();
-          return snapshot.data!.fold(
-            (_) => renderError(),
-            (profile) => Scaffold(
-              body: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 8,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      renderProfileCard(profile.details),
-                      ...renderKeySection(),
-                      ...renderUserSearch(),
-                      if (profile.connections.isNotEmpty)
-                        ...renderConnections(profile),
-                      if (profile.connections.isNotEmpty)
-                        ...renderReceivedRequests(profile),
-                      if (profile.connections.isNotEmpty)
-                        ...renderSentRequests(profile)
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  List<Widget> renderKeySection() {
-    return [
-      SizedBox(height: 8),
-      Divider(),
-      SizedBox(height: 8),
-      GestureDetector(
-        onTap: showEncryptionKey,
-        child: Card(
-          color: Colors.transparent,
-          margin: EdgeInsets.zero,
-          elevation: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Encryption Key", style: TextStyle(fontSize: 20)),
-              Container(
-                child: IconButton.filled(
-                  style: IconButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      splashFactory: NoSplash.splashFactory),
-                  onPressed: showEncryptionKey,
-                  color: Colors.black,
-                  icon: Icon(
-                    Icons.password_rounded,
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      )
-    ];
-  }
-
-  List<Widget> renderUserSearch() {
-    return [
-      SizedBox(height: 8),
-      Divider(),
-      SizedBox(height: 8),
-      Text(
-        "Connect",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
-      ),
-      SizedBox(height: 8),
-      TextField(
-        controller: findUserController,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(),
-          hintText: 'Find People',
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white24, width: 1.0),
-          ),
-          errorText: findUserError,
-          errorMaxLines: 2,
-          errorStyle: TextStyle(color: Colors.red),
-          errorBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.red, width: 1.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white12, width: 1.0),
-          ),
-          suffixIcon: GestureDetector(
-            onTap: () {
-              if (findUserController.text.isEmpty) return;
-              findUserError = isValidUsername(findUserController.text);
-              setState(() => {});
-              if (findUserError == null) {
-                context
-                    .once<AccountController>()
-                    .findUser(findUserController.text)
-                    .then((r) {
-                  r.fold(
-                    (error) {
-                      context.once<AppController>().addNotification(
-                            NotificationType.error,
-                            error.message ??
-                                "Unable to search for users. "
-                                    "Please try again later.",
-                          );
-                    },
-                    confirmConnection,
-                  );
-                });
-              }
-              ;
-            },
-            child: Icon(Icons.search),
-          ),
-        ),
-      )
-    ];
-  }
-
-  List<Widget> renderConnections(ProfileModel profile) {
-    return [
-      SizedBox(height: 16),
-      Text(
-        "Connections (${profile.connections.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
-      ),
-      SizedBox(height: 16),
-      renderConnectionList(profile.connections)
-    ];
-  }
-
-  List<Widget> renderReceivedRequests(ProfileModel profile) {
-    return [
-      SizedBox(height: 8),
-      Divider(),
-      SizedBox(height: 8),
-      Text(
-        "Received (${profile.connections.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
-      ),
-      SizedBox(height: 16),
-      renderConnectionList(profile.connections)
-    ];
-  }
-
-  List<Widget> renderSentRequests(ProfileModel profile) {
-    return [
-      SizedBox(height: 8),
-      Divider(),
-      SizedBox(height: 8),
-      Text(
-        "Sent (${profile.connections.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
-      ),
-      SizedBox(height: 16),
-      renderConnectionList(profile.connections)
-    ];
-  }
-
-  Row renderProfileCard(User user) {
-    return Row(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4.0),
-          child: Container(
-            height: 80.0,
-            width: 80.0,
-            color: Colors.orangeAccent,
-            child: Center(
-              child: Text(
-                ExpensesController().getUserInitials(user),
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                      color: Colors.black,
-                    ),
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AutoSizeText(
-                user.firstName,
-                maxLines: 1,
-                minFontSize: 24.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-              AutoSizeText(
-                user.lastName,
-                maxLines: 1,
-                minFontSize: 24.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-              AutoSizeText(
-                "ID: ${user.username}",
-                maxLines: 1,
-                minFontSize: 16.0,
-                style: TextStyle(color: Colors.white54),
-                overflow: TextOverflow.ellipsis,
-              )
-            ],
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-                context: context,
-                builder: (_) {
-                  return ConfirmationDialog(
-                      message: "Are you sure you want to logout?",
-                      icon: Icon(
-                        Icons.warning_rounded,
-                        color: Colors.orange,
-                        size: 100,
-                      ),
-                      okLabel: "Yes",
-                      cancelLabel: "No",
-                      onOk: () {
-                        context.once<AccountController>().logout();
-                        Navigator.pop(context);
-                      },
-                      onCancel: () => Navigator.pop(context));
-                });
-          },
-          child: Icon(
-            Icons.logout_rounded,
-            color: Colors.red,
-          ),
-        )
-      ],
-    );
-  }
-
-  ListView renderConnectionList(List<User> connections) {
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: connections.length,
-      itemBuilder: (context, i) {
-        return Theme(
-          data: ThemeData(
-            splashFactory: NoSplash.splashFactory,
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-          ),
-          child: ListTile(
-            onTap: () => showConnectionKey(connections[i]),
-            contentPadding: EdgeInsets.symmetric(horizontal: 8),
-            leading: CircleAvatar(
-              backgroundColor: Colors.orangeAccent,
-              radius: 24.0,
-              child: Text(
-                "${connections[i].firstName[0].toUpperCase()}"
-                "${connections[i].lastName[0].toUpperCase()}",
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Colors.black,
-                    ),
-              ),
-            ),
-            title: Text(
-              "${connections[i].firstName} ${connections[i].lastName}",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            trailing: Container(
-              width: 80,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () => showDeleteConnection(connections[i]),
-                    child: Icon(
-                      Icons.cancel,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            subtitle: Text(
-              connections[i].username,
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
