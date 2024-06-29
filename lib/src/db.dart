@@ -21,7 +21,8 @@ class AppDb extends Db {
         user.firstName,
         user.lastName,
       ]);
-    } else return Db.store.remove(getCurrentConnectionKey(me));
+    } else
+      return Db.store.remove(getCurrentConnectionKey(me));
   }
 
   static User? getCurrentConnection() {
@@ -47,7 +48,9 @@ class AppDb extends Db {
   }
 
   static String? getCurrentUser() {
-    return Db.store.getString(USER) ?? null;
+    var user = Db.store.getString(USER) ?? null;
+    if (user == null) throw UserNotSetException();
+    return user;
   }
 
   static Future<String?> getEncryptionKey() async {

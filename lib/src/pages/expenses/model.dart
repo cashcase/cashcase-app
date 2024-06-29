@@ -2,7 +2,7 @@ import 'package:cashcase/src/pages/account/model.dart';
 
 class ExpensesPageData {}
 
-enum ExpenseType { saved, spent }
+enum ExpenseType { SAVED, SPENT }
 
 const SavingsCategories = [
   "income",
@@ -39,7 +39,8 @@ class Expense {
   ExpenseType type;
   double amount;
   String category;
-  DateTime date;
+  DateTime createdOn;
+  DateTime updatedOn;
   User user;
   String id;
   String? notes;
@@ -49,18 +50,25 @@ class Expense {
     required this.type,
     required this.amount,
     required this.category,
-    required this.date,
+    required this.createdOn,
+    required this.updatedOn,
     this.notes = "",
   });
 
   static fromJson(dynamic data) {
     return Expense(
-      id: idGenerator(),
-      user: User.fromJson(data['user']),
-      type: data['type'],
-      amount: data['amount'],
+      id: data['id'] ?? idGenerator(),
+      user: User.fromJson({
+        "username": data['username'],
+        "firstName": data['firstName'],
+        "lastName": data['lastName'],
+      }),
+      type: ExpenseType.values
+          .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
+      amount: double.parse(data['amount']),
       category: data['category'],
-      date: data['date'],
+      createdOn: DateTime.parse(data['createdOn']),
+      updatedOn: DateTime.parse(data['updatedOn']),
     );
   }
 
@@ -71,7 +79,8 @@ class Expense {
       "type": this.type.name,
       "amount": this.amount,
       "category": this.category,
-      "date": this.date.toUtc()
+      "createdOn": this.createdOn.toUtc(),
+      "updatedOn": this.updatedOn.toUtc()
     }.toString();
   }
 }
@@ -105,7 +114,7 @@ class GroupedExpense {
       categoryExpenses: {},
     );
     expenses.toList().forEach((each) {
-      var isSaving = each.type == ExpenseType.saved;
+      var isSaving = each.type == ExpenseType.SAVED;
       if (!expense.categoryExpenses.containsKey(each.category)) {
         expense.categoryExpenses[each.category] = CategoryExpense(
           amount: 0,
@@ -115,8 +124,8 @@ class GroupedExpense {
       }
       if (!expense.categoryExpenses[each.category]!.userExpenses
           .containsKey(each.user.username)) {
-        expense.categoryExpenses[each.category]!.userExpenses[each.user.username] =
-            UserExpense(
+        expense.categoryExpenses[each.category]!
+            .userExpenses[each.user.username] = UserExpense(
           amount: 0,
           user: each.user,
           isSaving: isSaving,

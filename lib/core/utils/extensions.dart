@@ -19,6 +19,16 @@ extension StringConverters on String {
 }
 
 extension DateTimeExtension on DateTime {
+  static DateTime parseUtc(String formattedDate) =>
+      DateTime.parse('${formattedDate}z');
+
+  static DateTime? tryParseUtc(String? formattedDate) {
+    if (formattedDate != null) {
+      return DateTime.tryParse('${formattedDate}z');
+    }
+    return null;
+  }
+
   String daysAgo({bool numericDates = true}) {
     final date2 = DateTime.now();
     final difference = date2.difference(this);

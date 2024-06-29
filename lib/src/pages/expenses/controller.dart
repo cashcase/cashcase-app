@@ -1,7 +1,12 @@
 import 'dart:math';
+import 'package:cashcase/core/api/index.dart';
+import 'package:cashcase/core/utils/models.dart';
+import 'package:dio/dio.dart';
 import 'package:cashcase/core/base/controller.dart';
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
+import 'package:either_dart/either.dart';
 
 int btwn(Random source, int start, int end) =>
     source.nextInt(start) * (end - start) + start;
@@ -41,7 +46,7 @@ class ExpensesController extends BaseController {
       List<User> users, ExpenseType type, List<String> category, int count) {
     List<Expense> spent = List.generate(count, (i) {
       final _random = Random();
-      var isSaving = type == ExpenseType.saved;
+      var isSaving = type == ExpenseType.SAVED;
       var category = (isSaving ? SavingsCategories : SpentCategories)[_random
           .nextInt((isSaving ? SavingsCategories : SpentCategories).length)];
       var oneOfTwo = _random.nextInt(users.length);
@@ -59,9 +64,9 @@ class ExpensesController extends BaseController {
 
   List<Expense> generateRandomExpenses() {
     var saved = _generateRandomExpenses(
-        dummyUsers, ExpenseType.saved, SavingsCategories, 2);
+        dummyUsers, ExpenseType.SAVED, SavingsCategories, 2);
     var spent = _generateRandomExpenses(
-        dummyUsers, ExpenseType.spent, SpentCategories, btwn(Random(), 2, 15));
+        dummyUsers, ExpenseType.SPENT, SpentCategories, btwn(Random(), 2, 15));
     spent.sort((Expense a, Expense b) => a.category.compareTo(b.category));
     return [...saved, ...spent];
   }
@@ -69,5 +74,21 @@ class ExpensesController extends BaseController {
   Future<List<Expense>> getExpenses(DateTime date) async {
     await Future.delayed(Duration(seconds: 0), () {});
     return generateRandomExpenses();
+  }
+
+  Future<Either<AppError, List<Expense>>> getExpense(
+    DateTime date,
+    String username,
+    String? currentConn,
+  ) async {
+    Response? response = await ApiHandler.get(
+      "/expense${currentConn != null ? "?include=$currentConn" : ""}",
+    );
+    return ResponseModel.respond(
+      response,
+      (data) => ((data ?? []) as List)
+          .map<Expense>((e) => Expense.fromJson(e))
+          .toList(),
+    );
   }
 }

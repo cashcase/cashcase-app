@@ -1,6 +1,9 @@
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/date-picker.dart';
+import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
+import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
@@ -13,15 +16,20 @@ class ExpensesView extends StatefulWidget {
 }
 
 class _ViewState extends State<ExpensesView> {
-  late Future<List<Expense>?> _future;
+  late Future<Either<AppError, List<Expense>>> _future;
 
   bool isSaving = false;
   late String? typeOfAddingValue;
 
   DateTime selectedDate = DateTime.now();
 
-  Future<List<Expense>> get expensesFuture =>
-      context.once<ExpensesController>().getExpenses(selectedDate);
+  Future<Either<AppError, List<Expense>>> get expensesFuture {
+    var currentUser = AppDb.getCurrentUser();
+    var currentConn = AppDb.getCurrentConnection();
+    return context
+        .once<ExpensesController>()
+        .getExpense(selectedDate, currentUser!, currentConn?.username);
+  }
 
   @override
   void initState() {
@@ -36,7 +44,7 @@ class _ViewState extends State<ExpensesView> {
   }
 
   Future showExpenseDetails(Expense expense) {
-    var isSaved = expense.type == ExpenseType.saved;
+    var isSaved = expense.type == ExpenseType.SAVED;
     TextEditingController notesController =
         TextEditingController(text: expense.notes ?? "");
     return showModalBottomSheet(
@@ -131,7 +139,7 @@ class _ViewState extends State<ExpensesView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            DateFormat().format(expense.date),
+                            DateFormat().format(expense.createdOn),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium!
@@ -230,44 +238,69 @@ class _ViewState extends State<ExpensesView> {
     );
   }
 
+  Scaffold renderError() {
+    return Scaffold(
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: Text(
+            "Unable to get your expenses. \nPlease try again after sometime.",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: FutureBuilder<List<Expense>?>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return Container();
-          List<Expense> expenses = snapshot.data!;
-          return Container(
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    DatePicker(
-                      onDateChange: (date) {
-                        selectedDate = date;
-                        _future = expensesFuture;
-                        setState(() => {});
-                      },
-                    ),
-                    Expanded(
-                      child: renderGroupedExpenses(
-                        GroupedExpense.fromExpenses(
-                          expenses,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: renderFooter(),
-                )
-              ],
+    return FutureBuilder(
+      future: _future,
+      builder: (context, snapshot) {
+        var isDone = snapshot.connectionState == ConnectionState.done;
+        if (!isDone)
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.orangeAccent,
+              ),
             ),
           );
-        },
-      ),
+        if (!snapshot.hasData) renderError();
+        return snapshot.data!.fold((_) => renderError(), (expenses) {
+          return Scaffold(
+            body: Container(
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      DatePicker(
+                        onDateChange: (date) {
+                          selectedDate = date;
+                          _future = expensesFuture;
+                          setState(() => {});
+                        },
+                      ),
+                      Expanded(
+                        child: renderGroupedExpenses(
+                          GroupedExpense.fromExpenses(
+                            expenses,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    child: renderFooter(),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
+      },
     );
   }
 
@@ -345,7 +378,7 @@ class _ViewState extends State<ExpensesView> {
                   highlightColor: Colors.transparent,
                 ),
                 child: ExpansionTile(
-                  backgroundColor: Colors.black45,
+                  backgroundColor: Colors.orangeAccent.withOpacity(0.1),
                   collapsedIconColor: isSaving ? Colors.green : Colors.red,
                   iconColor: isSaving ? Colors.green : Colors.red,
                   title: Text(
@@ -401,7 +434,7 @@ class _ViewState extends State<ExpensesView> {
                               color: isSaving ? Colors.green : Colors.red,
                             ),
                       ),
-                      tilePadding: EdgeInsets.all(8).copyWith(left: 8),
+                      tilePadding: EdgeInsets.symmetric(horizontal: 8).copyWith(left: 8),
                       children: userExpenseIds.mapIndexed((i, expenseId) {
                         var expense = userExpense.expenses[expenseId]!;
                         if (expense.amount <= 0) return Container();
@@ -423,7 +456,7 @@ class _ViewState extends State<ExpensesView> {
                                   ),
                             ),
                             subtitle: Text(
-                              DateFormat().format(expense.date),
+                              DateFormat().format(expense.createdOn),
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyMedium!
