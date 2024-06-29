@@ -485,9 +485,9 @@ class _ViewState extends State<ExpensesView> {
                               var userExpense = userExpenses[userId]!;
                               var amount = userExpense.amount;
                               if (amount == 0) return Container();
-                              var userExpenseIds =
-                                  userExpense.expenses.keys.toList();
+                              var expenses = userExpense.expenses;
                               return ExpansionTile(
+                                key: ValueKey<String>(userId),
                                 title: Text(
                                   "${userExpense.user.firstName} ${userExpense.user.lastName}"
                                       .toCamelCase(),
@@ -497,7 +497,7 @@ class _ViewState extends State<ExpensesView> {
                                       .copyWith(),
                                 ),
                                 subtitle: Text(
-                                  "${userExpenseIds.length} transaction${userExpenseIds.length == 1 ? "" : "s"}",
+                                  "${expenses.length} transaction${expenses.length == 1 ? "" : "s"}",
                                   style: TextStyle(color: Colors.grey.shade600),
                                 ),
                                 controlAffinity:
@@ -526,12 +526,10 @@ class _ViewState extends State<ExpensesView> {
                                 ),
                                 tilePadding: EdgeInsets.symmetric(horizontal: 8)
                                     .copyWith(left: 8),
-                                children:
-                                    userExpenseIds.mapIndexed((i, expenseId) {
-                                  var expense =
-                                      userExpense.expenses[expenseId]!;
+                                children: expenses.mapIndexed((i, expense) {
                                   if (expense.amount <= 0) return Container();
                                   return Dismissible(
+                                    key: ValueKey<String>("${expense.id}-$i"),
                                     direction: expense.user.username !=
                                             AppDb.getCurrentUser()
                                         ? DismissDirection.none
@@ -561,7 +559,6 @@ class _ViewState extends State<ExpensesView> {
                                         ],
                                       ),
                                     ),
-                                    key: Key(expense.id),
                                     confirmDismiss: expense.user.username !=
                                             AppDb.getCurrentUser()
                                         ? null

@@ -1,4 +1,5 @@
 import 'package:cashcase/src/pages/account/model.dart';
+import 'package:sortedmap/sortedmap.dart';
 
 class ExpensesPageData {}
 
@@ -108,7 +109,7 @@ class CollectedExpense {
 class GroupedExpense {
   double totalSaved;
   double totalSpent;
-  Map<String, CategoryExpense> categoryExpenses;
+  SortedMap<String, CategoryExpense> categoryExpenses;
   GroupedExpense({
     required this.totalSaved,
     required this.totalSpent,
@@ -116,10 +117,11 @@ class GroupedExpense {
   });
 
   static GroupedExpense fromExpenses(List<Expense> expenses) {
+    var categoryExpenses = SortedMap<String, CategoryExpense>(Ordering.byKey());
     GroupedExpense expense = GroupedExpense(
       totalSaved: 0,
       totalSpent: 0,
-      categoryExpenses: {},
+      categoryExpenses: SortedMap(),
     );
     expenses.toList().forEach((each) {
       var isSaving = each.type == ExpenseType.SAVED;
@@ -127,9 +129,12 @@ class GroupedExpense {
         expense.categoryExpenses[each.category] = CategoryExpense(
           amount: 0,
           isSaving: isSaving,
-          userExpenses: {},
+          userExpenses: SortedMap(),
         );
       }
+
+      var userExpenses = SortedMap<String, UserExpense>(Ordering.byKey());
+
       if (!expense.categoryExpenses[each.category]!.userExpenses
           .containsKey(each.user.username)) {
         expense.categoryExpenses[each.category]!
@@ -138,9 +143,7 @@ class GroupedExpense {
           user: each.user,
           isSaving: isSaving,
           notes: each.notes ?? "",
-          expenses: {
-            each.id: each,
-          },
+          expenses: [each],
         );
       }
       if (isSaving)
@@ -152,10 +155,21 @@ class GroupedExpense {
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .amount += each.amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
-          .expenses[each.id] = each;
+          .expenses
+          .add(each);
+      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
+          .expenses
+          .sort((a, b) => a.amount > b.amount ? -1 : 1);
+      userExpenses
+          .addAll(expense.categoryExpenses[each.category]!.userExpenses);
+      expense.categoryExpenses[each.category]!.userExpenses = userExpenses;
     });
+
     expense.totalSaved = expense.totalSaved;
     expense.totalSpent = expense.totalSpent;
+
+    categoryExpenses.addAll(expense.categoryExpenses);
+    expense.categoryExpenses = categoryExpenses;
     return expense;
   }
 }
@@ -163,7 +177,7 @@ class GroupedExpense {
 class CategoryExpense {
   double amount;
   bool isSaving;
-  Map<String, UserExpense> userExpenses;
+  SortedMap<String, UserExpense> userExpenses;
   CategoryExpense({
     required this.isSaving,
     required this.amount,
@@ -184,7 +198,7 @@ class UserExpense {
   double amount;
   bool isSaving;
   User user;
-  Map<String, Expense> expenses;
+  List<Expense> expenses;
   String? notes;
   UserExpense(
       {required this.user,

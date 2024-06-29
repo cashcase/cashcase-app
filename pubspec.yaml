@@ -43,12 +43,11 @@ dependencies:
   google_fonts:
   easy_date_timeline: 
   auto_size_text:
-  fl_chart:
   word_generator:
   flutter_secure_storage:
   action_slider:
   either_dart:
-
+  sortedmap:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
