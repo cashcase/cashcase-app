@@ -16,14 +16,14 @@ class _ExpensesPage extends BaseView<ExpensesPage, ExpensesController> {
   _ExpensesPage() : super(ExpensesController());
 
   @override
-  Widget get desktopView => ExpensesView();
+  Widget get desktopView => ExpensesView(data: widget.data);
 
   @override
-  Widget get mobileView => ExpensesView();
+  Widget get mobileView => ExpensesView(data: widget.data);
 
   @override
-  Widget get tabletView => ExpensesView();
+  Widget get tabletView => ExpensesView(data: widget.data);
 
   @override
-  Widget get watchView => ExpensesView();
+  Widget get watchView => ExpensesView(data: widget.data);
 }

@@ -43,12 +43,16 @@ class _HomePageWidgetState extends State<HomePageView> {
     HomePageViewModel(
       label: 'Expenses',
       icon: Icons.book,
-      builder: (c) => ExpensesPage(),
+      builder: (c) {
+        return ExpensesPage(key: GlobalKey());
+      },
     ),
     HomePageViewModel(
       label: 'Account',
       icon: Icons.account_circle_rounded,
-      builder: (c) => AccountPage(),
+      builder: (c) {
+        return AccountPage(key: GlobalKey());
+      },
     ),
   ];
 

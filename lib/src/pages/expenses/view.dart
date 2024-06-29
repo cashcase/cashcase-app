@@ -14,6 +14,8 @@ import 'package:intl/intl.dart';
 import 'package:collection/collection.dart';
 
 class ExpensesView extends StatefulWidget {
+  ExpensesPageData? data;
+  ExpensesView({this.data});
   @override
   State<ExpensesView> createState() => _ViewState();
 }
@@ -47,6 +49,50 @@ class _ViewState extends State<ExpensesView> {
     categoryOfExpenseToAdd =
         (isSaving ? SavingsCategories : SpentCategories)[0];
     super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: Column(
+          children: [
+            DatePicker(
+              focusedDate: selectedDate,
+              onDateChange: (date) {
+                selectedDate = date;
+                refresh();
+              },
+            ),
+            FutureBuilder(
+              future: _future,
+              builder: (context, snapshot) {
+                var isDone = snapshot.connectionState == ConnectionState.done;
+                if (!isDone)
+                  return Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.orangeAccent,
+                      ),
+                    ),
+                  );
+                if (isDone && !snapshot.hasData) return renderError();
+                return snapshot.data!.fold(
+                  (_) => renderError(),
+                  (expenses) {
+                    ExpenseListController controller =
+                        ExpenseListController(expenses: expenses);
+                    return Expanded(
+                      child: renderGroupedExpenses(controller),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future saveExpense(
@@ -280,50 +326,6 @@ class _ViewState extends State<ExpensesView> {
           "Unable to get your expenses. \nPlease try again after sometime.",
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 16),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        child: Column(
-          children: [
-            DatePicker(
-              focusedDate: selectedDate,
-              onDateChange: (date) {
-                selectedDate = date;
-                refresh();
-              },
-            ),
-            FutureBuilder(
-              future: _future,
-              builder: (context, snapshot) {
-                var isDone = snapshot.connectionState == ConnectionState.done;
-                if (!isDone)
-                  return Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.orangeAccent,
-                      ),
-                    ),
-                  );
-                if (isDone && !snapshot.hasData) return renderError();
-                return snapshot.data!.fold(
-                  (_) => renderError(),
-                  (expenses) {
-                    ExpenseListController controller =
-                        ExpenseListController(expenses: expenses);
-                    return Expanded(
-                      child: renderGroupedExpenses(controller),
-                    );
-                  },
-                );
-              },
-            ),
-          ],
         ),
       ),
     );
