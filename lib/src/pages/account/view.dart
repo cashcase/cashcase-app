@@ -227,7 +227,7 @@ class _ViewState extends State<AccountView> {
         profile.connections,
         canSeeDetails: true,
         rightOptionIcon: Icon(
-          Icons.cancel_rounded,
+          Icons.remove_circle_rounded,
           color: Colors.red,
         ),
         onRightOption: (user) {
@@ -252,12 +252,10 @@ class _ViewState extends State<AccountView> {
                           err.message ??
                               "Could not remove connection. Please try again later");
                     }, (_) {
+                      Navigator.pop(context);
+                      refresh();
                       context.once<AppController>().addNotification(
                           NotificationType.success, "Removed connection.");
-                      Navigator.pop(context);
-                      profile.connections
-                          .removeWhere((e) => e.username == user.username);
-                      refresh();
                     });
                   });
                 },
@@ -313,11 +311,11 @@ class _ViewState extends State<AccountView> {
                                   "Could not accept connection request. Please try again later");
                         },
                         (_) {
+                          Navigator.pop(context);
+                          refresh();
                           context.once<AppController>().addNotification(
                               NotificationType.success,
                               "Connection Request was accepted.");
-                          Navigator.pop(context);
-                          refresh();
                         },
                       );
                     },
@@ -348,13 +346,11 @@ class _ViewState extends State<AccountView> {
                           err.message ??
                               "Could not reject connection request. Please try again later");
                     }, (_) {
+                      Navigator.pop(context);
+                      refresh();
                       context.once<AppController>().addNotification(
                           NotificationType.success,
                           "Connection Request was rejected.");
-                      Navigator.pop(context);
-                      profile.received
-                          .removeWhere((e) => e.username == user.username);
-                      refresh();
                     });
                   });
                 },
@@ -403,13 +399,11 @@ class _ViewState extends State<AccountView> {
                         err.message ??
                             "Could not revoke connection request. Please try again later");
                   }, (_) {
+                    Navigator.pop(context);
+                    refresh();
                     context.once<AppController>().addNotification(
                         NotificationType.success,
                         "Connection Request was revoked.");
-                    Navigator.pop(context);
-                    profile.sent
-                        .removeWhere((e) => e.username == user.username);
-                    setState(() => {});
                   });
                 });
               },
@@ -920,11 +914,12 @@ class _ViewState extends State<AccountView> {
                               err.message ??
                                   'Unable to send request at this time. Please try again later',
                             ), (_) {
+                      Navigator.pop(context);
+                      refresh();
                       context.once<AppController>().addNotification(
                           NotificationType.success, "Sent connection request!");
-                      refresh();
                     });
-                  }).whenComplete(() => Navigator.pop(context));
+                  });
                 });
           });
     }

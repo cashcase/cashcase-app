@@ -53,14 +53,14 @@ class AppController extends BaseController {
 
   addNotification(NotificationType type, String message) {
     currentNotification = NotificationModel(message, type);
+    if (_debouncer != null) _debouncer!.cancel();
     _debouncer = Debouncer(milliseconds: 1000 * 5);
     _debouncer?.run(clearNotifications);
-    notify();
+    notifyListeners();
   }
 
   clearNotifications() {
     currentNotification = null;
-    _debouncer?.cancel();
-    notify();
+    notifyListeners();
   }
 }

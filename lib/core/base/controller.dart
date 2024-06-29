@@ -50,9 +50,7 @@ abstract class BaseController
   @protected
   void notify() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_isMounted) {
-        notifyListeners();
-      }
+      notifyListeners();
     });
   }
 
