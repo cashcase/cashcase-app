@@ -247,16 +247,14 @@ class _ViewState extends State<ExpensesView> {
     );
   }
 
-  Scaffold renderError() {
-    return Scaffold(
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: Text(
-            "Unable to get your expenses. \nPlease try again after sometime.",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
-          ),
+  Widget renderError() {
+    return Center(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 40),
+        child: Text(
+          "Unable to get your expenses. \nPlease try again after sometime.",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16),
         ),
       ),
     );
@@ -264,53 +262,54 @@ class _ViewState extends State<ExpensesView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _future,
-      builder: (context, snapshot) {
-        var isDone = snapshot.connectionState == ConnectionState.done;
-        if (!snapshot.hasData) renderError();
-        return snapshot.data!.fold((_) => renderError(), (expenses) {
-          return Scaffold(
-            body: Container(
-              child: Stack(
-                children: [
-                  Column(
-                    children: [
-                      DatePicker(
-                        focusedDate: selectedDate,
-                        onDateChange: (date) {
-                          selectedDate = date;
-                          refresh();
-                        },
-                      ),
-                      if (isDone)
-                        Expanded(
-                          child: renderGroupedExpenses(
-                            GroupedExpense.fromExpenses(
-                              expenses,
-                            ),
+    return Scaffold(
+      body: Container(
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                DatePicker(
+                  focusedDate: selectedDate,
+                  onDateChange: (date) {
+                    selectedDate = date;
+                    refresh();
+                  },
+                ),
+                FutureBuilder(
+                  future: _future,
+                  builder: (context, snapshot) {
+                    var isDone =
+                        snapshot.connectionState == ConnectionState.done;
+                    if (!isDone)
+                      return Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.orangeAccent,
                           ),
-                        )
-                      else
-                        Expanded(
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.orangeAccent,
-                            ),
+                        ),
+                      );
+                    if (isDone && !snapshot.hasData) return renderError();
+                    return snapshot.data!.fold((_) => renderError(),
+                        (expenses) {
+                      return Expanded(
+                        child: renderGroupedExpenses(
+                          GroupedExpense.fromExpenses(
+                            expenses,
                           ),
-                        )
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: renderFooter(),
-                  ),
-                ],
-              ),
+                        ),
+                      );
+                    });
+                  },
+                ),
+              ],
             ),
-          );
-        });
-      },
+            Positioned(
+              bottom: 0,
+              child: renderFooter(),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -482,7 +481,8 @@ class _ViewState extends State<ExpensesView> {
                                     ),
                               ),
                               subtitle: Text(
-                                DateFormat().format(expense.createdOn),
+                                DateFormat('dd MMMM yyyy hh:mm a')
+                                    .format(expense.createdOn.toLocal()),
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodyMedium!

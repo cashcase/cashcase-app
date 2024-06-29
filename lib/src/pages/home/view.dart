@@ -59,7 +59,6 @@ class _HomePageWidgetState extends State<HomePageView> {
         builder: (context, snapshot) {
           var isDone = snapshot.connectionState == ConnectionState.done;
           var noKey = isDone && snapshot.data == null;
-          var currentConn = AppDb.getCurrentConnection();
           return SafeArea(
             top: false,
             bottom: false,
