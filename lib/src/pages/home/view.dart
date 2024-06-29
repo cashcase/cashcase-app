@@ -1,10 +1,9 @@
-import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/components/group-avatar.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/page.dart';
-import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
+import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
 
@@ -100,12 +99,18 @@ class _HomePageWidgetState extends State<HomePageView> {
                                 )
                               ],
                             ),
-                            if (currentConn != null)
-                              GroupAvatar(
-                                users: [currentConn]
-                                    .map((e) => e.getInitials())
-                                    .toList(),
-                              )
+                            ValueListenableBuilder(
+                                valueListenable: context
+                                    .once<HomePageController>()
+                                    .currentConn,
+                                builder: (context, currentConn, child) {
+                                  if (currentConn == null) return Container();
+                                  return GroupAvatar(
+                                    users: [currentConn]
+                                        .map((e) => e.getInitials())
+                                        .toList(),
+                                  );
+                                })
                           ],
                         ),
                       ),

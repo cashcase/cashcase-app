@@ -12,15 +12,16 @@ class AppDb extends Db {
   static String getCurrentConnectionKey(String user) =>
       "__cashcase_current_connection_$user";
 
-  static Future<bool> setCurrentConnection(User conn) async {
-    var user = AppDb.getCurrentUser();
-    if (user == null) throw UserNotSetException();
-    var status = await Db.store.setStringList(getCurrentConnectionKey(user), [
-      conn.username,
-      conn.firstName,
-      conn.lastName,
-    ]);
-    return status;
+  static Future<bool> setCurrentConnection(User? user) async {
+    var me = AppDb.getCurrentUser();
+    if (me == null) throw UserNotSetException();
+    if (user != null) {
+      return await Db.store.setStringList(getCurrentConnectionKey(me), [
+        user.username,
+        user.firstName,
+        user.lastName,
+      ]);
+    } else return Db.store.remove(getCurrentConnectionKey(me));
   }
 
   static User? getCurrentConnection() {

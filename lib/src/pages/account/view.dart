@@ -8,6 +8,7 @@ import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
+import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter/material.dart';
@@ -215,6 +216,7 @@ class _ViewState extends State<AccountView> {
   }
 
   List<Widget> renderConnections(ProfileModel profile) {
+    var currentConn = AppDb.getCurrentConnection();
     return [
       SizedBox(height: 16),
       Text(
@@ -226,10 +228,24 @@ class _ViewState extends State<AccountView> {
       renderConnectionList(
         profile.connections,
         canSeeDetails: true,
-        rightOptionIcon: Icon(
+        rightOptionIcon: (_) => Icon(
           Icons.remove_circle_rounded,
           color: Colors.red,
         ),
+        leftOptionIcon: (user) {
+          return Icon(
+            Icons.people_rounded,
+            color: user.username == currentConn?.username
+                ? Colors.blue
+                : Colors.grey.withOpacity(0.25),
+            size: 28,
+          );
+        },
+        onLeftOption: (user) {
+          context.once<HomePageController>().setCurrentUser(
+              user.username == currentConn?.username ? null : user);
+          setState(() {});
+        },
         onRightOption: (user) {
           showModalBottomSheet(
             context: context,
@@ -252,6 +268,7 @@ class _ViewState extends State<AccountView> {
                           err.message ??
                               "Could not remove connection. Please try again later");
                     }, (_) {
+                      context.once<HomePageController>().setCurrentUser(null);
                       Navigator.pop(context);
                       refresh();
                       context.once<AppController>().addNotification(
@@ -280,11 +297,11 @@ class _ViewState extends State<AccountView> {
       SizedBox(height: 16),
       renderConnectionList(
         profile.received,
-        rightOptionIcon: Icon(
+        rightOptionIcon: (_) => Icon(
           Icons.cancel_rounded,
           color: Colors.red,
         ),
-        leftOptionIcon: Icon(
+        leftOptionIcon: (_) => Icon(
           Icons.check_rounded,
           color: Colors.green,
         ),
@@ -374,43 +391,44 @@ class _ViewState extends State<AccountView> {
       ),
       SizedBox(height: 16),
       renderConnectionList(profile.sent,
-          rightOptionIcon: Icon(
-            Icons.cancel_rounded,
-            color: Colors.red,
-          ), onRightOption: (user) {
-        showModalBottomSheet(
-          context: context,
-          builder: (_) {
-            return ConfirmationDialog(
-              message:
-                  "Do you want to \nrevoke connection request to ${user.firstName}?",
-              okLabel: "No",
-              cancelColor: Colors.red,
-              cancelLabel: "Yes",
-              onOk: () => Navigator.pop(context),
-              onCancel: () {
-                context
-                    .once<AccountController>()
-                    .revokeRequest(user.username)
-                    .then((r) {
-                  r.fold((err) {
-                    context.once<AppController>().addNotification(
-                        NotificationType.success,
-                        err.message ??
-                            "Could not revoke connection request. Please try again later");
-                  }, (_) {
-                    Navigator.pop(context);
-                    refresh();
-                    context.once<AppController>().addNotification(
-                        NotificationType.success,
-                        "Connection Request was revoked.");
-                  });
-                });
+          rightOptionIcon: (_) => Icon(
+                Icons.cancel_rounded,
+                color: Colors.red,
+              ),
+          onRightOption: (user) {
+            showModalBottomSheet(
+              context: context,
+              builder: (_) {
+                return ConfirmationDialog(
+                  message:
+                      "Do you want to \nrevoke connection request to ${user.firstName}?",
+                  okLabel: "No",
+                  cancelColor: Colors.red,
+                  cancelLabel: "Yes",
+                  onOk: () => Navigator.pop(context),
+                  onCancel: () {
+                    context
+                        .once<AccountController>()
+                        .revokeRequest(user.username)
+                        .then((r) {
+                      r.fold((err) {
+                        context.once<AppController>().addNotification(
+                            NotificationType.success,
+                            err.message ??
+                                "Could not revoke connection request. Please try again later");
+                      }, (_) {
+                        Navigator.pop(context);
+                        refresh();
+                        context.once<AppController>().addNotification(
+                            NotificationType.success,
+                            "Connection Request was revoked.");
+                      });
+                    });
+                  },
+                );
               },
             );
-          },
-        );
-      })
+          })
     ];
   }
 
@@ -492,8 +510,8 @@ class _ViewState extends State<AccountView> {
 
   ListView renderConnectionList(
     List<User> list, {
-    Icon? leftOptionIcon,
-    Icon? rightOptionIcon,
+    Icon? Function(User user)? leftOptionIcon,
+    Icon? Function(User user)? rightOptionIcon,
     void Function(User user)? onLeftOption,
     void Function(User user)? onRightOption,
     bool canSeeDetails = false,
@@ -532,19 +550,21 @@ class _ViewState extends State<AccountView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  if (leftOptionIcon != null)
-                    GestureDetector(
-                      onTap: () =>
-                          {if (onLeftOption != null) onLeftOption(list[i])},
-                      child: leftOptionIcon,
-                    ),
-                  SizedBox(width: 32),
-                  if (rightOptionIcon != null)
-                    GestureDetector(
-                      onTap: () =>
-                          {if (onRightOption != null) onRightOption(list[i])},
-                      child: rightOptionIcon,
-                    ),
+                  GestureDetector(
+                    onTap: () =>
+                        {if (onLeftOption != null) onLeftOption(list[i])},
+                    child: leftOptionIcon == null
+                        ? Container()
+                        : leftOptionIcon(list[i]),
+                  ),
+                  SizedBox(width: 24),
+                  GestureDetector(
+                    onTap: () =>
+                        {if (onRightOption != null) onRightOption(list[i])},
+                    child: rightOptionIcon == null
+                        ? Container()
+                        : rightOptionIcon(list[i]),
+                  ),
                 ],
               ),
             ),
