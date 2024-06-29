@@ -57,12 +57,13 @@ class Expense {
 
   static fromJson(dynamic data) {
     return Expense(
-      id: data['id'] ?? idGenerator(),
+      id: data['id'],
       user: User.fromJson({
         "username": data['username'],
         "firstName": data['firstName'],
         "lastName": data['lastName'],
       }),
+      notes: data['notes'],
       type: ExpenseType.values
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
       amount: double.parse(data['amount']),
@@ -78,6 +79,7 @@ class Expense {
       "user": this.user,
       "type": this.type.name,
       "amount": this.amount,
+      "notes": this.notes,
       "category": this.category,
       "createdOn": this.createdOn.toUtc(),
       "updatedOn": this.updatedOn.toUtc()
@@ -130,6 +132,7 @@ class GroupedExpense {
           amount: 0,
           user: each.user,
           isSaving: isSaving,
+          notes: each.notes ?? "",
           expenses: {
             each.id: each,
           },
@@ -177,12 +180,13 @@ class UserExpense {
   bool isSaving;
   User user;
   Map<String, Expense> expenses;
-  UserExpense({
-    required this.user,
-    required this.isSaving,
-    required this.amount,
-    required this.expenses,
-  });
+  String? notes;
+  UserExpense(
+      {required this.user,
+      required this.isSaving,
+      required this.amount,
+      required this.expenses,
+      required this.notes});
 
   @override
   String toString() {
@@ -191,5 +195,42 @@ class UserExpense {
       "isSaving": this.isSaving,
       "expenses": this.expenses.toString()
     }.toString();
+  }
+}
+
+class ExpenseListController {
+  List<Expense> expenses;
+  void Function(void Function())? refresh;
+  ExpenseListController({
+    required this.expenses,
+    this.refresh,
+  });
+
+  setRefresher(void Function(void Function()) fn) {
+    refresh = fn;
+  }
+
+  GroupedExpense getGroupedExpenses() {
+    return GroupedExpense.fromExpenses(this.expenses);
+  }
+
+  _refresh() {
+    if (refresh != null) refresh!(() => {});
+  }
+
+  remove(String id, {refresh = true}) {
+    this.expenses.removeWhere((e) => e.id == id);
+    _refresh();
+  }
+
+  add(Expense expense) {
+    this.expenses.add(expense);
+    _refresh();
+  }
+
+  update(Expense expense, String notes) {
+    expense.notes = notes;
+    remove(expense.id, refresh: false);
+    add(expense);
   }
 }

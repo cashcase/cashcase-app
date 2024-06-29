@@ -67,7 +67,7 @@ class ResponseModel<T> {
     try {
       if (response?.data['status'])
         return Right(builder(response!.data['data']));
-      throw response?.data['error'];
+      throw response?.data['error'] ?? response?.data['data'];
     } catch (e) {
       log.shout(e);
       return Left(AppError(

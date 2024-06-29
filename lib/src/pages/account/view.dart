@@ -7,7 +7,6 @@ import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
-import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:either_dart/either.dart';
@@ -16,10 +15,7 @@ import 'package:flutter/services.dart';
 
 class AccountView extends StatefulWidget {
   AccountPageData? data;
-  AccountView({
-    super.key,
-    this.data,
-  });
+  AccountView({this.data});
   @override
   State<AccountView> createState() => _ViewState();
 }
@@ -47,49 +43,50 @@ class _ViewState extends State<AccountView> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getProfile,
-        builder: (context, snapshot) {
-          var isDone = snapshot.connectionState == ConnectionState.done;
-          if (!isDone)
+      future: getProfile,
+      builder: (context, snapshot) {
+        var isDone = snapshot.connectionState == ConnectionState.done;
+        if (!isDone)
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(
+                color: Colors.orangeAccent,
+              ),
+            ),
+          );
+
+        if (!snapshot.hasData) renderError();
+        return snapshot.data!.fold(
+          (_) => renderError(),
+          (profile) {
             return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.orangeAccent,
+              body: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      renderProfileCard(profile.details),
+                      ...renderKeySection(),
+                      ...renderUserSearch(profile),
+                      if (profile.connections.isNotEmpty)
+                        ...renderConnections(profile),
+                      if (profile.received.isNotEmpty)
+                        ...renderReceivedRequests(profile),
+                      if (profile.sent.isNotEmpty)
+                        ...renderSentRequests(profile)
+                    ],
+                  ),
                 ),
               ),
             );
-
-          if (!snapshot.hasData) renderError();
-          return snapshot.data!.fold(
-            (_) => renderError(),
-            (profile) {
-              return Scaffold(
-                body: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        renderProfileCard(profile.details),
-                        ...renderKeySection(),
-                        ...renderUserSearch(profile),
-                        if (profile.connections.isNotEmpty)
-                          ...renderConnections(profile),
-                        if (profile.received.isNotEmpty)
-                          ...renderReceivedRequests(profile),
-                        if (profile.sent.isNotEmpty)
-                          ...renderSentRequests(profile)
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        });
+          },
+        );
+      },
+    );
   }
 
   List<Widget> renderKeySection() {

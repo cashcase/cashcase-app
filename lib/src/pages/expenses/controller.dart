@@ -36,12 +36,12 @@ class ExpensesController extends BaseController {
     );
   }
 
-  Future<Either<AppError, void>> createExpense(
+  Future<Either<AppError, Expense>> createExpense(
       {required String amount,
       String notes = "",
       required ExpenseType type,
       required String category}) async {
-    Response? response = await ApiHandler.put("/expense", {
+    Response? response = await ApiHandler.post("/expense", {
       "amount": amount,
       "notes": notes,
       "type": type.name,
@@ -49,7 +49,25 @@ class ExpensesController extends BaseController {
     });
     return ResponseModel.respond(
       response,
+      (data) => Expense.fromJson(data),
+    );
+  }
+
+  Future<Either<AppError, void>> deleteExpense(String id) async {
+    Response? response = await ApiHandler.delete("/expense/$id", {});
+    return ResponseModel.respond(
+      response,
       (data) => null,
+    );
+  }
+
+  Future<Either<AppError, bool>> editExpenseNotes(
+      String id, String notes) async {
+    Response? response =
+        await ApiHandler.patch("/expense/$id", {"notes": notes});
+    return ResponseModel.respond(
+      response,
+      (data) => true,
     );
   }
 }
