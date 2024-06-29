@@ -29,6 +29,11 @@ extension DateTimeExtension on DateTime {
     return null;
   }
 
+  DateTime startOfToday() => DateTime(this.year, this.month, this.day);
+
+  DateTime startOfTmro() =>
+      DateTime(this.year, this.month, this.day + 1);
+
   String daysAgo({bool numericDates = true}) {
     final date2 = DateTime.now();
     final difference = date2.difference(this);
@@ -115,5 +120,11 @@ extension ContextExtension on BuildContext {
 
   void push(String location) {
     GoRouter.of(this).push(location);
+  }
+}
+
+extension DoubleExtension on double {
+  roundTo2() {
+    return double.parse(this.toStringAsFixed(2));
   }
 }

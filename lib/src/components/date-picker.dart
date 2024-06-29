@@ -63,17 +63,19 @@ class _DropdownState extends State<Dropdown> {
 }
 
 class DatePicker extends StatefulWidget {
+  DateTime focusedDate;
   Function(DateTime) onDateChange;
-  DatePicker({required this.onDateChange});
+  DatePicker({
+    required this.onDateChange,
+    required this.focusedDate,
+  });
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
-  DateTime _focusDate = DateTime.now();
-
+  late DateTime _focusDate;
   final startYear = 2024;
-
   final List<String> months = [
     'January',
     'February',
@@ -88,11 +90,12 @@ class _DatePickerState extends State<DatePicker> {
     'November',
     'December'
   ];
-
   late final List<String> years;
+
   @override
   void initState() {
     super.initState();
+    _focusDate = widget.focusedDate;
     years = _focusDate.year == startYear
         ? [startYear.toString()]
         : List.generate(

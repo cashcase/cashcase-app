@@ -107,6 +107,7 @@ class GroupedExpense {
     required this.totalSpent,
     required this.categoryExpenses,
   });
+
   static GroupedExpense fromExpenses(List<Expense> expenses) {
     GroupedExpense expense = GroupedExpense(
       totalSaved: 0,
@@ -145,6 +146,8 @@ class GroupedExpense {
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .expenses[each.id] = each;
     });
+    expense.totalSaved = expense.totalSaved;
+    expense.totalSpent = expense.totalSpent;
     return expense;
   }
 }

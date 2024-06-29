@@ -443,7 +443,7 @@ class _ViewState extends State<AccountView> {
             color: Colors.orangeAccent,
             child: Center(
               child: Text(
-                ExpensesController().getUserInitials(user),
+                user.getInitials(),
                 style: Theme.of(context).textTheme.displaySmall!.copyWith(
                       color: Colors.black,
                     ),
