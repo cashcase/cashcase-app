@@ -19,25 +19,12 @@ extension StringConverters on String {
 }
 
 extension DateTimeExtension on DateTime {
-  static DateTime parseUtc(String formattedDate) =>
-      DateTime.parse('${formattedDate}z');
-
-  static DateTime? tryParseUtc(String? formattedDate) {
-    if (formattedDate != null) {
-      return DateTime.tryParse('${formattedDate}z');
-    }
-    return null;
-  }
-
   DateTime startOfToday() => DateTime(this.year, this.month, this.day);
-
-  DateTime startOfTmro() =>
-      DateTime(this.year, this.month, this.day + 1);
+  DateTime startOfTmro() => DateTime(this.year, this.month, this.day + 1);
 
   String daysAgo({bool numericDates = true}) {
     final date2 = DateTime.now();
     final difference = date2.difference(this);
-    print((difference.inDays / 7).floor());
     if ((difference.inDays / 7).floor() >= 1) {
       return (numericDates) ? '1 week ago' : 'Last week';
     } else if (difference.inDays >= 2) {

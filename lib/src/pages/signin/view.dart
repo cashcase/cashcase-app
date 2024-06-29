@@ -23,7 +23,6 @@ class _SigninViewState extends State<SigninView> {
 
   @override
   Widget build(BuildContext context) {
-    print(AppDb.getRandomKey());
     return Scaffold(
       body: Center(
         child: Column(

@@ -74,7 +74,6 @@ class _ViewState extends State<ExpensesView> {
 
   Future showExpenseDetails(Expense expense, ExpenseListController controller) {
     var isSaved = expense.type == ExpenseType.SAVED;
-    print(expense.notes);
     TextEditingController notesController =
         TextEditingController(text: expense.notes ?? "");
     return showModalBottomSheet(
@@ -404,258 +403,285 @@ class _ViewState extends State<ExpensesView> {
                     ],
                   ),
                 ),
-                SizedBox(height: 8),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(
-                        bottom: kFloatingActionButtonMargin + 48),
-                    shrinkWrap: true,
-                    itemCount: categoryExpenses.length,
-                    itemBuilder: (context, index) {
-                      var category = categoryExpenses[index];
-                      var isSaving =
-                          groupedExpenses.categoryExpenses[category]!.isSaving;
-                      var amount =
-                          groupedExpenses.categoryExpenses[category]!.amount;
-                      if (amount == 0) return Container();
-                      var userExpenses = groupedExpenses
-                          .categoryExpenses[category]!.userExpenses;
-                      return Theme(
-                        data: Theme.of(context).copyWith(
-                          dividerColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          highlightColor: Colors.transparent,
+                if (controller.expenses.isEmpty)
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Icon(
+                          Icons.event_busy_rounded,
+                          size: 80,
+                          color: Colors.white12,
                         ),
-                        child: ExpansionTile(
-                          backgroundColor: Colors.black.withOpacity(0.25),
-                          collapsedIconColor:
-                              isSaving ? Colors.green : Colors.red,
-                          iconColor: isSaving ? Colors.green : Colors.red,
-                          title: Text(
-                            categoryExpenses[index].toCamelCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(),
+                        SizedBox(height: 8),
+                        Text(
+                          "No expenses on this day",
+                          style: TextStyle(
+                            color: Colors.white24,
                           ),
-                          trailing: Text(
-                            "${isSaving ? "+" : "-"} "
-                            "${amount.roundTo2()}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleLarge!
-                                .copyWith(
-                                  color: isSaving ? Colors.green : Colors.red,
+                        )
+                      ],
+                    ),
+                  ),
+                SizedBox(height: 8),
+                if (controller.expenses.isNotEmpty)
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(
+                          bottom: kFloatingActionButtonMargin + 48),
+                      shrinkWrap: true,
+                      itemCount: categoryExpenses.length,
+                      itemBuilder: (context, index) {
+                        var category = categoryExpenses[index];
+                        var isSaving = groupedExpenses
+                            .categoryExpenses[category]!.isSaving;
+                        var amount =
+                            groupedExpenses.categoryExpenses[category]!.amount;
+                        if (amount == 0) return Container();
+                        var userExpenses = groupedExpenses
+                            .categoryExpenses[category]!.userExpenses;
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            dividerColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent,
+                          ),
+                          child: ExpansionTile(
+                            backgroundColor: Colors.black.withOpacity(0.25),
+                            collapsedIconColor:
+                                isSaving ? Colors.green : Colors.red,
+                            iconColor: isSaving ? Colors.green : Colors.red,
+                            title: Text(
+                              categoryExpenses[index].toCamelCase(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .copyWith(),
+                            ),
+                            trailing: Text(
+                              "${isSaving ? "+" : "-"} "
+                              "${amount.roundTo2()}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .copyWith(
+                                    color: isSaving ? Colors.green : Colors.red,
+                                  ),
+                            ),
+                            subtitle: userExpenses.isNotEmpty
+                                ? Text(
+                                    "${userExpenses.keys.join(", ")}",
+                                    style:
+                                        TextStyle(color: Colors.grey.shade600),
+                                  )
+                                : null,
+                            leading: Icon(isSaving
+                                ? Icons.add_rounded
+                                : Icons.remove_rounded),
+                            tilePadding: EdgeInsets.symmetric(horizontal: 8),
+                            controlAffinity: ListTileControlAffinity.leading,
+                            children: userExpenses.keys.toList().map((userId) {
+                              var userExpense = userExpenses[userId]!;
+                              var amount = userExpense.amount;
+                              if (amount == 0) return Container();
+                              var userExpenseIds =
+                                  userExpense.expenses.keys.toList();
+                              return ExpansionTile(
+                                title: Text(
+                                  "${userExpense.user.firstName} ${userExpense.user.lastName}"
+                                      .toCamelCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(),
                                 ),
-                          ),
-                          subtitle: userExpenses.isNotEmpty
-                              ? Text(
-                                  "${userExpenses.keys.join(", ")}",
+                                subtitle: Text(
+                                  "${userExpenseIds.length} transaction${userExpenseIds.length == 1 ? "" : "s"}",
                                   style: TextStyle(color: Colors.grey.shade600),
-                                )
-                              : null,
-                          leading: Icon(isSaving
-                              ? Icons.add_rounded
-                              : Icons.remove_rounded),
-                          tilePadding: EdgeInsets.symmetric(horizontal: 8),
-                          controlAffinity: ListTileControlAffinity.leading,
-                          children: userExpenses.keys.toList().map((userId) {
-                            var userExpense = userExpenses[userId]!;
-                            var amount = userExpense.amount;
-                            if (amount == 0) return Container();
-                            var userExpenseIds =
-                                userExpense.expenses.keys.toList();
-                            return ExpansionTile(
-                              title: Text(
-                                "${userExpense.user.firstName} ${userExpense.user.lastName}"
-                                    .toCamelCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(),
-                              ),
-                              subtitle: Text(
-                                "${userExpenseIds.length} transaction${userExpenseIds.length == 1 ? "" : "s"}",
-                                style: TextStyle(color: Colors.grey.shade600),
-                              ),
-                              controlAffinity: ListTileControlAffinity.trailing,
-                              leading: CircleAvatar(
-                                backgroundColor: Colors.orangeAccent,
-                                radius: 18.0,
-                                child: Text(
-                                  userExpense.user.getInitials(),
-                                  style: TextStyle(
-                                    color: Colors.black,
+                                ),
+                                controlAffinity:
+                                    ListTileControlAffinity.trailing,
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.orangeAccent,
+                                  radius: 18.0,
+                                  child: Text(
+                                    userExpense.user.getInitials(),
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              trailing: Text(
-                                "${isSaving ? "+" : "-"} "
-                                "${amount.roundTo2()}",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                      color:
-                                          isSaving ? Colors.green : Colors.red,
-                                    ),
-                              ),
-                              tilePadding: EdgeInsets.symmetric(horizontal: 8)
-                                  .copyWith(left: 8),
-                              children:
-                                  userExpenseIds.mapIndexed((i, expenseId) {
-                                var expense = userExpense.expenses[expenseId]!;
-                                if (expense.amount <= 0) return Container();
-                                return Dismissible(
-                                  direction: expense.user.username !=
-                                          AppDb.getCurrentUser()
-                                      ? DismissDirection.none
-                                      : DismissDirection.horizontal,
-                                  background: Container(
-                                    color: Colors.red.shade800,
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 28, vertical: 8),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Icon(
-                                          Icons.delete_rounded,
-                                          color: Colors.white,
-                                        ),
-                                        Text(
-                                          "Delete",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium,
-                                        ),
-                                        Icon(
-                                          Icons.delete_rounded,
-                                          color: Colors.white,
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  key: Key(expense.id),
-                                  confirmDismiss: expense.user.username !=
-                                          AppDb.getCurrentUser()
-                                      ? null
-                                      : (direction) {
-                                          return showModalBottomSheet(
-                                            context: context,
-                                            builder: (_) {
-                                              return ConfirmationDialog(
-                                                message:
-                                                    "Do you want to \ndelete this expense?",
-                                                okLabel: "No",
-                                                cancelLabel: "Yes",
-                                                onOk: () =>
-                                                    Navigator.pop(context),
-                                                onCancel: () {
-                                                  context
-                                                      .once<
-                                                          ExpensesController>()
-                                                      .deleteExpense(expense.id)
-                                                      .then(
-                                                    (r) {
-                                                      r.fold(
-                                                        (err) {
-                                                          context
-                                                              .once<
-                                                                  AppController>()
-                                                              .addNotification(
-                                                                  NotificationType
-                                                                      .error,
-                                                                  err.message ??
-                                                                      "Could not delete expense. Please try again later");
-                                                        },
-                                                        (_) {
-                                                          Navigator.pop(
-                                                              context);
-                                                          controller.remove(
-                                                              expense.id);
-                                                          context
-                                                              .once<
-                                                                  AppController>()
-                                                              .addNotification(
-                                                                  NotificationType
-                                                                      .success,
-                                                                  "Expense was deleted!");
-                                                        },
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                              );
-                                            },
-                                          );
-                                        },
-                                  child: ListTile(
-                                    onTap: () =>
-                                        showExpenseDetails(expense, controller),
-                                    contentPadding:
-                                        EdgeInsets.only(left: 60, right: 8),
-                                    leading: Text(
-                                      "${i + 1}",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge!
-                                          .copyWith(
-                                            color: Colors.grey.shade600,
+                                trailing: Text(
+                                  "${isSaving ? "+" : "-"} "
+                                  "${amount.roundTo2()}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(
+                                        color: isSaving
+                                            ? Colors.green
+                                            : Colors.red,
+                                      ),
+                                ),
+                                tilePadding: EdgeInsets.symmetric(horizontal: 8)
+                                    .copyWith(left: 8),
+                                children:
+                                    userExpenseIds.mapIndexed((i, expenseId) {
+                                  var expense =
+                                      userExpense.expenses[expenseId]!;
+                                  if (expense.amount <= 0) return Container();
+                                  return Dismissible(
+                                    direction: expense.user.username !=
+                                            AppDb.getCurrentUser()
+                                        ? DismissDirection.none
+                                        : DismissDirection.horizontal,
+                                    background: Container(
+                                      color: Colors.red.shade800,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 28, vertical: 8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Icon(
+                                            Icons.delete_rounded,
+                                            color: Colors.white,
                                           ),
-                                    ),
-                                    subtitle: Text(
-                                      DateFormat('dd MMMM yyyy hh:mm a')
-                                          .format(expense.createdOn.toLocal()),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            color: Colors.grey.shade600,
-                                          ),
-                                    ),
-                                    title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            (expense.notes ?? "").isNotEmpty
-                                                ? expense.notes
-                                                : expense.category
-                                                    .toCamelCase(),
-                                            overflow: TextOverflow.ellipsis,
+                                          Text(
+                                            "Delete",
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .titleLarge!
-                                                .copyWith(),
+                                                .titleMedium,
                                           ),
-                                        ),
-                                        SizedBox(width: 16),
-                                        Text(
-                                          "${isSaving ? "+" : "-"} "
-                                          "${expense.amount}",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium!
-                                              .copyWith(
-                                                color: isSaving
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                              ),
-                                        ),
-                                      ],
+                                          Icon(
+                                            Icons.delete_rounded,
+                                            color: Colors.white,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              }).toList(),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    },
+                                    key: Key(expense.id),
+                                    confirmDismiss: expense.user.username !=
+                                            AppDb.getCurrentUser()
+                                        ? null
+                                        : (direction) {
+                                            return showModalBottomSheet(
+                                              context: context,
+                                              builder: (_) {
+                                                return ConfirmationDialog(
+                                                  message:
+                                                      "Do you want to \ndelete this expense?",
+                                                  okLabel: "No",
+                                                  cancelLabel: "Yes",
+                                                  onOk: () =>
+                                                      Navigator.pop(context),
+                                                  onCancel: () {
+                                                    context
+                                                        .once<
+                                                            ExpensesController>()
+                                                        .deleteExpense(
+                                                            expense.id)
+                                                        .then(
+                                                      (r) {
+                                                        r.fold(
+                                                          (err) {
+                                                            context
+                                                                .once<
+                                                                    AppController>()
+                                                                .addNotification(
+                                                                    NotificationType
+                                                                        .error,
+                                                                    err.message ??
+                                                                        "Could not delete expense. Please try again later");
+                                                          },
+                                                          (_) {
+                                                            Navigator.pop(
+                                                                context);
+                                                            controller.remove(
+                                                                expense.id);
+                                                            context
+                                                                .once<
+                                                                    AppController>()
+                                                                .addNotification(
+                                                                    NotificationType
+                                                                        .success,
+                                                                    "Expense was deleted!");
+                                                          },
+                                                        );
+                                                      },
+                                                    );
+                                                  },
+                                                );
+                                              },
+                                            );
+                                          },
+                                    child: ListTile(
+                                      onTap: () => showExpenseDetails(
+                                          expense, controller),
+                                      contentPadding:
+                                          EdgeInsets.only(left: 60, right: 8),
+                                      leading: Text(
+                                        "${i + 1}",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge!
+                                            .copyWith(
+                                              color: Colors.grey.shade600,
+                                            ),
+                                      ),
+                                      subtitle: Text(
+                                        DateFormat('dd MMMM yyyy hh:mm a')
+                                            .format(expense.createdOn),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              color: Colors.grey.shade600,
+                                            ),
+                                      ),
+                                      title: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              (expense.notes ?? "").isNotEmpty
+                                                  ? expense.notes
+                                                  : expense.category
+                                                      .toCamelCase(),
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .titleLarge!
+                                                  .copyWith(),
+                                            ),
+                                          ),
+                                          SizedBox(width: 16),
+                                          Text(
+                                            "${isSaving ? "+" : "-"} "
+                                            "${expense.amount}",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium!
+                                                .copyWith(
+                                                  color: isSaving
+                                                      ? Colors.green
+                                                      : Colors.red,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -772,7 +798,8 @@ class _ViewState extends State<ExpensesView> {
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";
-                  controller.expenses.add(expense);
+                  controller.add(expense);
+                  controller.notify();
                 });
               });
             },

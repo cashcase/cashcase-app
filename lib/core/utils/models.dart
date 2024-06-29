@@ -65,9 +65,10 @@ class ResponseModel<T> {
     T Function(dynamic data) builder,
   ) {
     try {
-      if (response?.data['status'])
+      if (response?.data['status']) {
         return Right(builder(response!.data['data']));
-      throw response?.data['error'] ?? response?.data['data'];
+      }
+      throw response?.data['error'];
     } catch (e) {
       log.shout(e);
       return Left(AppError(

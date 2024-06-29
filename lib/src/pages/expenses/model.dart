@@ -55,6 +55,11 @@ class Expense {
     this.notes = "",
   });
 
+  static _parseDateTime(String value) {
+    if (value.endsWith("Z")) return DateTime.parse(value).toLocal();
+    return DateTime.parse("${value}Z").toLocal();
+  }
+
   static fromJson(dynamic data) {
     return Expense(
       id: data['id'],
@@ -68,8 +73,8 @@ class Expense {
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
       amount: double.parse(data['amount']),
       category: data['category'],
-      createdOn: DateTime.parse(data['createdOn']),
-      updatedOn: DateTime.parse(data['updatedOn']),
+      createdOn: _parseDateTime(data['createdOn']),
+      updatedOn: _parseDateTime(data['updatedOn']),
     );
   }
 
@@ -214,18 +219,18 @@ class ExpenseListController {
     return GroupedExpense.fromExpenses(this.expenses);
   }
 
-  _refresh() {
+  notify() {
     if (refresh != null) refresh!(() => {});
   }
 
   remove(String id, {refresh = true}) {
     this.expenses.removeWhere((e) => e.id == id);
-    _refresh();
+    notify();
   }
 
   add(Expense expense) {
     this.expenses.add(expense);
-    _refresh();
+    notify();
   }
 
   update(Expense expense, String notes) {
