@@ -206,11 +206,13 @@ class GroupedExpense {
               each.amount = Encrypter.decrypt(each.amount, keys.last!);
             }
           }
+          // If its still not a double, the decrypt failed.
+          if (double.tryParse(each.amount) == null) throw '';
         } catch (e) {
           each.amount = "0.0";
         }
       }
-
+      
       var amount = double.parse(each.amount);
 
       if (isSaving)

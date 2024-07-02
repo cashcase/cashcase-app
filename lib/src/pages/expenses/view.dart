@@ -81,8 +81,13 @@ class _ViewState extends State<ExpensesView> {
                         width: double.infinity,
                         height: 80,
                         child: Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.orangeAccent,
+                          child: Text(
+                            "Loading timeline...",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white38,
+                            ),
                           ),
                         ),
                       );
