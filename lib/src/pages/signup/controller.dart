@@ -12,7 +12,7 @@ class SignupController extends BaseController {
 
   SignupController({SignupPageData? data});
 
-  Future<Either<AppError, ResponseModel>> signup(
+  Future<Either<AppError, bool>> signup(
     String username,
     String password,
     String firstName,
@@ -24,9 +24,9 @@ class SignupController extends BaseController {
       "firstName": firstName,
       "lastName": lastName,
     });
-    return ResponseModel.respond<ResponseModel>(
+    return ResponseModel.respond<bool>(
       response,
-      (data) => data,
+      (data) => true,
     );
   }
 }

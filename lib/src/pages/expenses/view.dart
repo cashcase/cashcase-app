@@ -29,7 +29,7 @@ class _ViewState extends State<ExpensesView> {
   DateTime selectedDate = DateTime.now();
   ValueNotifier<ExpenseDatePickerController> expenseDatePickerController =
       ValueNotifier(ExpenseDatePickerController());
-  ValueNotifier<bool> datePickerReady = ValueNotifier(false);
+  ValueNotifier<bool?> datePickerReady = ValueNotifier(false);
   late Future<List<String?>> _keyGetterFuture;
 
   Future<Either<AppError, ExpensesByDate>> get expensesFuture {
@@ -64,6 +64,11 @@ class _ViewState extends State<ExpensesView> {
     super.initState();
   }
 
+  void setDatePickerState(bool? state) {
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => datePickerReady.value = state);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,13 +81,13 @@ class _ViewState extends State<ExpensesView> {
                 ValueListenableBuilder(
                   valueListenable: datePickerReady,
                   builder: (context, value, child) {
-                    if (!value) {
+                    if (value != true) {
                       return Container(
                         width: double.infinity,
                         height: 80,
                         child: Center(
                           child: Text(
-                            "Loading timeline...",
+                            value == false ? "Loading timeline..." : "",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
@@ -120,9 +125,15 @@ class _ViewState extends State<ExpensesView> {
                           ),
                         ),
                       );
-                    if (isDone && !snapshot.hasData) return renderError();
+                    if (isDone && !snapshot.hasData) {
+                      setDatePickerState(null);
+                      return renderError();
+                    }
                     return snapshot.data!.fold(
-                      (_) => renderError(),
+                      (_) {
+                        setDatePickerState(null);
+                        return renderError();
+                      },
                       (data) {
                         ExpenseListController controller =
                             ExpenseListController(
@@ -133,8 +144,7 @@ class _ViewState extends State<ExpensesView> {
                             data.firstExpenseDate;
                         expenseDatePickerController.value.lastExpenseDate =
                             data.lastExpenseDate;
-                        WidgetsBinding.instance.addPostFrameCallback(
-                            (_) => datePickerReady.value = true);
+                        setDatePickerState(true);
                         return Expanded(
                           child: renderGroupedExpenses(controller),
                         );
@@ -858,7 +868,7 @@ class _ViewState extends State<ExpensesView> {
                 context.once<AppController>().loader.hide();
                 r.fold((err) {
                   context.once<AppController>().addNotification(
-                      NotificationType.success,
+                      NotificationType.error,
                       err.message ??
                           "Unable to add expense. Please try again later.");
                 }, (expense) {

@@ -984,13 +984,36 @@ class _ViewState extends State<AccountView> {
       body: Center(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 40),
-          child: Text(
-            "Unable to get profile details. \nPlease try again after sometime.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white38,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Unable to get profile details. \nPlease try again after sometime.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white38,
+                ),
+              ),
+              Theme(
+                data: ThemeData(
+                  splashFactory: NoSplash.splashFactory
+                ),
+                child: MaterialButton(
+                  onPressed: () {
+                    context.once<AccountController>().logout();
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Or click here to try relogin",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.orangeAccent,
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
         ),
       ),
