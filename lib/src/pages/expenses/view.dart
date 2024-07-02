@@ -156,6 +156,7 @@ class _ViewState extends State<ExpensesView> {
     ExpenseListController controller,
   ) async {
     if (expense.notes != notes) {
+      // notes = await Encrypter.encrypt(notes, controller.keys.first ?? "");
       context
           .once<ExpensesController>()
           .editExpenseNotes(expense.id, notes)
@@ -300,6 +301,7 @@ class _ViewState extends State<ExpensesView> {
                             borderSide:
                                 BorderSide(color: Colors.white24, width: 1.0),
                           ),
+                          disabledBorder: InputBorder.none,
                           enabledBorder: OutlineInputBorder(
                             borderSide:
                                 BorderSide(color: Colors.white12, width: 1.0),
