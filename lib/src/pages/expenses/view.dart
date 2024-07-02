@@ -7,6 +7,7 @@ import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:either_dart/either.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
 import 'package:flutter/services.dart';
@@ -21,15 +22,19 @@ class ExpensesView extends StatefulWidget {
 }
 
 class _ViewState extends State<ExpensesView> {
-  late Future<Either<AppError, List<Expense>>> _future;
+  late Future<Either<AppError, ExpensesByDate>> _future;
 
   bool isSaving = false;
   late String categoryOfExpenseToAdd;
   DateTime selectedDate = DateTime.now();
+  ValueNotifier<ExpenseDatePickerController> expenseDatePickerController =
+      ValueNotifier(ExpenseDatePickerController());
+  ValueNotifier<bool> datePickerReady = ValueNotifier(false);
+  late Future<List<String?>> _keyGetterFuture;
 
-  Future<Either<AppError, List<Expense>>> get expensesFuture {
+  Future<Either<AppError, ExpensesByDate>> get expensesFuture {
     var currentUser = AppDb.getCurrentUser();
-    var currentConn = AppDb.getCurrentConnection();
+    var currentConn = AppDb.getCurrentPair();
     return context.once<ExpensesController>().getExpense(
           selectedDate.startOfToday(),
           selectedDate.startOfTmro(),
@@ -38,8 +43,15 @@ class _ViewState extends State<ExpensesView> {
         );
   }
 
-  refresh() {
-    _future = expensesFuture;
+  Future<Either<AppError, ExpensesByDate>> get expensesEmptyFuture {
+    return context.once<ExpensesController>().getEmptyExpense();
+  }
+
+  refresh({refreshData = true}) {
+    if (refreshData)
+      _future = expensesFuture;
+    else
+      _future = expensesEmptyFuture;
     setState(() => {});
   }
 
@@ -48,49 +60,87 @@ class _ViewState extends State<ExpensesView> {
     _future = expensesFuture;
     categoryOfExpenseToAdd =
         (isSaving ? SavingsCategories : SpentCategories)[0];
+    _keyGetterFuture = AppDb.getEncryptionKeyOfPair();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Column(
-          children: [
-            DatePicker(
-              focusedDate: selectedDate,
-              onDateChange: (date) {
-                selectedDate = date;
-                refresh();
-              },
-            ),
-            FutureBuilder(
-              future: _future,
-              builder: (context, snapshot) {
-                var isDone = snapshot.connectionState == ConnectionState.done;
-                if (!isDone)
-                  return Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.orangeAccent,
-                      ),
-                    ),
-                  );
-                if (isDone && !snapshot.hasData) return renderError();
-                return snapshot.data!.fold(
-                  (_) => renderError(),
-                  (expenses) {
-                    ExpenseListController controller =
-                        ExpenseListController(expenses: expenses);
-                    return Expanded(
-                      child: renderGroupedExpenses(controller),
+      body: FutureBuilder(
+        future: _keyGetterFuture,
+        builder: (context, keySnapshot) {
+          return Container(
+            child: Column(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: datePickerReady,
+                  builder: (context, value, child) {
+                    if (!value) {
+                      return Container(
+                        width: double.infinity,
+                        height: 80,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.orangeAccent,
+                          ),
+                        ),
+                      );
+                    }
+                    return DatePicker(
+                      startDate: expenseDatePickerController
+                          .value.firstExpenseDate!
+                          .startOfDay(),
+                      endDate: expenseDatePickerController
+                          .value.lastExpenseDate!
+                          .startOfDay(),
+                      focusedDate: selectedDate,
+                      onDateChange: (date, shouldReloadData) {
+                        selectedDate = date;
+                        refresh(refreshData: shouldReloadData);
+                      },
                     );
                   },
-                );
-              },
+                ),
+                FutureBuilder(
+                  future: _future,
+                  builder: (context, snapshot) {
+                    var isDone =
+                        snapshot.connectionState == ConnectionState.done;
+                    if (!isDone)
+                      return Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.orangeAccent,
+                          ),
+                        ),
+                      );
+                    if (isDone && !snapshot.hasData) return renderError();
+                    return snapshot.data!.fold(
+                      (_) => renderError(),
+                      (data) {
+                        ExpenseListController controller =
+                            ExpenseListController(
+                          expenses: data.expenses,
+                          keys: keySnapshot.data ?? [null, null],
+                        );
+                        expenseDatePickerController.value.firstExpenseDate =
+                            data.firstExpenseDate;
+                        expenseDatePickerController.value.lastExpenseDate =
+                            data.lastExpenseDate;
+                        WidgetsBinding.instance.addPostFrameCallback(
+                            (_) => datePickerReady.value = true);
+                        return Expanded(
+                          child: renderGroupedExpenses(controller),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -319,13 +369,18 @@ class _ViewState extends State<ExpensesView> {
   }
 
   Widget renderError() {
-    return Center(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 40),
-        child: Text(
-          "Unable to get your expenses. \nPlease try again after sometime.",
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16),
+    return Expanded(
+      child: Center(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: Text(
+            "Unable to get your expenses. \nPlease try again after sometime.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white38,
+            ),
+          ),
         ),
       ),
     );
@@ -529,7 +584,8 @@ class _ViewState extends State<ExpensesView> {
                                 tilePadding: EdgeInsets.symmetric(horizontal: 8)
                                     .copyWith(left: 8),
                                 children: expenses.mapIndexed((i, expense) {
-                                  if (expense.amount <= 0) return Container();
+                                  // if (expense.amount <= 0)
+                                  //   return Container();
                                   return Dismissible(
                                     key: ValueKey<String>("${expense.id}-$i"),
                                     direction: expense.user.username !=
@@ -705,20 +761,23 @@ class _ViewState extends State<ExpensesView> {
       width: MediaQuery.of(context).size.width,
       child: Row(
         children: [
-          MaterialButton(
-            onPressed: () {
-              isSaving = !isSaving;
-              categoryOfExpenseToAdd =
-                  (isSaving ? SavingsCategories : SpentCategories)[0];
-              setState(() => {});
-            },
-            color: isSaving ? Colors.green : Colors.red,
-            minWidth: 8,
-            child: Icon(
-              isSaving ? Icons.add_rounded : Icons.remove,
-              color: Colors.white,
+          Theme(
+            data: ThemeData(splashFactory: NoSplash.splashFactory),
+            child: MaterialButton(
+              onPressed: () {
+                isSaving = !isSaving;
+                categoryOfExpenseToAdd =
+                    (isSaving ? SavingsCategories : SpentCategories)[0];
+                setState(() => {});
+              },
+              color: isSaving ? Colors.green : Colors.red,
+              minWidth: 8,
+              child: Icon(
+                isSaving ? Icons.add_rounded : Icons.remove,
+                color: Colors.white,
+              ),
+              elevation: 0.5,
             ),
-            elevation: 0.5,
           ),
           Expanded(
             child: TextField(
@@ -776,13 +835,15 @@ class _ViewState extends State<ExpensesView> {
           ),
           SizedBox(width: 8),
           MaterialButton(
-            onPressed: () {
+            onPressed: () async {
               var parsedAmount = double.tryParse(amountController.text);
               if (parsedAmount == null) return;
+              var amount = await Encrypter.encrypt(
+                  parsedAmount.toString(), controller.keys.first ?? "");
               context
                   .once<ExpensesController>()
                   .createExpense(
-                    amount: parsedAmount.toString(),
+                    amount: amount,
                     type: isSaving ? ExpenseType.SAVED : ExpenseType.SPENT,
                     category: categoryOfExpenseToAdd,
                   )

@@ -213,7 +213,7 @@ class _ViewState extends State<AccountView> {
   }
 
   List<Widget> renderConnections(ProfileModel profile) {
-    var currentConn = AppDb.getCurrentConnection();
+    var currentConn = AppDb.getCurrentPair();
     return [
       SizedBox(height: 16),
       Text(
@@ -653,7 +653,7 @@ class _ViewState extends State<AccountView> {
                                             ),
                                       )
                                     : Text(
-                                        "●●● ●●● ●●●\n●●● ●●●",
+                                        "●●● ●●● ●●● ●●●",
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontSize: 20, color: Colors.black),
@@ -748,152 +748,187 @@ class _ViewState extends State<AccountView> {
 
   TextEditingController keyController = TextEditingController();
 
+  Future<void> saveKey(User user) async {
+    var check = isValidKey(keyController.text);
+    if (check != null) {
+      context
+          .once<AppController>()
+          .addNotification(NotificationType.error, check);
+      return;
+    }
+    AppDb.setEncryptionKey(keyController.text, user: user.username)
+        .then((_) => context.once<AppController>().addNotification(
+            NotificationType.success,
+            "Key was configured successfully for ${user.firstName}."))
+        .catchError((err) {})
+        .whenComplete(() => Navigator.pop(context));
+  }
+
   void showConnectionKey(User user) {
     bool hideKey = true;
     showModalBottomSheet(
       context: context,
       builder: (context) {
+        var keyGetterFuture = AppDb.getEncryptionKey(username: user.username);
         return Wrap(children: [
-          StatefulBuilder(builder: (context, setState) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              padding:
-                  EdgeInsets.symmetric(vertical: 32, horizontal: 16).copyWith(
-                top: 24,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.lock_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      SizedBox(width: 16),
-                      Text("Configure Key",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith()),
-                    ],
-                  ),
-                  SizedBox(height: 4),
-                  Divider(),
-                  SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("Full Name",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(color: Colors.grey)),
-                      SizedBox(width: 4),
-                      Text("${user.firstName} ${user.lastName}",
-                          style: Theme.of(context).textTheme.headlineSmall!),
-                    ],
-                  ),
-                  SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("Username/ID",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall!
-                              .copyWith(color: Colors.grey)),
-                      SizedBox(width: 8),
-                      Text(user.username,
-                          style: Theme.of(context).textTheme.headlineSmall!),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  TextField(
-                    controller: keyController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Colors.white24, width: 1.0),
-                      ),
-                      hintText: "●●●●●●●●●",
-                      hintStyle: TextStyle(
-                        color: Colors.grey.shade800,
-                        fontSize: 16,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Colors.white12, width: 1.0),
-                      ),
-                      suffixIcon: GestureDetector(
-                        onTap: () => setState(() => hideKey = !hideKey),
-                        child: Icon(
-                          hideKey
-                              ? Icons.visibility_rounded
-                              : Icons.visibility_off_rounded,
-                        ),
+          FutureBuilder(
+              future: keyGetterFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Container(
+                    height: 80,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.orangeAccent,
                       ),
                     ),
-                    style: TextStyle(fontSize: 20),
-                    obscureText: hideKey,
-                    keyboardType: TextInputType.multiline,
-                    textAlign: TextAlign.center,
-                    textAlignVertical: TextAlignVertical.center,
-                    maxLines: 1,
-                    minLines: 1,
-                  ),
-                  SizedBox(height: 8),
-                  Theme(
-                    data: ThemeData(splashFactory: NoSplash.splashFactory),
-                    child: Row(
+                  );
+                }
+                keyController.text = snapshot.data ?? "";
+                return StatefulBuilder(builder: (context, setState) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
+                        .copyWith(
+                      top: 24,
+                    ),
+                    child: Column(
                       children: [
-                        Expanded(
-                          child: MaterialButton(
-                            color: Colors.black,
-                            onPressed: () => Navigator.pop(context),
-                            child: Center(
-                              child: Text(
-                                "Back",
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            SizedBox(width: 16),
+                            Text("Configure Key",
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodyMedium!
-                                    .copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    .headlineSmall!
+                                    .copyWith()),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Divider(),
+                        SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text("Full Name",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(color: Colors.grey)),
+                            SizedBox(width: 4),
+                            Text("${user.firstName} ${user.lastName}",
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall!),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text("Username/ID",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall!
+                                    .copyWith(color: Colors.grey)),
+                            SizedBox(width: 8),
+                            Text(user.username,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall!),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        TextField(
+                          controller: keyController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white24, width: 1.0),
+                            ),
+                            hintText: "●●●●●●●●●",
+                            hintStyle: TextStyle(
+                              color: Colors.grey.shade800,
+                              fontSize: 16,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.white12, width: 1.0),
+                            ),
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(() => hideKey = !hideKey),
+                              child: Icon(
+                                hideKey
+                                    ? Icons.visibility_rounded
+                                    : Icons.visibility_off_rounded,
                               ),
                             ),
                           ),
+                          style: TextStyle(fontSize: 20),
+                          obscureText: hideKey,
+                          keyboardType: TextInputType.multiline,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
+                          maxLines: 1,
+                          minLines: 1,
                         ),
-                        SizedBox(width: 8),
-                        Expanded(
-                          child: MaterialButton(
-                            color: Colors.orangeAccent,
-                            onPressed: () => Navigator.pop(context),
-                            child: Center(
-                              child: Text(
-                                "Save",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge!
-                                    .copyWith(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w500),
+                        SizedBox(height: 8),
+                        Theme(
+                          data:
+                              ThemeData(splashFactory: NoSplash.splashFactory),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: MaterialButton(
+                                  color: Colors.black,
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Center(
+                                    child: Text(
+                                      "Back",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: MaterialButton(
+                                  color: Colors.orangeAccent,
+                                  onPressed: () => saveKey(user),
+                                  child: Center(
+                                    child: Text(
+                                      "Save",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         )
                       ],
                     ),
-                  )
-                ],
-              ),
-            );
-          })
+                  );
+                });
+              })
         ]);
       },
     );
@@ -905,40 +940,42 @@ class _ViewState extends State<AccountView> {
           NotificationType.info, "You cannot send a request to yourself.");
     } else {
       showModalBottomSheet(
-          context: context,
-          builder: (_) {
-            return ConfirmationDialog(
-                message:
-                    "Do you want to send a connection request to ${user.firstName} "
-                    "${user.lastName.isEmpty ? "?" : "${user.lastName}?"}",
-                icon: Icon(
-                  Icons.warning_rounded,
-                  color: Colors.orange,
-                  size: 100,
-                ),
-                okLabel: "No",
-                cancelLabel: "Yes",
-                cancelColor: Colors.orangeAccent,
-                onOk: () => Navigator.pop(context),
-                onCancel: () {
-                  context
-                      .once<AccountController>()
-                      .sendRequest(user.username)
-                      .then((r) {
-                    r.fold(
-                        (err) => context.once<AppController>().addNotification(
-                              NotificationType.error,
-                              err.message ??
-                                  'Unable to send request at this time. Please try again later',
-                            ), (_) {
-                      Navigator.pop(context);
-                      refresh();
-                      context.once<AppController>().addNotification(
-                          NotificationType.success, "Sent connection request!");
-                    });
-                  });
+        context: context,
+        builder: (_) {
+          return ConfirmationDialog(
+            message:
+                "Do you want to send a connection request to ${user.firstName} "
+                "${user.lastName.isEmpty ? "?" : "${user.lastName}?"}",
+            icon: Icon(
+              Icons.warning_rounded,
+              color: Colors.orange,
+              size: 100,
+            ),
+            okLabel: "No",
+            cancelLabel: "Yes",
+            cancelColor: Colors.orangeAccent,
+            onOk: () => Navigator.pop(context),
+            onCancel: () {
+              context
+                  .once<AccountController>()
+                  .sendRequest(user.username)
+                  .then((r) {
+                r.fold(
+                    (err) => context.once<AppController>().addNotification(
+                          NotificationType.error,
+                          err.message ??
+                              'Unable to send request at this time. Please try again later',
+                        ), (_) {
+                  Navigator.pop(context);
+                  refresh();
+                  context.once<AppController>().addNotification(
+                      NotificationType.success, "Sent connection request!");
                 });
-          });
+              });
+            },
+          );
+        },
+      );
     }
   }
 
@@ -950,7 +987,10 @@ class _ViewState extends State<AccountView> {
           child: Text(
             "Unable to get profile details. \nPlease try again after sometime.",
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white38,
+            ),
           ),
         ),
       ),

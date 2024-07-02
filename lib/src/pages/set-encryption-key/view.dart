@@ -12,7 +12,7 @@ class SetKeyView extends StatefulWidget {
 
 class _SetKeyViewState extends State<SetKeyView> {
   TextEditingController keyController =
-      TextEditingController(text: AppDb.getRandomKey());
+      TextEditingController(text: Encrypter.generateRandomKey());
   ActionSliderController sliderController = ActionSliderController();
 
   String? keyCopied = null;
@@ -75,7 +75,7 @@ class _SetKeyViewState extends State<SetKeyView> {
                         right: 8,
                         child: GestureDetector(
                           onTap: () => setState(() {
-                            keyController.text = AppDb.getRandomKey();
+                            keyController.text = Encrypter.generateRandomKey();
                             keyCopied = null;
                           }),
                           child: Icon(

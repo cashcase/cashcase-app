@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:word_generator/word_generator.dart';
@@ -6,29 +9,99 @@ class UserNotSetException implements Exception {
   UserNotSetException();
 }
 
-class AppDb extends Db {
-  static String getEncryptionKeyString(String user) => "__cashcase_key_$user";
-  static final String USER = "__cashcase_user__";
-  static String getCurrentConnectionKey(String user) =>
-      "__cashcase_current_connection_$user";
+class Encrypter {
+  static final IV = '137d1fbc211e4bf4';
 
-  static Future<bool> setCurrentConnection(User? user) async {
+  static String padStringTo32Chars(String input) {
+    while (input.length < 32) {
+      input += '=';
+    }
+    return input;
+  }
+
+  static String unpadString(String input) {
+    return input.split("=").first;
+  }
+
+  static stringToUint8list(String value) {
+    List<int> list = value.codeUnits;
+    Uint8List bytes = Uint8List.fromList(list);
+    Uint8List _value = Uint8List.fromList(bytes);
+    return _value;
+  }
+
+  static String encrypt(String data, String key) {
+    key = padStringTo32Chars(key.replaceAll(" ", ""));
+    data = padStringTo32Chars(data);
+    Uint8List _key = stringToUint8list(key);
+    Uint8List iv = stringToUint8list(IV);
+    Uint8List _data = stringToUint8list(data);
+    AesMode mode = AesMode.cbc;
+    var crypt = AesCrypt();
+    crypt.aesSetParams(_key, iv, mode);
+
+    var encrypted = crypt.aesEncrypt(_data);
+    var string = String.fromCharCodes(encrypted);
+
+    return string;
+  }
+
+  static String decrypt(String data, String key) {
+    key = padStringTo32Chars(key.replaceAll(" ", ""));
+
+    Uint8List _key = stringToUint8list(key);
+    Uint8List iv = stringToUint8list(IV);
+    Uint8List _data = stringToUint8list(data);
+    AesMode mode = AesMode.cbc;
+    var crypt = AesCrypt();
+    crypt.aesSetParams(_key, iv, mode);
+
+    var decrypted = crypt.aesDecrypt(_data);
+    var string = String.fromCharCodes(decrypted);
+
+    return unpadString(string);
+  }
+
+  static String generateRandomKey() {
+    final wordGenerator = WordGenerator();
+    String key = "";
+    while (key.length == 0 || key.length >= 30) {
+      key = "${wordGenerator.randomVerb()} "
+          "${wordGenerator.randomNoun()} "
+          "${wordGenerator.randomVerb()} "
+          "${wordGenerator.randomNoun()} ";
+    }
+    return key;
+  }
+}
+
+class AppDb extends Db {
+  static String getEncryptionIdentifier(String user) => "__cashcase_key_$user";
+  static final String CURRENT_USER_IDENTIFIER = "__cashcase_user__";
+
+  static String CURRENT_USER_EKEY = "";
+  static String CONNECTED_USER_EKEY = "";
+
+  static Map<String, String> ekeys = {};
+
+  static Future<void> loadEncyptionKeys() async {}
+  static Future<bool> setCurrentPair(User? user) async {
     var me = AppDb.getCurrentUser();
     if (me == null) throw UserNotSetException();
     if (user != null) {
-      return await Db.store.setStringList(getCurrentConnectionKey(me), [
+      return await Db.store.setStringList(getEncryptionIdentifier(me), [
         user.username,
         user.firstName,
         user.lastName,
       ]);
     } else
-      return Db.store.remove(getCurrentConnectionKey(me));
+      return Db.store.remove(getEncryptionIdentifier(me));
   }
 
-  static User? getCurrentConnection() {
+  static User? getCurrentPair() {
     var user = AppDb.getCurrentUser();
     if (user == null) throw UserNotSetException();
-    var details = Db.store.getStringList(getCurrentConnectionKey(user));
+    var details = Db.store.getStringList(getEncryptionIdentifier(user));
     if (details == null) return null;
     return User.fromJson({
       "username": details[0],
@@ -38,48 +111,45 @@ class AppDb extends Db {
   }
 
   static Future<bool> setCurrentUser(String userId) async {
-    var status = await Db.store.setString(USER, userId);
-    return status;
+    var status1 = await Db.store.setString(CURRENT_USER_IDENTIFIER, userId);
+    return status1;
   }
 
-  static Future<bool> clearUser() async {
-    var status = await Db.store.remove(USER);
+  static Future<bool> clearCurrentUser() async {
+    var status = await Db.store.remove(CURRENT_USER_IDENTIFIER);
     return status;
   }
 
   static String? getCurrentUser() {
-    var user = Db.store.getString(USER) ?? null;
+    var user = Db.store.getString(CURRENT_USER_IDENTIFIER) ?? null;
     if (user == null) throw UserNotSetException();
     return user;
   }
 
-  static Future<String?> getEncryptionKey() async {
+  static Future<List<String?>> getEncryptionKeyOfPair() async {
+    var myKey = await getEncryptionKey();
+    var pair = getCurrentPair();
+    if (pair != null) {
+      var pairKey = await getEncryptionKey(username: pair.username);
+      return [myKey, pairKey];
+    } else
+      return [myKey];
+  }
+
+  static Future<String?> getEncryptionKey({String? username}) async {
     // await clearEncryptionKey();
-    var user = AppDb.getCurrentUser();
-    if (user == null) throw UserNotSetException();
-    return await Db.locker.read(key: getEncryptionKeyString(user));
+    if (username == null) {
+      var user = AppDb.getCurrentUser();
+      if (user == null) throw UserNotSetException();
+      return await Db.locker.read(key: getEncryptionIdentifier(user));
+    } else {
+      return await Db.locker.read(key: getEncryptionIdentifier(username));
+    }
   }
 
-  static Future<void> setEncryptionKey(String value) async {
-    var user = AppDb.getCurrentUser();
-    if (user == null) throw UserNotSetException();
+  static Future<void> setEncryptionKey(String value, {String? user}) async {
+    if (user == null) user = AppDb.getCurrentUser();
     return await Db.locker
-        .write(key: getEncryptionKeyString(user), value: value);
-  }
-
-  static Future<void> clearEncryptionKey() async {
-    var user = AppDb.getCurrentUser();
-    if (user == null) throw UserNotSetException();
-    return await Db.locker.delete(key: getEncryptionKeyString(user));
-  }
-
-  static String getRandomKey() {
-    final wordGenerator = WordGenerator();
-    String key = "${wordGenerator.randomVerb()} "
-        "${wordGenerator.randomNoun()} "
-        "${wordGenerator.randomVerb()} "
-        "${wordGenerator.randomNoun()} "
-        "${wordGenerator.randomVerb()}";
-    return key;
+        .write(key: getEncryptionIdentifier(user!), value: value);
   }
 }

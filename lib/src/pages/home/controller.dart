@@ -8,13 +8,13 @@ class HomePageController extends BaseController {
 
   @override
   void initListeners() {
-    currentConn = ValueNotifier(AppDb.getCurrentConnection());
+    currentConn = ValueNotifier(AppDb.getCurrentPair());
   }
 
   late ValueNotifier<User?> currentConn;
 
   Future<User?> setCurrentUser(User? user) async {
-    var status = await AppDb.setCurrentConnection(user);
+    var status = await AppDb.setCurrentPair(user);
     if (status) currentConn.value = user;
     return user;
   }

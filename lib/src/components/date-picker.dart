@@ -64,10 +64,14 @@ class _DropdownState extends State<Dropdown> {
 
 class DatePicker extends StatefulWidget {
   DateTime focusedDate;
-  Function(DateTime) onDateChange;
+  DateTime startDate;
+  DateTime endDate;
+  Function(DateTime, bool) onDateChange;
   DatePicker({
     required this.onDateChange,
     required this.focusedDate,
+    required this.startDate,
+    required this.endDate,
   });
   @override
   State<DatePicker> createState() => _DatePickerState();
@@ -75,6 +79,7 @@ class DatePicker extends StatefulWidget {
 
 class _DatePickerState extends State<DatePicker> {
   late DateTime _focusDate;
+  late DateTime lastDate;
   final startYear = 2024;
   final List<String> months = [
     'January',
@@ -94,7 +99,6 @@ class _DatePickerState extends State<DatePicker> {
 
   @override
   void initState() {
-    super.initState();
     _focusDate = widget.focusedDate;
     years = _focusDate.year == startYear
         ? [startYear.toString()]
@@ -102,30 +106,45 @@ class _DatePickerState extends State<DatePicker> {
             (_focusDate.year - startYear),
             (i) => (startYear + i).toString(),
           );
+    lastDate = DateTime(
+      _focusDate.year,
+      _focusDate.month,
+      _focusDate.year == DateTime.now().year &&
+              _focusDate.month == DateTime.now().month
+          ? DateTime.now().day
+          : DateTime(_focusDate.year, _focusDate.month, 0).day,
+    );
+    super.initState();
   }
 
   GlobalKey key = GlobalKey();
+
+  void setNewDate(DateTime date) {
+    key = GlobalKey();
+
+    if (date.startOfDay().isAfter(DateTime.now().startOfDay()))
+      _focusDate = DateTime.now().startOfDay();
+    else
+      _focusDate = date;
+    var shouldReloadData =
+        date.startOfDay().isAfter(widget.startDate.startOfDay()) ||
+            date.sameDay(widget.startDate);
+    widget.onDateChange(_focusDate, shouldReloadData);
+    setState(() => {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return EasyInfiniteDateTimeLine(
       key: key,
       selectionMode: const SelectionMode.autoCenter(),
-      lastDate: DateTime(
-        _focusDate.year,
-        _focusDate.month,
-        _focusDate.year == DateTime.now().year &&
-                _focusDate.month == DateTime.now().month
-            ? DateTime.now().day
-            : DateTime(_focusDate.year, _focusDate.month + 1, 0).day,
-      ),
+      lastDate: lastDate,
       focusDate: _focusDate,
       firstDate: DateTime(_focusDate.year, _focusDate.month, 1),
       onDateChange: (date) {
-        if (_focusDate == date) return;
-        _focusDate = date;
-        widget.onDateChange(_focusDate);
-        setState(() {});
+        // Check if same day
+        if (_focusDate.startOfDay() == date.startOfDay()) return;
+        setNewDate(date);
       },
       headerBuilder: (context, date) {
         return Container(
@@ -136,16 +155,10 @@ class _DatePickerState extends State<DatePicker> {
             children: [
               Dropdown(
                 onChange: (month) {
-                  var date = DateTime(
-                    _focusDate.year,
-                    months.indexWhere((e) => e == month) + 1,
-                    min(_focusDate.day, DateTime.now().day),
-                  );
-                  if (_focusDate == date) return;
-                  key = GlobalKey();
-                  _focusDate = date;
-                  widget.onDateChange(_focusDate);
-                  setState(() => {});
+                  // Check if same month
+                  var _month = months.indexWhere((e) => e == month) + 1;
+                  if (_focusDate.month == month) return;
+                  setNewDate(DateTime(_focusDate.year, _month, _focusDate.day));
                 },
                 initial: months[_focusDate.month - 1],
                 options: months
@@ -156,13 +169,10 @@ class _DatePickerState extends State<DatePicker> {
               ),
               Dropdown(
                 onChange: (year) {
-                  var date = DateTime(
-                      int.parse(year), _focusDate.month, _focusDate.day);
-                  if (_focusDate == date) return;
-                  key = GlobalKey();
-                  _focusDate = date;
-                  widget.onDateChange(_focusDate);
-                  setState(() => {});
+                  // Check if same year
+                  if (_focusDate.year == int.parse(year)) return;
+                  setNewDate(DateTime(
+                      int.parse(year), _focusDate.month, _focusDate.day));
                 },
                 initial: _focusDate.year.toString(),
                 options: years,

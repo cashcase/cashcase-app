@@ -1,9 +1,11 @@
 import 'package:cashcase/core/api/index.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/start.dart';
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/theme.dart';
 import 'package:dio/src/response.dart';
+import 'package:either_dart/either.dart';
 import 'package:logging/logging.dart';
 
 Logger log = Logger("main");
@@ -24,32 +26,21 @@ class AuthHandlers implements Auth {
         path == "/auth/forgotpassword" ||
         path == "/auth/resetpassword";
   }
-  
+
   @override
-  Future<TokenModel?> refreshToken() async {
-    try {
-      Response<dynamic>? response =
-          await ApiHandler.post("/auth/refreshtoken", {
-        "token": Db.token,
-        "refreshToken": Db.refreshToken,
-      });
-      if (response == null || response.data == null) return null;
-      return TokenModel.fromJson(response.data);
-    } catch (e) {
-      log.severe(e);
-    }
-    return null;
+  Future<Either<AppError, TokenModel>?> refreshToken() async {
+    Response? response = await ApiHandler.post("/auth/refresh", {});
+    return ResponseModel.respond<TokenModel>(
+      response,
+      (data) => TokenModel.fromJson(data),
+    );
   }
 }
 
 void main(List<String> args) {
   start(
-    downstreamUri: Uri(
-      scheme: "http",
-      host: "localhost",
-      port: 8888,
-      path: "v0"
-    ),
+    downstreamUri:
+        Uri(scheme: "http", host: "localhost", port: 8888, path: "v0"),
     auth: AuthHandlers(),
     themeData: themeData,
   );

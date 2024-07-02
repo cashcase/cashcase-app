@@ -70,7 +70,7 @@ class ResponseModel<T> {
       }
       throw response?.data['error'];
     } catch (e) {
-      log.shout(e);
+      print(e);
       return Left(AppError(
         key: AppErrorType.ApiError,
         message: e.toString(),

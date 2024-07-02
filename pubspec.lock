@@ -9,6 +9,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.0"
+  aes_crypt_null_safe:
+    dependency: "direct main"
+    description:
+      name: aes_crypt_null_safe
+      sha256: "4cad399935f0f9e5d2ac2bf3b207e470b34c5f6c1f25edcaa0b05ac69c57513c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   args:
     dependency: transitive
     description:

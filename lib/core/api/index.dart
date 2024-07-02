@@ -1,4 +1,6 @@
+import 'package:cashcase/core/utils/errors.dart';
 import 'package:dio/dio.dart';
+import 'package:either_dart/either.dart';
 import 'package:logging/logging.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/core/api/interceptors.dart';
@@ -7,7 +9,7 @@ import 'package:dio_smart_retry/dio_smart_retry.dart';
 Logger log = Logger('ApiHandler');
 
 abstract class Auth {
-  Future<TokenModel?> refreshToken() async {
+  Future<Either<AppError, TokenModel>?> refreshToken() async {
     return null;
   }
 

@@ -1,3 +1,4 @@
+import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:sortedmap/sortedmap.dart';
 
@@ -36,9 +37,51 @@ String idGenerator() {
   return now.microsecondsSinceEpoch.toString();
 }
 
+class ExpensesByDate {
+  DateTime firstExpenseDate;
+  DateTime lastExpenseDate;
+  List<Expense> expenses;
+  ExpensesByDate({
+    required this.expenses,
+    required this.firstExpenseDate,
+    required this.lastExpenseDate,
+  });
+
+  static empty(data) {
+    return ExpensesByDate(
+      expenses: [],
+      firstExpenseDate:
+          Expense._parseDateTime(data['firstExpenseDate']) ?? DateTime.now(),
+      lastExpenseDate:
+          Expense._parseDateTime(data['lastExpenseDate']) ?? DateTime.now(),
+    );
+  }
+
+  static fromJson(dynamic data) {
+    return ExpensesByDate(
+      expenses: ((data['expenses'] ?? []) as List)
+          .map<Expense>((e) => Expense.fromJson(e))
+          .toList(),
+      firstExpenseDate:
+          Expense._parseDateTime(data['firstExpenseDate']) ?? DateTime.now(),
+      lastExpenseDate:
+          Expense._parseDateTime(data['lastExpenseDate']) ?? DateTime.now(),
+    );
+  }
+}
+
+class ExpenseDatePickerController {
+  DateTime? firstExpenseDate;
+  DateTime? lastExpenseDate;
+  ExpenseDatePickerController({
+    this.firstExpenseDate,
+    this.lastExpenseDate,
+  });
+}
+
 class Expense {
   ExpenseType type;
-  double amount;
+  String amount;
   String category;
   DateTime createdOn;
   DateTime updatedOn;
@@ -56,7 +99,8 @@ class Expense {
     this.notes = "",
   });
 
-  static _parseDateTime(String value) {
+  static _parseDateTime(String? value) {
+    if (value == null) return null;
     if (value.endsWith("Z")) return DateTime.parse(value).toLocal();
     return DateTime.parse("${value}Z").toLocal();
   }
@@ -72,7 +116,7 @@ class Expense {
       notes: data['notes'],
       type: ExpenseType.values
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
-      amount: double.parse(data['amount']),
+      amount: data['amount'],
       category: data['category'],
       createdOn: _parseDateTime(data['createdOn']),
       updatedOn: _parseDateTime(data['updatedOn']),
@@ -116,15 +160,20 @@ class GroupedExpense {
     required this.categoryExpenses,
   });
 
-  static GroupedExpense fromExpenses(List<Expense> expenses) {
+  static GroupedExpense fromExpenses(
+    List<Expense> expenses,
+    List<String?> keys,
+  ) {
     var categoryExpenses = SortedMap<String, CategoryExpense>(Ordering.byKey());
     GroupedExpense expense = GroupedExpense(
       totalSaved: 0,
       totalSpent: 0,
       categoryExpenses: SortedMap(),
     );
-    expenses.toList().forEach((each) {
+
+    for (var each in expenses.toList()) {
       var isSaving = each.type == ExpenseType.SAVED;
+
       if (!expense.categoryExpenses.containsKey(each.category)) {
         expense.categoryExpenses[each.category] = CategoryExpense(
           amount: 0,
@@ -134,7 +183,6 @@ class GroupedExpense {
       }
 
       var userExpenses = SortedMap<String, UserExpense>(Ordering.byKey());
-
       if (!expense.categoryExpenses[each.category]!.userExpenses
           .containsKey(each.user.username)) {
         expense.categoryExpenses[each.category]!
@@ -143,27 +191,50 @@ class GroupedExpense {
           user: each.user,
           isSaving: isSaving,
           notes: each.notes ?? "",
-          expenses: [each],
+          expenses: [],
         );
       }
-      if (isSaving)
-        expense.totalSaved += each.amount;
-      else
-        expense.totalSpent += each.amount;
 
-      expense.categoryExpenses[each.category]!.amount += each.amount;
+      if (double.tryParse(each.amount) == null) {
+        try {
+          if (each.user.username == AppDb.getCurrentUser()) {
+            if (keys.first != null) {
+              each.amount = Encrypter.decrypt(each.amount, keys.first!);
+            }
+          } else {
+            if (keys.last != null) {
+              each.amount = Encrypter.decrypt(each.amount, keys.last!);
+            }
+          }
+        } catch (e) {
+          each.amount = "0.0";
+        }
+      }
+
+      var amount = double.parse(each.amount);
+
+      if (isSaving)
+        expense.totalSaved += amount;
+      else
+        expense.totalSpent += amount;
+
+      expense.categoryExpenses[each.category]!.amount += amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
-          .amount += each.amount;
+          .amount += amount;
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .expenses
           .add(each);
+
       expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
           .expenses
-          .sort((a, b) => a.amount > b.amount ? -1 : 1);
+          .sort((a, b) {
+        return double.parse(a.amount) > double.parse(b.amount) ? -1 : 1;
+      });
+
       userExpenses
           .addAll(expense.categoryExpenses[each.category]!.userExpenses);
       expense.categoryExpenses[each.category]!.userExpenses = userExpenses;
-    });
+    }
 
     expense.totalSaved = expense.totalSaved;
     expense.totalSpent = expense.totalSpent;
@@ -219,9 +290,11 @@ class UserExpense {
 
 class ExpenseListController {
   List<Expense> expenses;
+  List<String?> keys;
   void Function(void Function())? refresh;
   ExpenseListController({
     required this.expenses,
+    required this.keys,
     this.refresh,
   });
 
@@ -230,7 +303,7 @@ class ExpenseListController {
   }
 
   GroupedExpense getGroupedExpenses() {
-    return GroupedExpense.fromExpenses(this.expenses);
+    return GroupedExpense.fromExpenses(this.expenses, this.keys);
   }
 
   notify() {
@@ -242,7 +315,7 @@ class ExpenseListController {
     notify();
   }
 
-  add(Expense expense) {
+  Future<void> add(Expense expense) async {
     this.expenses.add(expense);
     notify();
   }

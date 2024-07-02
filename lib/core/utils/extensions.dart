@@ -22,6 +22,18 @@ extension DateTimeExtension on DateTime {
   DateTime startOfToday() => DateTime(this.year, this.month, this.day);
   DateTime startOfTmro() => DateTime(this.year, this.month, this.day + 1);
 
+  DateTime startOfDay() => DateTime(
+        this.year,
+        this.month,
+        this.day,
+      );
+
+  bool sameDay(DateTime date) {
+    return this.day == date.day &&
+        this.month == date.month &&
+        this.year == date.year;
+  }
+
   String daysAgo({bool numericDates = true}) {
     final date2 = DateTime.now();
     final difference = date2.difference(this);

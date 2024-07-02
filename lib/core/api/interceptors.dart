@@ -26,8 +26,11 @@ dynamic onRequestInterceptor = (Auth auth) =>
 dynamic onErrorInterceptor = (Auth auth, Dio dio) =>
     (DioException e, ErrorInterceptorHandler handler) async {
       if (auth.checkTokenExpiry(e.response) == true && Db.isLoggedIn()) {
-        auth.refreshToken().then((TokenModel? details) async {
-          if (details != null) {
+        auth.refreshToken().then((r) async {
+          if (r == null) return handler.next(e);
+          r.fold((err) {
+            return handler.next(e);
+          }, (details) async {
             AppController.setTokens(details.token, details.refreshToken);
             // Rebuilding the request and resolving it after setting tokens.
             Response refreshedResponse = await dio.request(
@@ -55,7 +58,7 @@ dynamic onErrorInterceptor = (Auth auth, Dio dio) =>
               queryParameters: e.requestOptions.queryParameters,
             );
             return handler.resolve(refreshedResponse);
-          }
+          });
         });
       } else {
         return handler.next(e);

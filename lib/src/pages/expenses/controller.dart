@@ -16,7 +16,7 @@ class ExpensesController extends BaseController {
 
   ExpensesController({ExpensesPageData? data});
 
-  Future<Either<AppError, List<Expense>>> getExpense(
+  Future<Either<AppError, ExpensesByDate>> getExpense(
     DateTime from,
     DateTime to,
     String username,
@@ -30,9 +30,15 @@ class ExpensesController extends BaseController {
     );
     return ResponseModel.respond(
       response,
-      (data) => ((data ?? []) as List)
-          .map<Expense>((e) => Expense.fromJson(e))
-          .toList(),
+      (data) => ExpensesByDate.fromJson(data),
+    );
+  }
+
+  Future<Either<AppError, ExpensesByDate>> getEmptyExpense() async {
+    return ResponseModel.respond(
+      Response(
+          data: {"status": true, "data": {}}, requestOptions: RequestOptions()),
+      (data) => ExpensesByDate.empty(data),
     );
   }
 

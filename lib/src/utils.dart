@@ -16,9 +16,17 @@ String? isValidPassword(String value) {
 }
 
 String? isValidName(String value, {optional = false}) {
-  if (!optional && value.isEmpty) return "Field cannot be empty";
+  if (!optional && value.isEmpty) return "Field cannot be empty.";
   if (!RegExp("^[a-zA-Z]{${optional ? "0" : "3"},20}\$").hasMatch(value)) {
     return "Field must be 3-20 chars long and must contain only alphabets.";
   }
+  return null;
+}
+
+String? isValidKey(String value, {optional = false}) {
+  if (!optional && value.isEmpty) return "Key cannot be empty.";
+  if (value.split(" ").length != 4) return "Key must be 4 words long.";
+  if (!RegExp("[a-z\s]+").hasMatch(value))
+    return "Key must contain only lower case alphabets.";
   return null;
 }
