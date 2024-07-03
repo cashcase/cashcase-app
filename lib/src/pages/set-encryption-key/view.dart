@@ -1,6 +1,7 @@
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/db.dart';
+import 'package:cashcase/src/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:action_slider/action_slider.dart';
@@ -18,6 +19,8 @@ class _SetKeyViewState extends State<SetKeyView> {
 
   String? keyCopied = null;
   bool confirmed = false;
+
+  String? oldKeyError = null;
 
   bool restoringKey = false;
 
@@ -53,7 +56,7 @@ class _SetKeyViewState extends State<SetKeyView> {
                         setState(() => restoringKey = !restoringKey),
                     color: Colors.transparent,
                     child: Text(
-                      "Click here if ${restoringKey ? "you already need to generate a new key." : "you already have a key."}",
+                      "Click here if ${restoringKey ? "you need to generate a key." : "you already have a key."}",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -134,6 +137,7 @@ class _SetKeyViewState extends State<SetKeyView> {
                     style: TextStyle(color: Colors.grey),
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
+                      errorText: oldKeyError,
                       hintText: 'Restore Encrpytion Key',
                       hintStyle: TextStyle(color: Colors.grey),
                       errorMaxLines: 2,
@@ -167,7 +171,8 @@ class _SetKeyViewState extends State<SetKeyView> {
       controller: sliderController,
       sliderBehavior: SliderBehavior.move,
       child: Text(
-        "Enter key and slide to confirm",
+        "Slide to Confirm",
+        textAlign: TextAlign.right,
         style: Theme.of(context)
             .textTheme
             .bodyLarge!
@@ -191,7 +196,11 @@ class _SetKeyViewState extends State<SetKeyView> {
         color: Colors.black,
       ),
       action: (controller) async {
-        if (oldKeyController.text.isEmpty) return;
+        oldKeyError = isValidKey(oldKeyController.text);
+        if (oldKeyError != null) {
+          setState(() => {});
+          return;
+        }
         setState(() => confirmed = true);
         controller.loading();
         await Future.delayed(Duration(milliseconds: 500));

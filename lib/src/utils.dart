@@ -24,9 +24,10 @@ String? isValidName(String value, {optional = false}) {
 }
 
 String? isValidKey(String value, {optional = false}) {
+  RegExp regex = RegExp(r'^\b[a-z]+\b\s+\b[a-z]+\b\s+\b[a-z]+\b\s+\b[a-z]+\b$');
   if (!optional && value.isEmpty) return "Key cannot be empty.";
   if (value.split(" ").length != 4) return "Key must be 4 words long.";
-  if (!RegExp("[a-z\s]+").hasMatch(value))
+  if (!regex.hasMatch(value))
     return "Key must contain only lower case alphabets.";
   return null;
 }
