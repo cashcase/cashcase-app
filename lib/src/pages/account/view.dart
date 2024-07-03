@@ -60,6 +60,7 @@ class _ViewState extends State<AccountView> {
           (_) => renderError(),
           (profile) {
             return Scaffold(
+              resizeToAvoidBottomInset: false,
               body: Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: 8,
@@ -601,7 +602,6 @@ class _ViewState extends State<AccountView> {
                   }
                   return StatefulBuilder(builder: (context, setState) {
                     return Container(
-                      width: MediaQuery.of(context).size.width,
                       padding:
                           EdgeInsets.symmetric(vertical: 32, horizontal: 16)
                               .copyWith(
@@ -642,12 +642,12 @@ class _ViewState extends State<AccountView> {
                               padding: EdgeInsets.all(16),
                               child: Center(
                                 child: showingKey
-                                    ? Text(
+                                    ? AutoSizeText(
                                         snapshot.data!,
                                         textAlign: TextAlign.center,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headlineMedium!
+                                            .headlineSmall!
                                             .copyWith(
                                               color: Colors.black,
                                             ),
@@ -787,7 +787,6 @@ class _ViewState extends State<AccountView> {
                 keyController.text = snapshot.data ?? "";
                 return StatefulBuilder(builder: (context, setState) {
                   return Container(
-                    width: MediaQuery.of(context).size.width,
                     padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
                         .copyWith(
                       top: 24,
@@ -996,9 +995,7 @@ class _ViewState extends State<AccountView> {
                 ),
               ),
               Theme(
-                data: ThemeData(
-                  splashFactory: NoSplash.splashFactory
-                ),
+                data: ThemeData(splashFactory: NoSplash.splashFactory),
                 child: MaterialButton(
                   onPressed: () {
                     context.once<AccountController>().logout();

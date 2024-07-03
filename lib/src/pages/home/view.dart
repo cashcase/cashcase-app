@@ -44,14 +44,14 @@ class _HomePageWidgetState extends State<HomePageView> {
       label: 'Expenses',
       icon: Icons.book,
       builder: (c) {
-        return ExpensesPage(key: GlobalKey());
+        return ExpensesPage();
       },
     ),
     HomePageViewModel(
       label: 'Account',
       icon: Icons.account_circle_rounded,
       builder: (c) {
-        return AccountPage(key: GlobalKey());
+        return AccountPage();
       },
     ),
   ];

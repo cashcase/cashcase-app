@@ -6,6 +6,7 @@ import 'package:cashcase/src/pages/signin/controller.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class SigninView extends StatefulWidget {
   @override
@@ -29,35 +30,41 @@ class _SigninViewState extends State<SigninView> {
           children: [
             Expanded(
               flex: 2,
-              child: Container(
-                color: Colors.orangeAccent.withOpacity(0.25),
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      child: CircleAvatar(
-                        radius: 64,
-                        backgroundColor: Colors.orangeAccent,
-                        child: ClipOval(
-                          child: Image(
-                            width: 120,
-                            image: AssetImage('assets/logo.png'),
+              child: KeyboardVisibilityBuilder(
+                  builder: (context, isKeyboardVisible) {
+                return Container(
+                  color: Colors.orangeAccent
+                      .withOpacity(isKeyboardVisible ? 0.05 : 0.25),
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (!isKeyboardVisible) ...[
+                        Container(
+                          child: CircleAvatar(
+                            radius: 64,
+                            backgroundColor: Colors.orangeAccent,
+                            child: ClipOval(
+                              child: Image(
+                                width: 120,
+                                image: AssetImage('assets/logo.png'),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    Text(
-                      "CASHCASE",
-                      style: GoogleFonts.abel().copyWith(
-                          fontSize: 42,
-                          color: Colors.orangeAccent,
-                          fontWeight: FontWeight.bold),
-                    )
-                  ],
-                ),
-              ),
+                      ],
+                      SizedBox(height: isKeyboardVisible ? 12 : 24),
+                      Text(
+                        "CASHCASE",
+                        style: GoogleFonts.abel().copyWith(
+                            fontSize: 42,
+                            color: Colors.orangeAccent,
+                            fontWeight: FontWeight.bold),
+                      )
+                    ],
+                  ),
+                );
+              }),
             ),
             Wrap(
               children: [

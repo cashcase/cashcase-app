@@ -39,8 +39,11 @@ class AuthHandlers implements Auth {
 
 void main(List<String> args) {
   start(
-    downstreamUri:
-        Uri(scheme: "http", host: "localhost", port: 8888, path: "v0"),
+    downstreamUri: Uri(
+      scheme: "https",
+      host: "cashcase.kappasquare.rest",
+      path: "v0",
+    ),
     auth: AuthHandlers(),
     themeData: themeData,
   );

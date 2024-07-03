@@ -72,6 +72,7 @@ class _ViewState extends State<ExpensesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: FutureBuilder(
         future: _keyGetterFuture,
         builder: (context, keySnapshot) {

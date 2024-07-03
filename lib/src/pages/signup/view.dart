@@ -102,11 +102,12 @@ class _SignupViewState extends State<SignupView> {
             Navigator.of(context).pop();
           });
         }).catchError((e) {
+          appController.loader.hide();
           appController.addNotification(
             NotificationType.error,
             'Unable to sign you up!',
           );
-        }).whenComplete(appController.loader.hide);
+        });
       }
     } else
       setState(() => {});

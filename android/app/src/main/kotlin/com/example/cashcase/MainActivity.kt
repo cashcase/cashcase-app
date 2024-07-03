@@ -1,4 +1,4 @@
-package com.example.cashcase
+package com.kappasquare.cashcase
 
 import io.flutter.embedding.android.FlutterActivity
 

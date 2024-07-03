@@ -14,3 +14,8 @@
 ## Colors
 1. Blue : #243D69
 2. Orange : #FFAB40
+
+## Android Keystore Password 
+```txt
+IgKNM7OzxUUKTFg
+```
