@@ -167,6 +167,7 @@ class _ViewState extends State<ExpensesView> {
     ExpenseListController controller,
   ) async {
     if (expense.notes != notes) {
+      context.once<AppController>().loader.show();
       // notes = await Encrypter.encrypt(notes, controller.keys.first ?? "");
       context
           .once<ExpensesController>()
@@ -180,7 +181,7 @@ class _ViewState extends State<ExpensesView> {
           Navigator.pop(context);
           controller.update(expense, notes);
         });
-      });
+      }).whenComplete(() => context.once<AppController>().loader.hide());
     }
     return true;
   }
@@ -651,6 +652,10 @@ class _ViewState extends State<ExpensesView> {
                                                       Navigator.pop(context),
                                                   onCancel: () {
                                                     context
+                                                        .once<AppController>()
+                                                        .loader
+                                                        .show();
+                                                    context
                                                         .once<
                                                             ExpensesController>()
                                                         .deleteExpense(
@@ -683,7 +688,11 @@ class _ViewState extends State<ExpensesView> {
                                                           },
                                                         );
                                                       },
-                                                    );
+                                                    ).whenComplete(() => context
+                                                            .once<
+                                                                AppController>()
+                                                            .loader
+                                                            .hide());
                                                   },
                                                 );
                                               },
@@ -799,6 +808,7 @@ class _ViewState extends State<ExpensesView> {
           ),
           Expanded(
             child: TextField(
+              autofocus: false,
               controller: amountController,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -854,6 +864,7 @@ class _ViewState extends State<ExpensesView> {
           SizedBox(width: 8),
           MaterialButton(
             onPressed: () async {
+              context.once<AppController>().loader.show();
               var parsedAmount = double.tryParse(amountController.text);
               if (parsedAmount == null) return;
               var amount = await Encrypter.encrypt(
@@ -866,7 +877,6 @@ class _ViewState extends State<ExpensesView> {
                     category: categoryOfExpenseToAdd,
                   )
                   .then((r) {
-                context.once<AppController>().loader.hide();
                 r.fold((err) {
                   context.once<AppController>().addNotification(
                       NotificationType.error,
@@ -879,7 +889,8 @@ class _ViewState extends State<ExpensesView> {
                   controller.add(expense);
                   controller.notify();
                 });
-              });
+              }).whenComplete(
+                      () => context.once<AppController>().loader.hide());
             },
             color: Colors.black,
             minWidth: 0,

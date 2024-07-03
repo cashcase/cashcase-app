@@ -578,6 +578,30 @@ class _ViewState extends State<AccountView> {
     );
   }
 
+  void confirmResetKey() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return ConfirmationDialog(
+          message: "Are you sure you want to reset your key?",
+          icon: Icon(
+            Icons.warning_rounded,
+            color: Colors.red,
+            size: 100,
+          ),
+          okLabel: "No",
+          cancelLabel: "Yes",
+          cancelColor: Colors.red,
+          onOk: () => Navigator.pop(context),
+          onCancel: () {
+            AppDb.clearEncryptionKey();
+            context.clearAndReplace("/");
+          },
+        );
+      },
+    );
+  }
+
   void showEncryptionKey() {
     bool showingKey = false;
     bool copiedKey = false;
@@ -611,22 +635,35 @@ class _ViewState extends State<AccountView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                showingKey
-                                    ? Icons.lock_open_rounded
-                                    : Icons.lock_rounded,
-                                color: Colors.white,
+                              Row(
+                                children: [
+                                  Icon(
+                                    showingKey
+                                        ? Icons.lock_open_rounded
+                                        : Icons.lock_rounded,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 16),
+                                  Text(
+                                    "Your Encryption Key",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium!
+                                        .copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  )
+                                ],
                               ),
-                              SizedBox(width: 16),
-                              Text(
-                                "Your Encrpytion Key",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium!
-                                    .copyWith(
-                                      color: Colors.white,
-                                    ),
+                              GestureDetector(
+                                onTap: confirmResetKey,
+                                child: Icon(
+                                  Icons.lock_reset_outlined,
+                                  color: Colors.red,
+                                  size: 28,
+                                ),
                               ),
                             ],
                           ),

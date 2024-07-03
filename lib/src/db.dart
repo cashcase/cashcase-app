@@ -120,6 +120,12 @@ class AppDb extends Db {
     return status;
   }
 
+  static Future<void> clearEncryptionKey() async {
+    var user = AppDb.getCurrentUser();
+    if (user == null) throw UserNotSetException();
+    await Db.locker.delete(key: getEncryptionIdentifier(user));
+  }
+
   static String? getCurrentUser() {
     var user = Db.store.getString(CURRENT_USER_IDENTIFIER) ?? null;
     if (user == null) throw UserNotSetException();

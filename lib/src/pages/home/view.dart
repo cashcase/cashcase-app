@@ -132,6 +132,9 @@ class _HomePageWidgetState extends State<HomePageView> {
                         shadowColor: Colors.white,
                       ),
                       child: Container(
+                        padding: EdgeInsets.only(
+                          bottom: 8,
+                        ),
                         decoration: BoxDecoration(
                           boxShadow: <BoxShadow>[
                             BoxShadow(
@@ -159,7 +162,9 @@ class _HomePageWidgetState extends State<HomePageView> {
                             items: Pages.map((e) {
                               return BottomNavigationBarItem(
                                 icon: Container(
-                                  padding: EdgeInsets.only(top: 8),
+                                  padding: EdgeInsets.only(
+                                    top: 8,
+                                  ),
                                   child: Icon(e.icon),
                                 ),
                                 label: e.label,
