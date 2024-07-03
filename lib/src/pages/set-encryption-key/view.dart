@@ -205,7 +205,6 @@ class _SetKeyViewState extends State<SetKeyView> {
         await Future.delayed(Duration(milliseconds: 500));
         await AppDb.setEncryptionKey(oldKeyController.text);
         controller.success();
-        context.once<AppController>().loader.show();
         context.clearAndReplace("/");
       },
     );
@@ -247,7 +246,6 @@ class _SetKeyViewState extends State<SetKeyView> {
         await Future.delayed(Duration(milliseconds: 500));
         await AppDb.setEncryptionKey(newKeyController.text);
         controller.success();
-        context.once<AppController>().loader.show();
         context.clearAndReplace("/");
       },
     );

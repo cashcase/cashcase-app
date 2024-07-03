@@ -167,19 +167,19 @@ class _ViewState extends State<ExpensesView> {
     ExpenseListController controller,
   ) async {
     if (expense.notes != notes) {
-      context.once<AppController>().loader.show();
+      context.once<AppController>().startLoading();
       // notes = await Encrypter.encrypt(notes, controller.keys.first ?? "");
       context
           .once<ExpensesController>()
           .editExpenseNotes(expense.id, notes)
           .then((r) {
         r.fold((err) {
-          context.once<AppController>().loader.hide();
+          context.once<AppController>().stopLoading();
           Navigator.pop(context);
           context.once<AppController>().addNotification(NotificationType.error,
               err.message ?? "Could not edit expense. Please try again later.");
         }, (_) {
-          context.once<AppController>().loader.hide();
+          context.once<AppController>().stopLoading();
           Navigator.pop(context);
           controller.update(expense, notes);
         });
@@ -655,8 +655,7 @@ class _ViewState extends State<ExpensesView> {
                                                   onCancel: () {
                                                     context
                                                         .once<AppController>()
-                                                        .loader
-                                                        .show();
+                                                        .startLoading();
                                                     context
                                                         .once<
                                                             ExpensesController>()
@@ -693,8 +692,7 @@ class _ViewState extends State<ExpensesView> {
                                                     ).whenComplete(() => context
                                                             .once<
                                                                 AppController>()
-                                                            .loader
-                                                            .hide());
+                                                            .stopLoading());
                                                   },
                                                 );
                                               },
@@ -866,7 +864,7 @@ class _ViewState extends State<ExpensesView> {
           SizedBox(width: 8),
           MaterialButton(
             onPressed: () async {
-              context.once<AppController>().loader.show();
+              context.once<AppController>().startLoading();
               var parsedAmount = double.tryParse(amountController.text);
               if (parsedAmount == null) return;
               var amount = await Encrypter.encrypt(
@@ -881,13 +879,13 @@ class _ViewState extends State<ExpensesView> {
                   )
                   .then((r) {
                 r.fold((err) {
-                  context.once<AppController>().loader.hide();
+                  context.once<AppController>().stopLoading();
                   context.once<AppController>().addNotification(
                       NotificationType.error,
                       err.message ??
                           "Unable to add expense. Please try again later.");
                 }, (expense) {
-                  context.once<AppController>().loader.hide();
+                  context.once<AppController>().stopLoading();
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";

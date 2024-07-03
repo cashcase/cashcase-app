@@ -15,11 +15,11 @@ class AccountController extends BaseController {
   void initListeners() {}
 
   void logout() {
-    context.once<AppController>().loader.show();
+    context.once<AppController>().startLoading();
     AppController.clearTokens();
     AppDb.clearCurrentUser();
     context.clearAndReplace("/");
-    context.once<AppController>().loader.hide();
+    context.once<AppController>().stopLoading();
   }
 
   Future<Either<AppError, ProfileModel>> getDetails() async {

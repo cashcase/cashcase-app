@@ -177,7 +177,7 @@ class _SigninViewState extends State<SigninView> {
                                 setState(() => {});
                                 if (usernameError == null &&
                                     passwordError == null) {
-                                  context.once<AppController>().loader.show();
+                                  context.once<AppController>().startLoading();
                                   context
                                       .once<SigninController>()
                                       .login(
@@ -185,7 +185,7 @@ class _SigninViewState extends State<SigninView> {
                                         passwordController.text,
                                       )
                                       .then((r) {
-                                    context.once<AppController>().loader.hide();
+                                    context.once<AppController>().stopLoading();
                                     r.fold(
                                         (err) => context
                                             .once<AppController>()

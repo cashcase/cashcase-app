@@ -1,5 +1,4 @@
 import 'package:cashcase/core/api/index.dart';
-import 'package:cashcase/core/app/loader.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/utils/debouncer.dart';
@@ -34,8 +33,6 @@ class AppController extends BaseController {
     return ready;
   }
 
-  final LoaderController loader = LoaderController();
-
   static hasTokens() {
     return Db.token.isNotEmpty && Db.refreshToken.isNotEmpty;
   }
@@ -62,5 +59,19 @@ class AppController extends BaseController {
   clearNotifications() {
     currentNotification = null;
     notifyListeners();
+  }
+
+  static String? _loading;
+
+  get active => _loading != null;
+
+  startLoading([String message = 'Loading...']) {
+    _loading = message;
+    notify();
+  }
+
+  stopLoading() {
+    _loading = null;
+    notify();
   }
 }

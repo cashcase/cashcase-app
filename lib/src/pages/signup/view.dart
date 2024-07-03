@@ -78,7 +78,7 @@ class _SignupViewState extends State<SignupView> {
         lastNameError == null) {
       var appController = context.once<AppController>();
       if (usernameError == null && passwordError == null) {
-        appController.loader.show();
+        appController.startLoading();
         context
             .once<SignupController>()
             .signup(
@@ -88,7 +88,7 @@ class _SignupViewState extends State<SignupView> {
               lastNameController.text,
             )
             .then((r) {
-          appController.loader.hide();
+          appController.stopLoading();
           r.fold(
               (err) => appController.addNotification(
                     NotificationType.error,
@@ -102,7 +102,7 @@ class _SignupViewState extends State<SignupView> {
             Navigator.of(context).pop();
           });
         }).catchError((e) {
-          appController.loader.hide();
+          appController.stopLoading();
           appController.addNotification(
             NotificationType.error,
             'Unable to sign you up!',

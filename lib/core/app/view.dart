@@ -57,7 +57,7 @@ class BaseApp extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   children: [
                     app,
-                    if (context.listen<AppController>().loader.active)
+                    if (context.listen<AppController>().active)
                       Container(
                         color: Colors.black87.withOpacity(0.7),
                         width: MediaQuery.of(context).size.width,
