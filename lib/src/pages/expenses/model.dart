@@ -212,7 +212,11 @@ class GroupedExpense {
           each.amount = "0.0";
         }
       }
-      
+
+      if (each.amount.startsWith("\."))
+        each.amount = "0${each.amount}";
+      else if (each.amount.endsWith("\.")) each.amount = "${each.amount}0";
+
       var amount = double.parse(each.amount);
 
       if (isSaving)

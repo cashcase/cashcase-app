@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-
+import 'dart:convert' show utf8;
 import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
@@ -30,19 +30,22 @@ class Encrypter {
     return _value;
   }
 
+  static cleanData(String e) {
+    return e.replaceAll("\0", '');
+  }
+
   static String encrypt(String data, String key) {
     key = padStringTo32Chars(key.replaceAll(" ", ""));
-    data = padStringTo32Chars(data);
+    data = padStringTo32Chars(cleanData(data));
     Uint8List _key = stringToUint8list(key);
     Uint8List iv = stringToUint8list(IV);
     Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.cbc;
+    AesMode mode = AesMode.ecb;
     var crypt = AesCrypt();
     crypt.aesSetParams(_key, iv, mode);
 
     var encrypted = crypt.aesEncrypt(_data);
     var string = String.fromCharCodes(encrypted);
-
     return string;
   }
 
@@ -52,7 +55,7 @@ class Encrypter {
     Uint8List _key = stringToUint8list(key);
     Uint8List iv = stringToUint8list(IV);
     Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.cbc;
+    AesMode mode = AesMode.ecb;
     var crypt = AesCrypt();
     crypt.aesSetParams(_key, iv, mode);
 

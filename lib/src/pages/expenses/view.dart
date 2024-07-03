@@ -174,14 +174,16 @@ class _ViewState extends State<ExpensesView> {
           .editExpenseNotes(expense.id, notes)
           .then((r) {
         r.fold((err) {
+          context.once<AppController>().loader.hide();
           Navigator.pop(context);
           context.once<AppController>().addNotification(NotificationType.error,
               err.message ?? "Could not edit expense. Please try again later.");
         }, (_) {
+          context.once<AppController>().loader.hide();
           Navigator.pop(context);
           controller.update(expense, notes);
         });
-      }).whenComplete(() => context.once<AppController>().loader.hide());
+      });
     }
     return true;
   }
@@ -869,6 +871,7 @@ class _ViewState extends State<ExpensesView> {
               if (parsedAmount == null) return;
               var amount = await Encrypter.encrypt(
                   parsedAmount.toString(), controller.keys.first ?? "");
+              if (parsedAmount == 0) return;
               context
                   .once<ExpensesController>()
                   .createExpense(
@@ -878,19 +881,20 @@ class _ViewState extends State<ExpensesView> {
                   )
                   .then((r) {
                 r.fold((err) {
+                  context.once<AppController>().loader.hide();
                   context.once<AppController>().addNotification(
                       NotificationType.error,
                       err.message ??
                           "Unable to add expense. Please try again later.");
                 }, (expense) {
+                  context.once<AppController>().loader.hide();
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";
                   controller.add(expense);
                   controller.notify();
                 });
-              }).whenComplete(
-                      () => context.once<AppController>().loader.hide());
+              });
             },
             color: Colors.black,
             minWidth: 0,

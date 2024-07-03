@@ -30,137 +30,139 @@ class _SetKeyViewState extends State<SetKeyView> {
       appBar: AppBar(
         automaticallyImplyLeading: !confirmed,
       ),
-      body: Container(
-        padding: EdgeInsets.all(16).copyWith(bottom: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Set Your Encryption Key".replaceAll(" ", "\n"),
-                  style: Theme.of(context).textTheme.displayMedium,
-                ),
-                SizedBox(height: 24),
-                Text(
-                    "Please copy and securely store your key. This key can only be generated once per account and cannot be recovered if lost.",
-                    style: Theme.of(context).textTheme.bodyLarge),
-                SizedBox(height: 8),
-                Theme(
-                  data: ThemeData(splashFactory: NoSplash.splashFactory),
-                  child: MaterialButton(
-                    minWidth: double.infinity,
-                    onPressed: () =>
-                        setState(() => restoringKey = !restoringKey),
-                    color: Colors.transparent,
-                    child: Text(
-                      "Click here if ${restoringKey ? "you need to generate a key." : "you already have a key."}",
-                      style: TextStyle(color: Colors.white),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(16).copyWith(bottom: 40),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Set Your Encryption Key".replaceAll(" ", "\n"),
+                    style: Theme.of(context).textTheme.displayMedium,
+                  ),
+                  SizedBox(height: 24),
+                  Text(
+                      "Please copy and securely store your key. This key can only be generated once per account and cannot be recovered if lost.",
+                      style: Theme.of(context).textTheme.bodyLarge),
+                  SizedBox(height: 8),
+                  Theme(
+                    data: ThemeData(splashFactory: NoSplash.splashFactory),
+                    child: MaterialButton(
+                      minWidth: double.infinity,
+                      onPressed: () =>
+                          setState(() => restoringKey = !restoringKey),
+                      color: Colors.transparent,
+                      child: Text(
+                        "Click here if ${restoringKey ? "you need to generate a key." : "you already have a key."}",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 8),
-                if (!restoringKey)
-                  Container(
-                    height: 120,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: Colors.orangeAccent,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 40),
-                            child: Text(
-                              "${newKeyController.text}\n",
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineLarge!
-                                  .copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                  SizedBox(height: 8),
+                  if (!restoringKey)
+                    Container(
+                      height: 120,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              child: Text(
+                                "${newKeyController.text}\n",
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineLarge!
+                                    .copyWith(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
                             ),
                           ),
+                          Positioned(
+                            bottom: 8,
+                            right: 8,
+                            child: GestureDetector(
+                              onTap: () => setState(() {
+                                newKeyController.text =
+                                    Encrypter.generateRandomKey();
+                                keyCopied = null;
+                              }),
+                              child: Icon(
+                                Icons.refresh_rounded,
+                                color: Colors.black54,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 8,
+                            left: 8,
+                            child: GestureDetector(
+                              onTap: newKeyController.text.isEmpty
+                                  ? null
+                                  : () async {
+                                      await Clipboard.setData(
+                                        ClipboardData(
+                                            text: newKeyController.text),
+                                      );
+                                      setState(() =>
+                                          keyCopied = newKeyController.text);
+                                    },
+                              child: Icon(
+                                newKeyController.text == keyCopied
+                                    ? Icons.check_circle_rounded
+                                    : Icons.copy_rounded,
+                                color: Colors.black54,
+                                size: 28,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  if (restoringKey)
+                    TextField(
+                      controller: oldKeyController,
+                      style: TextStyle(color: Colors.grey),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        errorText: oldKeyError,
+                        hintText: 'Restore Encrpytion Key',
+                        hintStyle: TextStyle(color: Colors.grey),
+                        errorMaxLines: 2,
+                        errorStyle: TextStyle(color: Colors.red),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 1.0),
                         ),
-                        Positioned(
-                          bottom: 8,
-                          right: 8,
-                          child: GestureDetector(
-                            onTap: () => setState(() {
-                              newKeyController.text =
-                                  Encrypter.generateRandomKey();
-                              keyCopied = null;
-                            }),
-                            child: Icon(
-                              Icons.refresh_rounded,
-                              color: Colors.black54,
-                              size: 28,
-                            ),
-                          ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 1.0),
                         ),
-                        Positioned(
-                          bottom: 8,
-                          left: 8,
-                          child: GestureDetector(
-                            onTap: newKeyController.text.isEmpty
-                                ? null
-                                : () async {
-                                    await Clipboard.setData(
-                                      ClipboardData(
-                                          text: newKeyController.text),
-                                    );
-                                    setState(() =>
-                                        keyCopied = newKeyController.text);
-                                  },
-                            child: Icon(
-                              newKeyController.text == keyCopied
-                                  ? Icons.check_circle_rounded
-                                  : Icons.copy_rounded,
-                              color: Colors.black54,
-                              size: 28,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                if (restoringKey)
-                  TextField(
-                    controller: oldKeyController,
-                    style: TextStyle(color: Colors.grey),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      errorText: oldKeyError,
-                      hintText: 'Restore Encrpytion Key',
-                      hintStyle: TextStyle(color: Colors.grey),
-                      errorMaxLines: 2,
-                      errorStyle: TextStyle(color: Colors.red),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1.0),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.grey, width: 1.0),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Colors.grey.shade800, width: 1.0),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.grey.shade800, width: 1.0),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            SizedBox(height: 24),
-            if (!restoringKey && newKeyController.text == keyCopied)
-              showNewKeySlider(),
-            if (restoringKey) showRestoreKeySlider()
-          ],
+                ],
+              ),
+              SizedBox(height: 24),
+              if (!restoringKey && newKeyController.text == keyCopied)
+                showNewKeySlider(),
+              if (restoringKey) showRestoreKeySlider()
+            ],
+          ),
         ),
       ),
     );
@@ -197,10 +199,7 @@ class _SetKeyViewState extends State<SetKeyView> {
       ),
       action: (controller) async {
         oldKeyError = isValidKey(oldKeyController.text);
-        if (oldKeyError != null) {
-          setState(() => {});
-          return;
-        }
+        if (oldKeyError != null) return setState(() => {});
         setState(() => confirmed = true);
         controller.loading();
         await Future.delayed(Duration(milliseconds: 500));
