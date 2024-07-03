@@ -132,9 +132,6 @@ class _HomePageWidgetState extends State<HomePageView> {
                         shadowColor: Colors.white,
                       ),
                       child: Container(
-                        padding: EdgeInsets.only(
-                          bottom: 8,
-                        ),
                         decoration: BoxDecoration(
                           boxShadow: <BoxShadow>[
                             BoxShadow(
@@ -162,9 +159,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                             items: Pages.map((e) {
                               return BottomNavigationBarItem(
                                 icon: Container(
-                                  padding: EdgeInsets.only(
-                                    top: 8,
-                                  ),
+                                  padding: EdgeInsets.only(top: 8, bottom: 8),
                                   child: Icon(e.icon),
                                 ),
                                 label: e.label,
@@ -179,13 +174,13 @@ class _HomePageWidgetState extends State<HomePageView> {
                     left: 0,
                     child: Align(
                       child: Container(
+                        padding: EdgeInsets.all(16),
                         height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
                         color: Colors.black87,
                         child: Center(
                           child: Container(
-                            padding: EdgeInsets.all(16),
-                            height: 600,
+                            height: 400,
                             child: Card(
                               elevation: 1,
                               color: Colors.black,
@@ -204,7 +199,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                       child: Center(
                                         child: Icon(
                                           Icons.lock_open_rounded,
-                                          size: 100,
+                                          size: 60,
                                           color: Colors.red.shade100,
                                         ),
                                       ),
@@ -229,7 +224,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                 padding: EdgeInsets.all(8),
                                                 child: Center(
                                                   child: Text(
-                                                    "You haven't set your encryption key!",
+                                                    "You haven't set your\n encryption key!",
                                                     textAlign: TextAlign.center,
                                                     style: Theme.of(context)
                                                         .textTheme
@@ -255,7 +250,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                     color: Colors.red.shade600,
                                                     onPressed: () =>
                                                         context.push("/setkey"),
-                                                    height: 48,
+                                                    height: 80,
                                                     child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment

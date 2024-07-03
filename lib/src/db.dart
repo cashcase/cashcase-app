@@ -31,22 +31,23 @@ class Encrypter {
   }
 
   static cleanData(String e) {
-    return e.replaceAll("\0", '');
+    print("1 >>> ${e} >>>>");
+    return e.replaceAll("0x00", '');
   }
 
   static String encrypt(String data, String key) {
     key = padStringTo32Chars(key.replaceAll(" ", ""));
-    data = padStringTo32Chars(cleanData(data));
+    data = padStringTo32Chars(data);
     Uint8List _key = stringToUint8list(key);
     Uint8List iv = stringToUint8list(IV);
     Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.ecb;
-    var crypt = AesCrypt();
+    AesMode mode = AesMode.ofb;
+    AesCrypt crypt = AesCrypt();
     crypt.aesSetParams(_key, iv, mode);
 
-    var encrypted = crypt.aesEncrypt(_data);
-    var string = String.fromCharCodes(encrypted);
-    return string;
+    Uint8List encrypted = crypt.aesEncrypt(_data);
+    String string = String.fromCharCodes(encrypted);
+    return cleanData(string);
   }
 
   static String decrypt(String data, String key) {
@@ -55,12 +56,12 @@ class Encrypter {
     Uint8List _key = stringToUint8list(key);
     Uint8List iv = stringToUint8list(IV);
     Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.ecb;
-    var crypt = AesCrypt();
+    AesMode mode = AesMode.ofb;
+    AesCrypt crypt = AesCrypt();
     crypt.aesSetParams(_key, iv, mode);
 
-    var decrypted = crypt.aesDecrypt(_data);
-    var string = String.fromCharCodes(decrypted);
+    Uint8List decrypted = crypt.aesDecrypt(_data);
+    String string = String.fromCharCodes(decrypted);
 
     return unpadString(string);
   }

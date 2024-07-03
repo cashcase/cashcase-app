@@ -866,10 +866,11 @@ class _ViewState extends State<ExpensesView> {
             onPressed: () async {
               context.once<AppController>().startLoading();
               var parsedAmount = double.tryParse(amountController.text);
-              if (parsedAmount == null) return;
               var amount = await Encrypter.encrypt(
                   parsedAmount.toString(), controller.keys.first ?? "");
-              if (parsedAmount == 0) return;
+              if (parsedAmount == null || parsedAmount == 0) {
+                return context.once<AppController>().stopLoading();
+              }
               context
                   .once<ExpensesController>()
                   .createExpense(
