@@ -29,144 +29,168 @@ class _SigninViewState extends State<SigninView> {
     return KeyboardVisibilityBuilder(builder: (context, isKeyboardVisible) {
       return Scaffold(
         backgroundColor:
-            Colors.blueAccent.withOpacity(isKeyboardVisible ? 0.15 : 0.25),
+            Colors.orangeAccent.withOpacity(isKeyboardVisible ? 0.15 : 0.25),
         body: Center(
           child: Column(
             children: [
               Expanded(
-                flex: 2,
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
+                flex: isKeyboardVisible ? 2 : 3,
+                child: AnimatedContainer(
+                  duration: Durations.short1,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      AnimatedContainer(
-                        duration: Durations.short1,
-                        child: CircleAvatar(
-                          radius: isKeyboardVisible ? 0 : 64,
-                          backgroundColor: Colors.orangeAccent,
-                          child: ClipOval(
-                            child: Image(
-                              width: 120,
-                              image: AssetImage('assets/logo.png'),
-                            ),
+                      CircleAvatar(
+                        radius: isKeyboardVisible ? 28 : 64,
+                        backgroundColor: Colors.transparent,
+                        child: ClipOval(
+                          child: Image(
+                            width: 120,
+                            image: AssetImage('assets/logo.png'),
                           ),
                         ),
                       ),
                       SizedBox(height: isKeyboardVisible ? 12 : 24),
                       Text(
-                        "CASHCASE",
+                        "cashcase".toUpperCase(),
                         style: GoogleFonts.abel().copyWith(
-                            fontSize: 42,
-                            color: Colors.orangeAccent,
-                            fontWeight: FontWeight.bold),
+                          fontSize: isKeyboardVisible ? 0 : 40,
+                          color: Colors.orangeAccent,
+                          // fontWeight: FontWeight.bold
+                        ),
                       )
                     ],
                   ),
                 ),
               ),
-              Wrap(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(16).copyWith(
-                      top: 24,
-                    ),
-                    decoration: BoxDecoration(
-                        color: Colors.black,
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(16),
-                            topRight: Radius.circular(16))),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Login",
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleLarge!
-                              .copyWith(color: Colors.orangeAccent),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16))),
+                  child: Wrap(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(16).copyWith(
+                          bottom: 24,
+                          top: 24,
                         ),
-                        SizedBox(height: 16),
-                        CustomTextField(
-                          label: "Username",
-                          controller: usernameController,
-                          error: usernameError,
-                        ),
-                        SizedBox(height: 16),
-                        CustomTextField(
-                          label: "Password",
-                          controller: passwordController,
-                          isPassword: true,
-                          error: passwordError,
-                        ),
-                        SizedBox(height: 16),
-                        Row(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Button(
-                                onPressed: () => context.push("/signup"),
-                                label: "Sign up",
-                                type: ButtonType.secondary,
-                              ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Welcome",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineMedium!
+                                      .copyWith(color: Colors.orangeAccent),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  "Please login to continue",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(color: Colors.white54),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 16),
-                            Expanded(
-                              child: Button(
-                                onPressed: () {
-                                  usernameError =
-                                      isValidUsername(usernameController.text);
-                                  passwordError =
-                                      isValidPassword(passwordController.text);
-                                  setState(() => {});
-                                  if (usernameError == null &&
-                                      passwordError == null) {
-                                    context
-                                        .once<AppController>()
-                                        .startLoading();
-                                    context
-                                        .once<SigninController>()
-                                        .login(
-                                          usernameController.text,
-                                          passwordController.text,
-                                        )
-                                        .then((r) {
-                                      context
-                                          .once<AppController>()
-                                          .stopLoading();
-                                      r.fold(
-                                          (err) => context
-                                              .once<AppController>()
-                                              .addNotification(
-                                                  NotificationType.error,
-                                                  err.message ??
-                                                      "Unable to login. Please try again later."),
-                                          (auth) {
-                                        AppDb.setCurrentUser(
-                                                usernameController.text)
-                                            .then((currentUser) {
-                                          context
-                                              .once<AppController>()
-                                              .clearNotifications();
-                                          AppController.setTokens(
-                                            auth.token,
-                                            auth.refreshToken,
-                                          );
-                                          context.clearAndReplace("/");
-                                        });
-                                      });
-                                    });
-                                  }
-                                },
-                                label: "Login",
-                              ),
+                            SizedBox(height: 16),
+                            Column(
+                              children: [
+                                CustomTextField(
+                                  label: "Username",
+                                  controller: usernameController,
+                                  error: usernameError,
+                                ),
+                                SizedBox(height: 16),
+                                CustomTextField(
+                                  label: "Password",
+                                  controller: passwordController,
+                                  isPassword: true,
+                                  error: passwordError,
+                                ),
+                                SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Button(
+                                        onPressed: () =>
+                                            context.push("/signup"),
+                                        label: "Sign up",
+                                        type: ButtonType.secondary,
+                                      ),
+                                    ),
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Button(
+                                        onPressed: () {
+                                          usernameError = isValidUsername(
+                                              usernameController.text);
+                                          passwordError = isValidPassword(
+                                              passwordController.text);
+                                          setState(() => {});
+                                          if (usernameError == null &&
+                                              passwordError == null) {
+                                            context
+                                                .once<AppController>()
+                                                .startLoading();
+                                            context
+                                                .once<SigninController>()
+                                                .login(
+                                                  usernameController.text,
+                                                  passwordController.text,
+                                                )
+                                                .then((r) {
+                                              context
+                                                  .once<AppController>()
+                                                  .stopLoading();
+                                              r.fold(
+                                                  (err) => context
+                                                      .once<AppController>()
+                                                      .addNotification(
+                                                          NotificationType
+                                                              .error,
+                                                          err.message ??
+                                                              "Unable to login. Please try again later."),
+                                                  (auth) {
+                                                AppDb.setCurrentUser(
+                                                        usernameController.text)
+                                                    .then((currentUser) {
+                                                  context
+                                                      .once<AppController>()
+                                                      .clearNotifications();
+                                                  AppController.setTokens(
+                                                    auth.token,
+                                                    auth.refreshToken,
+                                                  );
+                                                  context.clearAndReplace("/");
+                                                });
+                                              });
+                                            });
+                                          }
+                                        },
+                                        label: "Login",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
+                            Container()
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               )
             ],
           ),

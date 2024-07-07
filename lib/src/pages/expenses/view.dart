@@ -415,6 +415,9 @@ class _ViewState extends State<ExpensesView> {
                       borderRadius: BorderRadius.all(
                         Radius.circular(8),
                       ),
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.15),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -514,9 +517,10 @@ class _ViewState extends State<ExpensesView> {
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                           ),
-                          
                           child: ExpansionTile(
-                            backgroundColor: Colors.black.withOpacity(0.25),
+                            backgroundColor:
+                                (isSaving ? Colors.green : Colors.red)
+                                    .withOpacity(0.05),
                             title: Text(
                               categoryExpenses[index].toCamelCase(),
                               style: Theme.of(context)
@@ -543,7 +547,7 @@ class _ViewState extends State<ExpensesView> {
                                         .textTheme
                                         .titleSmall!
                                         .copyWith(
-                                          color: Colors.orangeAccent,
+                                          color: Colors.grey.shade600,
                                         ),
                                   )
                                 : null,
@@ -582,7 +586,7 @@ class _ViewState extends State<ExpensesView> {
                                       .textTheme
                                       .titleSmall!
                                       .copyWith(
-                                        color: Colors.orangeAccent,
+                                        color: Colors.grey.shade600,
                                       ),
                                 ),
                                 controlAffinity:
@@ -724,6 +728,12 @@ class _ViewState extends State<ExpensesView> {
                                       subtitle: Text(
                                         DateFormat('dd MMMM yyyy hh:mm a')
                                             .format(expense.createdOn),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall!
+                                            .copyWith(
+                                              color: Colors.grey.shade600,
+                                            ),
                                       ),
                                       title: Row(
                                         mainAxisAlignment:
@@ -888,8 +898,10 @@ class _ViewState extends State<ExpensesView> {
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";
-                  controller.add(expense);
-                  controller.notify();
+                  if (selectedDate.sameDay(DateTime.now())) {
+                    controller.add(expense);
+                    controller.notify();
+                  }
                 });
               });
             },

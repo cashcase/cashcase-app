@@ -63,7 +63,7 @@ class Custom_TextFieldState extends State<CustomTextField> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.shade900, width: 1.0),
+          borderSide: BorderSide(color: Colors.grey.withOpacity(0.15), width: 1.0),
         ),
       ),
     );

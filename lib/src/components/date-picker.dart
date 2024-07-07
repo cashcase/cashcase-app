@@ -19,37 +19,51 @@ class Dropdown extends StatefulWidget {
 class _DropdownState extends State<Dropdown> {
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        borderRadius: BorderRadius.circular(8),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        dropdownColor: Colors.black87,
-        value: widget.initial,
-        isDense: true,
-        icon: Container(),
-        alignment: Alignment.centerLeft,
-        onChanged: (newValue) {
-          setState(() {
-            if (newValue != null) {
-              widget.initial = newValue;
-              widget.onChange(newValue);
-            }
-          });
-        },
-        items: widget.options.map((category) {
-          return DropdownMenuItem<String>(
-            value: category,
-            child: FittedBox(
-              fit: BoxFit.contain,
-              child: Text(
-                category.toCamelCase(),
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      color: Colors.white,
-                    ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.black38,
+        borderRadius: BorderRadius.all(
+          Radius.circular(8),
+        ),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.15),
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          isExpanded: true,
+          borderRadius: BorderRadius.circular(8),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          dropdownColor: Colors.black87,
+          value: widget.initial,
+          isDense: true,
+          icon: Container(),
+          alignment: Alignment.topLeft,
+          onChanged: (newValue) {
+            setState(() {
+              if (newValue != null) {
+                widget.initial = newValue;
+                widget.onChange(newValue);
+              }
+            });
+          },
+          items: widget.options.map((category) {
+            return DropdownMenuItem<String>(
+              alignment: AlignmentDirectional.center,
+              value: category,
+              child: FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  category.toCamelCase(),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -146,29 +160,35 @@ class _DatePickerState extends State<DatePicker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Dropdown(
-                onChange: (month) {
-                  // Check if same month
-                  var _month = months.indexWhere((e) => e == month) + 1;
-                  if (_focusDate.month == month) return;
-                  setNewDate(DateTime(_focusDate.year, _month, _focusDate.day));
-                },
-                initial: months[_focusDate.month - 1],
-                options: months
-                    .take(_focusDate.year == DateTime.now().year
-                        ? DateTime.now().month
-                        : 12)
-                    .toList(),
+              Expanded(
+                child: Dropdown(
+                  onChange: (month) {
+                    // Check if same month
+                    var _month = months.indexWhere((e) => e == month) + 1;
+                    if (_focusDate.month == month) return;
+                    setNewDate(
+                        DateTime(_focusDate.year, _month, _focusDate.day));
+                  },
+                  initial: months[_focusDate.month - 1],
+                  options: months
+                      .take(_focusDate.year == DateTime.now().year
+                          ? DateTime.now().month
+                          : 12)
+                      .toList(),
+                ),
               ),
-              Dropdown(
-                onChange: (year) {
-                  // Check if same year
-                  if (_focusDate.year == int.parse(year)) return;
-                  setNewDate(DateTime(
-                      int.parse(year), _focusDate.month, _focusDate.day));
-                },
-                initial: _focusDate.year.toString(),
-                options: years,
+              SizedBox(width: 16),
+              Expanded(
+                child: Dropdown(
+                  onChange: (year) {
+                    // Check if same year
+                    if (_focusDate.year == int.parse(year)) return;
+                    setNewDate(DateTime(
+                        int.parse(year), _focusDate.month, _focusDate.day));
+                  },
+                  initial: _focusDate.year.toString(),
+                  options: years,
+                ),
               )
             ],
           ),
@@ -190,9 +210,15 @@ class _DatePickerState extends State<DatePicker> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4.0),
             child: Container(
-              color: isSelected
-                  ? Colors.orangeAccent
-                  : Colors.black26,
+              decoration: BoxDecoration(
+                color: isSelected ? Colors.orangeAccent : Colors.black26,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(8),
+                ),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.15),
+                ),
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

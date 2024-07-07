@@ -6,8 +6,10 @@ class Button extends StatefulWidget {
   String label;
   ButtonType type;
   void Function()? onPressed;
+  Color? color;
   Button({
     super.key,
+    this.color,
     this.type = ButtonType.primary,
     required this.label,
     required this.onPressed,
@@ -33,9 +35,11 @@ class _ButtonState extends State<Button> {
             ),
       ),
       disabledColor: Colors.white12,
-      color: widget.type == ButtonType.primary
-          ? Colors.orangeAccent
-          : Colors.white,
+      color: widget.color != null
+          ? widget.color
+          : widget.type == ButtonType.primary
+              ? Colors.orangeAccent
+              : Colors.white,
     );
   }
 }

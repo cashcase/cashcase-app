@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cashcase/core/api/index.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/start.dart';
@@ -50,7 +52,7 @@ void main(List<String> args) {
           )
         : Uri(
             scheme: "http",
-            host: "localhost",
+            host: Platform.isAndroid ? "10.0.2.2" : "localhost",
             port: 8888,
             path: "v0",
           ),
