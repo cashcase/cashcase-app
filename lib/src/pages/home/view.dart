@@ -158,11 +158,32 @@ class _HomePageWidgetState extends State<HomePageView> {
                             },
                             items: Pages.map((e) {
                               return BottomNavigationBarItem(
-                                icon: Container(
-                                  padding: EdgeInsets.only(top: 8, bottom: 8),
-                                  child: Icon(e.icon),
+                                icon: Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        padding:
+                                            EdgeInsets.only(top: 8, bottom: 8),
+                                        child: Icon(e.icon),
+                                      ),
+                                      Text(
+                                        e.label,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall!
+                                            .copyWith(
+                                              color:
+                                                  Pages[_selectedIndex].label ==
+                                                          e.label
+                                                      ? Colors.orangeAccent
+                                                      : Colors.white,
+                                            ),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                label: e.label,
+                                label: "",
                               );
                             }).toList()),
                       ),
@@ -230,10 +251,8 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                         .textTheme
                                                         .headlineMedium!
                                                         .copyWith(
-                                                          color: Colors.white,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                                            color:
+                                                                Colors.white),
                                                   ),
                                                 ),
                                               ),

@@ -25,7 +25,7 @@ class ConfirmationDialog extends StatelessWidget {
       children: [
         Container(
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(32).copyWith(top: 20),
+          padding: EdgeInsets.all(24).copyWith(top: 20),
           child: Column(
             children: [
               icon ??
@@ -38,51 +38,48 @@ class ConfirmationDialog extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Colors.white,
+                    ),
               ),
               SizedBox(height: 24),
-              Theme(
-                data: ThemeData(splashFactory: NoSplash.splashFactory),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: MaterialButton(
-                        color: okColor ?? Colors.black,
-                        onPressed: onOk,
-                        child: Center(
-                          child: Text(
-                            okLabel,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  color: Colors.red.shade50,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                          ),
+              Row(
+                children: [
+                  Expanded(
+                    child: MaterialButton(
+                      color: okColor ?? Colors.black,
+                      onPressed: onOk,
+                      child: Center(
+                        child: Text(
+                          okLabel,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: Colors.red.shade50,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                         ),
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: MaterialButton(
-                        color: cancelColor ?? Colors.orangeAccent,
-                        onPressed: onCancel,
-                        child: Center(
-                          child: Text(
-                            cancelLabel,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .copyWith(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500),
-                          ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: MaterialButton(
+                      color: cancelColor ?? Colors.orangeAccent,
+                      onPressed: onCancel,
+                      child: Center(
+                        child: Text(
+                          cancelLabel,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium!
+                              .copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500),
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               )
             ],
           ),

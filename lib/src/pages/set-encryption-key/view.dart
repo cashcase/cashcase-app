@@ -34,32 +34,46 @@ class _SetKeyViewState extends State<SetKeyView> {
         child: Container(
           padding: EdgeInsets.all(16).copyWith(bottom: 40),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Set Your Encryption Key".replaceAll(" ", "\n"),
-                    style: Theme.of(context).textTheme.displayMedium,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Set\nYour\nEncryption\nKey",
+                        style: Theme.of(context)
+                            .textTheme
+                            .displayMedium!
+                            .copyWith(color: Colors.orangeAccent),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: 0),
+                        child: Icon(Icons.lock_rounded,
+                            size: 48, color: Colors.orangeAccent),
+                      )
+                    ],
                   ),
                   SizedBox(height: 24),
                   Text(
-                      "Please copy and securely store your key. This key can only be generated once per account and cannot be recovered if lost.",
-                      style: Theme.of(context).textTheme.bodyLarge),
-                  SizedBox(height: 8),
-                  Theme(
-                    data: ThemeData(splashFactory: NoSplash.splashFactory),
-                    child: MaterialButton(
-                      minWidth: double.infinity,
-                      onPressed: () =>
-                          setState(() => restoringKey = !restoringKey),
-                      color: Colors.transparent,
-                      child: Text(
-                        "Click here if ${restoringKey ? "you need to generate a key." : "you already have a key."}",
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    "Please copy and securely store your key. This key can only be generated once per account and cannot be recovered if lost.",
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelLarge!
+                        .copyWith(color: Colors.white),
+                  ),
+                  SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () => setState(() => restoringKey = !restoringKey),
+                    child: Text(
+                      "Click here if ${restoringKey ? "you need to generate a key." : "you already have a key."}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .labelLarge!
+                          .copyWith(color: Colors.white),
                     ),
                   ),
                   SizedBox(height: 8),
@@ -75,7 +89,8 @@ class _SetKeyViewState extends State<SetKeyView> {
                         children: [
                           Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
                               child: Text(
                                 "${newKeyController.text}\n",
                                 textAlign: TextAlign.center,
@@ -135,23 +150,36 @@ class _SetKeyViewState extends State<SetKeyView> {
                   if (restoringKey)
                     TextField(
                       controller: oldKeyController,
-                      style: TextStyle(color: Colors.grey),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium!
+                          .copyWith(color: Colors.white),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         errorText: oldKeyError,
-                        hintText: 'Restore Encrpytion Key',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintText: 'Enter Encryption Key',
+                        hintStyle:
+                            Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: Colors.grey,
+                                ),
                         errorMaxLines: 2,
-                        errorStyle: TextStyle(color: Colors.red),
                         errorBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.red, width: 1.0),
                         ),
+                        errorStyle:
+                            Theme.of(context).textTheme.titleSmall!.copyWith(
+                                  color: Colors.red,
+                                ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 1.0),
+                        ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                          borderSide:
+                              BorderSide(color: Colors.grey, width: 1.0),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.grey.shade800, width: 1.0),
+                          borderSide: BorderSide(
+                              color: Colors.grey.shade800, width: 1.0),
                         ),
                       ),
                     ),

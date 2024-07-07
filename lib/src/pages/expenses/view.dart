@@ -90,26 +90,28 @@ class _ViewState extends State<ExpensesView> {
                           child: Text(
                             value == false ? "Loading timeline..." : "",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white38,
-                            ),
+                            style:
+                                Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      color: Colors.white38,
+                                    ),
                           ),
                         ),
                       );
                     }
-                    return DatePicker(
-                      startDate: expenseDatePickerController
-                          .value.firstExpenseDate!
-                          .startOfDay(),
-                      endDate: expenseDatePickerController
-                          .value.lastExpenseDate!
-                          .startOfDay(),
-                      focusedDate: selectedDate,
-                      onDateChange: (date, shouldReloadData) {
-                        selectedDate = date;
-                        refresh(refreshData: shouldReloadData);
-                      },
+                    return Container(
+                      child: DatePicker(
+                        startDate: expenseDatePickerController
+                            .value.firstExpenseDate!
+                            .startOfDay(),
+                        endDate: expenseDatePickerController
+                            .value.lastExpenseDate!
+                            .startOfDay(),
+                        focusedDate: selectedDate,
+                        onDateChange: (date, shouldReloadData) {
+                          selectedDate = date;
+                          refresh(refreshData: shouldReloadData);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -225,31 +227,13 @@ class _ViewState extends State<ExpensesView> {
                           children: [
                             Row(
                               children: [
-                                CircleAvatar(
-                                  backgroundColor: isSaved
-                                      ? Colors.green.shade600
-                                      : Colors.red.shade500,
-                                  radius: 24.0,
-                                  child: Text(
-                                    expense.user.getInitials(),
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall!
-                                        .copyWith(
-                                          color: Colors.white,
-                                        ),
-                                  ),
-                                ),
-                                SizedBox(width: 16),
                                 Text(
                                   "${expense.user.firstName.toCamelCase()}",
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineMedium!
                                       .copyWith(
-                                        color: isSaved
-                                            ? Colors.green.shade100
-                                            : Colors.red.shade100,
+                                        color: Colors.white,
                                       ),
                                 )
                               ],
@@ -260,9 +244,7 @@ class _ViewState extends State<ExpensesView> {
                                   .textTheme
                                   .headlineMedium!
                                   .copyWith(
-                                    color: isSaved
-                                        ? Colors.green.shade100
-                                        : Colors.red.shade100,
+                                    color: Colors.white,
                                   ),
                             )
                           ],
@@ -287,14 +269,14 @@ class _ViewState extends State<ExpensesView> {
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium!
-                                .copyWith(),
+                                .copyWith(color: Colors.white),
                           ),
                           Text(
                             expense.category.toCamelCase(),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium!
-                                .copyWith(),
+                                .copyWith(color: Colors.white),
                           ),
                         ],
                       ),
@@ -308,6 +290,10 @@ class _ViewState extends State<ExpensesView> {
                         enabled:
                             expense.user.username == AppDb.getCurrentUser(),
                         controller: notesController,
+                        style:
+                            Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  color: Colors.white,
+                                ),
                         decoration: InputDecoration(
                           border: OutlineInputBorder(),
                           hintText: 'Notes',
@@ -330,53 +316,50 @@ class _ViewState extends State<ExpensesView> {
                       padding: EdgeInsets.symmetric(
                         horizontal: 16,
                       ),
-                      child: Theme(
-                        data: ThemeData(splashFactory: NoSplash.splashFactory),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: MaterialButton(
-                                color: Colors.black,
-                                onPressed: () => Navigator.pop(context),
-                                child: Center(
-                                  child: Text(
-                                    "Back",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                  ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: MaterialButton(
+                              color: Colors.black,
+                              onPressed: () => Navigator.pop(context),
+                              child: Center(
+                                child: Text(
+                                  "Back",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium!
+                                      .copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: MaterialButton(
-                                color: Colors.orangeAccent,
-                                onPressed: expense.user.username ==
-                                        AppDb.getCurrentUser()
-                                    ? () => saveExpense(expense,
-                                        notesController.text, controller)
-                                    : null,
-                                disabledColor: Colors.grey,
-                                child: Center(
-                                  child: Text(
-                                    "Save",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500),
-                                  ),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: MaterialButton(
+                              color: Colors.orangeAccent,
+                              onPressed: expense.user.username ==
+                                      AppDb.getCurrentUser()
+                                  ? () => saveExpense(
+                                      expense, notesController.text, controller)
+                                  : null,
+                              disabledColor: Colors.grey,
+                              child: Center(
+                                child: Text(
+                                  "Save",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
+                            ),
+                          )
+                        ],
                       ),
                     )
                   ],
@@ -397,10 +380,9 @@ class _ViewState extends State<ExpensesView> {
           child: Text(
             "Unable to get your expenses. \nPlease try again after sometime.",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white38,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Colors.white38,
+                ),
           ),
         ),
       ),
@@ -421,64 +403,70 @@ class _ViewState extends State<ExpensesView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(height: 8),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Saved",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall!
-                                .copyWith(
-                                  color: Colors.green.shade800,
-                                ),
-                          ),
-                          Text(
-                            "+ ${groupedExpenses.totalSaved.roundTo2()}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium!
-                                .copyWith(
-                                  color: Colors.green.shade800,
-                                ),
-                          ),
-                        ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Spent",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall!
-                                .copyWith(
-                                  color: Colors.red.shade800,
-                                ),
-                          ),
-                          Text(
-                            "- ${groupedExpenses.totalSpent.roundTo2()}",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineMedium!
-                                .copyWith(
-                                  color: Colors.red.shade800,
-                                ),
-                          ),
-                        ],
-                      )
-                    ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Saved",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(
+                                    color: Colors.green.shade800,
+                                  ),
+                            ),
+                            Text(
+                              "+ ${groupedExpenses.totalSaved.roundTo2()}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(
+                                    color: Colors.green.shade800,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Spent",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall!
+                                  .copyWith(
+                                    color: Colors.red.shade800,
+                                  ),
+                            ),
+                            Text(
+                              "- ${groupedExpenses.totalSpent.roundTo2()}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(
+                                    color: Colors.red.shade800,
+                                  ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 if (controller.expenses.isEmpty)
@@ -495,9 +483,10 @@ class _ViewState extends State<ExpensesView> {
                         SizedBox(height: 8),
                         Text(
                           "No expenses on this day",
-                          style: TextStyle(
-                            color: Colors.white24,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    color: Colors.white24,
+                                  ),
                         )
                       ],
                     ),
@@ -525,17 +514,17 @@ class _ViewState extends State<ExpensesView> {
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                           ),
+                          
                           child: ExpansionTile(
                             backgroundColor: Colors.black.withOpacity(0.25),
-                            collapsedIconColor:
-                                isSaving ? Colors.green : Colors.red,
-                            iconColor: isSaving ? Colors.green : Colors.red,
                             title: Text(
                               categoryExpenses[index].toCamelCase(),
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge!
-                                  .copyWith(),
+                                  .copyWith(
+                                    color: Colors.white,
+                                  ),
                             ),
                             trailing: Text(
                               "${isSaving ? "+" : "-"} "
@@ -549,14 +538,25 @@ class _ViewState extends State<ExpensesView> {
                             ),
                             subtitle: userExpenses.isNotEmpty
                                 ? Text(
-                                    "${userExpenses.keys.join(", ")}",
-                                    style:
-                                        TextStyle(color: Colors.grey.shade600),
+                                    "${userExpenses.keys.map((e) => "@$e").join(", ")}",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall!
+                                        .copyWith(
+                                          color: Colors.orangeAccent,
+                                        ),
                                   )
                                 : null,
-                            leading: Icon(isSaving
-                                ? Icons.add_rounded
-                                : Icons.remove_rounded),
+                            leading: CircleAvatar(
+                              radius: 16.0,
+                              backgroundColor: Colors.transparent,
+                              child: Icon(
+                                isSaving
+                                    ? Icons.add_rounded
+                                    : Icons.remove_rounded,
+                                color: isSaving ? Colors.green : Colors.red,
+                              ),
+                            ),
                             tilePadding: EdgeInsets.symmetric(horizontal: 8),
                             controlAffinity: ListTileControlAffinity.leading,
                             children: userExpenses.keys.toList().map((userId) {
@@ -571,22 +571,32 @@ class _ViewState extends State<ExpensesView> {
                                       .toCamelCase(),
                                   style: Theme.of(context)
                                       .textTheme
-                                      .titleLarge!
-                                      .copyWith(),
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: Colors.white,
+                                      ),
                                 ),
                                 subtitle: Text(
                                   "${expenses.length} transaction${expenses.length == 1 ? "" : "s"}",
-                                  style: TextStyle(color: Colors.grey.shade600),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleSmall!
+                                      .copyWith(
+                                        color: Colors.orangeAccent,
+                                      ),
                                 ),
                                 controlAffinity:
                                     ListTileControlAffinity.trailing,
-                                leading: CircleAvatar(
-                                  backgroundColor: Colors.orangeAccent,
-                                  radius: 18.0,
-                                  child: Text(
-                                    userExpense.user.getInitials(),
-                                    style: TextStyle(
-                                      color: Colors.black,
+                                leading: Opacity(
+                                  opacity: 1,
+                                  child: CircleAvatar(
+                                    backgroundColor: Colors.orangeAccent,
+                                    radius: 16.0,
+                                    child: Text(
+                                      userExpense.user.getInitials(),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall,
                                     ),
                                   ),
                                 ),
@@ -602,11 +612,9 @@ class _ViewState extends State<ExpensesView> {
                                             : Colors.red,
                                       ),
                                 ),
-                                tilePadding: EdgeInsets.symmetric(horizontal: 8)
-                                    .copyWith(left: 8),
+                                tilePadding:
+                                    EdgeInsets.symmetric(horizontal: 8),
                                 children: expenses.mapIndexed((i, expense) {
-                                  // if (expense.amount <= 0)
-                                  //   return Container();
                                   return Dismissible(
                                     key: ValueKey<String>("${expense.id}-$i"),
                                     direction: expense.user.username !=
@@ -629,7 +637,8 @@ class _ViewState extends State<ExpensesView> {
                                             "Delete",
                                             style: Theme.of(context)
                                                 .textTheme
-                                                .titleMedium,
+                                                .titleMedium!
+                                                .copyWith(color: Colors.white),
                                           ),
                                           Icon(
                                             Icons.delete_rounded,
@@ -715,12 +724,6 @@ class _ViewState extends State<ExpensesView> {
                                       subtitle: Text(
                                         DateFormat('dd MMMM yyyy hh:mm a')
                                             .format(expense.createdOn),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .copyWith(
-                                              color: Colors.grey.shade600,
-                                            ),
                                       ),
                                       title: Row(
                                         mainAxisAlignment:
@@ -732,11 +735,13 @@ class _ViewState extends State<ExpensesView> {
                                                   ? expense.notes
                                                   : expense.category
                                                       .toCamelCase(),
-                                              overflow: TextOverflow.ellipsis,
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .titleLarge!
-                                                  .copyWith(),
+                                                  .titleMedium!
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                  ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                           SizedBox(width: 16),
@@ -783,63 +788,57 @@ class _ViewState extends State<ExpensesView> {
     sortedItems.sort((a, b) => a.toString().compareTo(b.toString()));
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8),
-      height: 54,
-      color: isSaving ? Colors.green.shade900 : Colors.red.shade900,
+      decoration: BoxDecoration(
+        color: isSaving ? Colors.green.shade900 : Colors.red.shade900,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
+      ),
+      height: 60,
       width: MediaQuery.of(context).size.width,
       child: Row(
         children: [
-          Theme(
-            data: ThemeData(splashFactory: NoSplash.splashFactory),
-            child: MaterialButton(
-              onPressed: () {
-                isSaving = !isSaving;
-                categoryOfExpenseToAdd =
-                    (isSaving ? SavingsCategories : SpentCategories)[0];
-                setState(() => {});
-              },
-              color: isSaving ? Colors.green : Colors.red,
-              minWidth: 8,
-              child: Icon(
-                isSaving ? Icons.add_rounded : Icons.remove,
-                color: Colors.white,
-              ),
-              elevation: 0.5,
+          MaterialButton(
+            onPressed: () {
+              isSaving = !isSaving;
+              categoryOfExpenseToAdd =
+                  (isSaving ? SavingsCategories : SpentCategories)[0];
+              setState(() => {});
+            },
+            minWidth: 8,
+            child: Icon(
+              isSaving ? Icons.add_rounded : Icons.remove,
+              color: Colors.white,
             ),
+            elevation: 0.5,
           ),
           Expanded(
             child: TextField(
               autofocus: false,
               controller: amountController,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-              ),
+              textAlign: TextAlign.left,
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    color: Colors.white,
+                  ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+.?[0-9]*'))
               ],
               decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: '0.0',
-              ),
+                  border: InputBorder.none,
+                  hintText: '0.0',
+                  contentPadding: EdgeInsets.all(8)),
             ),
           ),
           Expanded(
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                padding: EdgeInsets.zero,
-                isDense: true,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-                hint: Text(
-                  "For what?",
-                  textAlign: TextAlign.left,
-                ),
+                icon: Container(),
+                dropdownColor: Colors.black87,
                 value: categoryOfExpenseToAdd,
                 alignment: Alignment.centerLeft,
+                borderRadius: BorderRadius.circular(8),
                 onChanged:
                     (isSaving ? SavingsCategories : SpentCategories).length == 1
                         ? null
@@ -849,12 +848,11 @@ class _ViewState extends State<ExpensesView> {
                 items: sortedItems.map((e) => e).map((category) {
                   return DropdownMenuItem<String>(
                     value: category,
-                    child: FittedBox(
-                      fit: BoxFit.fitWidth,
-                      child: Text(
-                        category.toCamelCase(),
-                        style: TextStyle(fontSize: 18),
-                      ),
+                    child: Text(
+                      category.toCamelCase(),
+                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                            color: Colors.white,
+                          ),
                     ),
                   );
                 }).toList(),
@@ -895,14 +893,14 @@ class _ViewState extends State<ExpensesView> {
                 });
               });
             },
-            color: Colors.black,
+            // color: isSaving ? Colors.green.shade800 : Colors.red.shade800,
             minWidth: 0,
             child: const Icon(
               Icons.check_rounded,
-              color: Colors.orangeAccent,
+              color: Colors.white,
             ),
             splashColor: Colors.transparent,
-            elevation: 0.5,
+            elevation: 0,
           ),
         ],
       ),

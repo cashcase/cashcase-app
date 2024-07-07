@@ -31,7 +31,6 @@ class Encrypter {
   }
 
   static cleanData(String e) {
-    print("1 >>> ${e} >>>>");
     return e.replaceAll("0x00", '');
   }
 

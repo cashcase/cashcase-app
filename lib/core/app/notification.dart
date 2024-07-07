@@ -50,57 +50,56 @@ class AppNotification extends StatelessWidget {
         onDismissed: (_) {
           context.once<AppController>().clearNotifications();
         },
-        child: Container(
-          height: 160,
-          width: MediaQuery.of(context).size.width,
-          child: Padding(
-            padding: EdgeInsets.all(12).copyWith(
-              top: MediaQuery.of(context).padding.top,
-            ),
-            child: Container(
-              padding: EdgeInsets.all(4).copyWith(right: 16),
-              decoration: BoxDecoration(
-                color: color[2],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                textDirection: TextDirection.ltr,
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Container(
-                    width: 8,
-                    decoration: BoxDecoration(
-                      color: color[0],
-                      borderRadius: BorderRadius.circular(8).copyWith(),
-                    ),
+        child: Wrap(
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width,
+              child: Padding(
+                padding: EdgeInsets.all(8).copyWith(
+                  top: MediaQuery.of(context).padding.top + 8,
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: color[2],
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  Expanded(
-                    flex: 1,
-                    child: Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: Icon(
-                        NotificationsController.getNotificationIcon(type),
-                        color: color[1],
+                  child: Row(
+                    textDirection: TextDirection.ltr,
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Icon(
+                            NotificationsController.getNotificationIcon(type),
+                            color: color[1],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Container(
-                      child: Text(
-                        message,
-                        textDirection: TextDirection.ltr,
-                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                              fontSize: 20,
-                              color: color[1],
-                            ),
+                      Expanded(
+                        flex: 4,
+                        child: Container(
+                          child: Text(
+                            message,
+                            textDirection: TextDirection.ltr,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                  color: color[1],
+                                ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

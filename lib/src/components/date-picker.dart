@@ -1,10 +1,6 @@
-import 'dart:ffi';
-import 'dart:math';
-
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class Dropdown extends StatefulWidget {
   String initial;
@@ -25,17 +21,12 @@ class _DropdownState extends State<Dropdown> {
   Widget build(BuildContext context) {
     return DropdownButtonHideUnderline(
       child: DropdownButton<String>(
-        borderRadius: BorderRadius.circular(10),
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-        ),
-        hint: Text(
-          "",
-          textAlign: TextAlign.left,
-        ),
+        borderRadius: BorderRadius.circular(8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        dropdownColor: Colors.black87,
         value: widget.initial,
         isDense: true,
+        icon: Container(),
         alignment: Alignment.centerLeft,
         onChanged: (newValue) {
           setState(() {
@@ -52,7 +43,9 @@ class _DropdownState extends State<Dropdown> {
               fit: BoxFit.contain,
               child: Text(
                 category.toCamelCase(),
-                style: TextStyle(fontSize: 18),
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.white,
+                    ),
               ),
             ),
           );
@@ -140,7 +133,7 @@ class _DatePickerState extends State<DatePicker> {
       selectionMode: const SelectionMode.autoCenter(),
       lastDate: lastDate,
       focusDate: _focusDate,
-      firstDate: DateTime(_focusDate.year, _focusDate.month, 1),
+      firstDate: DateTime(2024),
       onDateChange: (date) {
         // Check if same day
         if (_focusDate.startOfDay() == date.startOfDay()) return;
@@ -182,10 +175,8 @@ class _DatePickerState extends State<DatePicker> {
         );
       },
       dayProps: const EasyDayProps(
-        // You must specify the width in this case.
-        width: 64.0,
-        // The height is not required in this case.
-        height: 64.0,
+        width: 60.0,
+        height: 88.0,
       ),
       itemBuilder: (
         BuildContext context,
@@ -193,31 +184,39 @@ class _DatePickerState extends State<DatePicker> {
         bool isSelected,
         VoidCallback onTap,
       ) {
+        var color = isSelected ? Colors.black : Colors.white;
         return InkResponse(
-          splashFactory: NoSplash.splashFactory,
           onTap: onTap,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: BorderRadius.circular(4.0),
             child: Container(
               color: isSelected
                   ? Colors.orangeAccent
-                  : Colors.orangeAccent.withOpacity(0.1),
+                  : Colors.black26,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Flexible(
                     child: Text(
+                      EasyDateFormatter.shortMonthName(date, "en_US"),
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: color,
+                          ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
                       date.day.toString(),
                       style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: isSelected ? Colors.black : null,
+                            color: color,
                           ),
                     ),
                   ),
                   Flexible(
                     child: Text(
                       EasyDateFormatter.shortDayName(date, "en_US"),
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: isSelected ? Colors.black : null,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: color,
                           ),
                     ),
                   ),

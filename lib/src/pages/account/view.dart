@@ -92,9 +92,7 @@ class _ViewState extends State<AccountView> {
 
   List<Widget> renderKeySection() {
     return [
-      SizedBox(height: 8),
-      Divider(),
-      SizedBox(height: 8),
+      SizedBox(height: 16),
       GestureDetector(
         onTap: showEncryptionKey,
         child: Card(
@@ -104,12 +102,17 @@ class _ViewState extends State<AccountView> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Encryption Key", style: TextStyle(fontSize: 20)),
+              Text(
+                "Encryption Key",
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
               Container(
                 child: IconButton.filled(
                   style: IconButton.styleFrom(
-                      backgroundColor: Colors.orangeAccent,
-                      splashFactory: NoSplash.splashFactory),
+                    backgroundColor: Colors.orangeAccent,
+                  ),
                   onPressed: showEncryptionKey,
                   color: Colors.black,
                   icon: Icon(
@@ -127,30 +130,43 @@ class _ViewState extends State<AccountView> {
   List<Widget> renderUserSearch(ProfileModel profile) {
     return [
       SizedBox(height: 8),
-      Divider(),
+      Divider(color: Colors.white10),
       SizedBox(height: 8),
       Text(
         "Connect",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              color: Colors.white,
+            ),
       ),
       SizedBox(height: 8),
       TextField(
         controller: findUserController,
+        style: Theme.of(context)
+            .textTheme
+            .titleMedium!
+            .copyWith(color: Colors.white),
         decoration: InputDecoration(
           border: OutlineInputBorder(),
+          hintStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+                color: Colors.white10,
+              ),
           hintText: 'Find People',
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.white24, width: 1.0),
           ),
           errorText: findUserError,
           errorMaxLines: 2,
-          errorStyle: TextStyle(color: Colors.red),
+          errorStyle: Theme.of(context).textTheme.titleSmall!.copyWith(
+                color: Colors.red,
+              ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.red, width: 1.0),
+          ),
           errorBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 1.0),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.white12, width: 1.0),
+            borderSide: BorderSide(color: Colors.white10, width: 1.0),
           ),
           suffixIcon: GestureDetector(
             onTap: () {
@@ -206,7 +222,10 @@ class _ViewState extends State<AccountView> {
               }
               ;
             },
-            child: Icon(Icons.search),
+            child: Icon(
+              Icons.search,
+              color: findUserError != null ? Colors.red : Colors.white,
+            ),
           ),
         ),
       )
@@ -219,8 +238,9 @@ class _ViewState extends State<AccountView> {
       SizedBox(height: 16),
       Text(
         "Connections (${profile.connections.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              color: Colors.white,
+            ),
       ),
       SizedBox(height: 16),
       renderConnectionList(
@@ -285,12 +305,13 @@ class _ViewState extends State<AccountView> {
   List<Widget> renderReceivedRequests(ProfileModel profile) {
     return [
       SizedBox(height: 8),
-      Divider(),
+      Divider(color: Colors.white10),
       SizedBox(height: 8),
       Text(
         "Received (${profile.received.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              color: Colors.white,
+            ),
       ),
       SizedBox(height: 16),
       renderConnectionList(
@@ -380,12 +401,13 @@ class _ViewState extends State<AccountView> {
   List<Widget> renderSentRequests(ProfileModel profile) {
     return [
       SizedBox(height: 8),
-      Divider(),
+      Divider(color: Colors.white10),
       SizedBox(height: 8),
       Text(
         "Sent (${profile.sent.length})",
-        style: TextStyle(fontSize: 20),
-        textAlign: TextAlign.left,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              color: Colors.white,
+            ),
       ),
       SizedBox(height: 16),
       renderConnectionList(profile.sent,
@@ -418,8 +440,8 @@ class _ViewState extends State<AccountView> {
                         Navigator.pop(context);
                         refresh();
                         context.once<AppController>().addNotification(
-                            NotificationType.success,
-                            "Connection Request was revoked.");
+                            NotificationType.info,
+                            "Connection Request was Revoked.");
                       });
                     });
                   },
@@ -430,79 +452,83 @@ class _ViewState extends State<AccountView> {
     ];
   }
 
-  Row renderProfileCard(User user) {
-    return Row(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4.0),
-          child: Container(
-            height: 80.0,
-            width: 80.0,
-            color: Colors.orangeAccent,
-            child: Center(
-              child: Text(
-                user.getInitials(),
-                style: Theme.of(context).textTheme.displaySmall!.copyWith(
-                      color: Colors.black,
-                    ),
+  Widget renderProfileCard(User user) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.orangeAccent,
+        borderRadius: BorderRadius.circular(
+          4,
+        ),
+      ),
+      padding: EdgeInsets.all(8),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4.0),
+            child: Container(
+              height: 80.0,
+              width: 80.0,
+              color: Colors.black87,
+              child: Center(
+                child: Text(
+                  user.getInitials(),
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                        color: Colors.orangeAccent,
+                      ),
+                ),
               ),
             ),
           ),
-        ),
-        SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AutoSizeText(
-                user.firstName,
-                maxLines: 1,
-                minFontSize: 24.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-              AutoSizeText(
-                user.lastName,
-                maxLines: 1,
-                minFontSize: 24.0,
-                overflow: TextOverflow.ellipsis,
-              ),
-              AutoSizeText(
-                "ID: ${user.username}",
-                maxLines: 1,
-                minFontSize: 16.0,
-                style: TextStyle(color: Colors.white54),
-                overflow: TextOverflow.ellipsis,
-              )
-            ],
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AutoSizeText(
+                  "${user.firstName} ${user.lastName}",
+                  maxLines: 2,
+                  minFontSize: 24.0,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                AutoSizeText(
+                  "@${user.username}",
+                  maxLines: 1,
+                  minFontSize: 16.0,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium!,
+                )
+              ],
+            ),
           ),
-        ),
-        GestureDetector(
-          onTap: () {
-            showModalBottomSheet(
-                context: context,
-                builder: (_) {
-                  return ConfirmationDialog(
-                      message: "Are you sure you want to logout?",
-                      icon: Icon(
-                        Icons.warning_rounded,
-                        color: Colors.orange,
-                        size: 100,
-                      ),
-                      okLabel: "Yes",
-                      cancelLabel: "No",
-                      onOk: () {
-                        context.once<AccountController>().logout();
-                        Navigator.pop(context);
-                      },
-                      onCancel: () => Navigator.pop(context));
-                });
-          },
-          child: Icon(
-            Icons.logout_rounded,
-            color: Colors.red,
-          ),
-        )
-      ],
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                  context: context,
+                  builder: (_) {
+                    return ConfirmationDialog(
+                        message: "Are you sure you want to logout?",
+                        icon: Icon(
+                          Icons.warning_rounded,
+                          color: Colors.red,
+                          size: 100,
+                        ),
+                        okLabel: "Yes",
+                        cancelLabel: "No",
+                        onOk: () {
+                          context.once<AccountController>().logout();
+                          Navigator.pop(context);
+                        },
+                        onCancel: () => Navigator.pop(context));
+                  });
+            },
+            child: Icon(
+              Icons.logout_rounded,
+              color: Colors.black,
+            ),
+          )
+        ],
+      ),
     );
   }
 
@@ -519,59 +545,53 @@ class _ViewState extends State<AccountView> {
       shrinkWrap: true,
       itemCount: list.length,
       itemBuilder: (context, i) {
-        return Theme(
-          data: ThemeData(
-            splashFactory: NoSplash.splashFactory,
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
+        return ListTile(
+          onTap: canSeeDetails ? () => showConnectionKey(list[i]) : null,
+          contentPadding: EdgeInsets.symmetric(horizontal: 8),
+          // tileColor: Colors.black,
+          leading: CircleAvatar(
+            backgroundColor: Colors.orangeAccent,
+            radius: 24.0,
+            child: Text(
+              "${list[i].firstName[0].toUpperCase()}"
+              "${list[i].lastName[0].toUpperCase()}",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
-          child: ListTile(
-            onTap: canSeeDetails ? () => showConnectionKey(list[i]) : null,
-            contentPadding: EdgeInsets.symmetric(horizontal: 8),
-            leading: CircleAvatar(
-              backgroundColor: Colors.orangeAccent,
-              radius: 24.0,
-              child: Text(
-                "${list[i].firstName[0].toUpperCase()}"
-                "${list[i].lastName[0].toUpperCase()}",
-                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Colors.black,
-                    ),
-              ),
+          title: Text(
+            "${list[i].firstName} ${list[i].lastName}",
+            style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: Colors.white,
+                ),
+          ),
+          trailing: Container(
+            width: 80,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: () =>
+                      {if (onLeftOption != null) onLeftOption(list[i])},
+                  child: leftOptionIcon == null
+                      ? Container()
+                      : leftOptionIcon(list[i]),
+                ),
+                SizedBox(width: 24),
+                GestureDetector(
+                  onTap: () =>
+                      {if (onRightOption != null) onRightOption(list[i])},
+                  child: rightOptionIcon == null
+                      ? Container()
+                      : rightOptionIcon(list[i]),
+                ),
+              ],
             ),
-            title: Text(
-              "${list[i].firstName} ${list[i].lastName}",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            trailing: Container(
-              width: 80,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  GestureDetector(
-                    onTap: () =>
-                        {if (onLeftOption != null) onLeftOption(list[i])},
-                    child: leftOptionIcon == null
-                        ? Container()
-                        : leftOptionIcon(list[i]),
-                  ),
-                  SizedBox(width: 24),
-                  GestureDetector(
-                    onTap: () =>
-                        {if (onRightOption != null) onRightOption(list[i])},
-                    child: rightOptionIcon == null
-                        ? Container()
-                        : rightOptionIcon(list[i]),
-                  ),
-                ],
-              ),
-            ),
-            subtitle: Text(
-              "ID: ${list[i].username}",
-              style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    color: Colors.grey,
-                  ),
-            ),
+          ),
+          subtitle: Text(
+            "@${list[i].username}",
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  color: Colors.white,
+                ),
           ),
         );
       },
@@ -650,7 +670,7 @@ class _ViewState extends State<AccountView> {
                                     "Your Encryption Key",
                                     style: Theme.of(context)
                                         .textTheme
-                                        .headlineMedium!
+                                        .titleLarge!
                                         .copyWith(
                                           color: Colors.white,
                                         ),
@@ -668,10 +688,10 @@ class _ViewState extends State<AccountView> {
                             ],
                           ),
                           SizedBox(height: 8),
-                          Divider(),
+                          Divider(color: Colors.white10),
                           SizedBox(height: 8),
                           Container(
-                            height: 100,
+                            height: 60,
                             decoration: BoxDecoration(
                                 color: Colors.orangeAccent,
                                 borderRadius: BorderRadius.circular(4)),
@@ -681,77 +701,72 @@ class _ViewState extends State<AccountView> {
                                 child: showingKey
                                     ? AutoSizeText(
                                         snapshot.data!,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleLarge!
+                                            .copyWith(
+                                                fontWeight: FontWeight.bold),
+                                      )
+                                    : Text(
+                                        "● ● ● ● ● ● ● ● ● ● ● ●",
                                         textAlign: TextAlign.center,
                                         style: Theme.of(context)
                                             .textTheme
-                                            .headlineSmall!
-                                            .copyWith(
-                                              color: Colors.black,
-                                            ),
-                                      )
-                                    : Text(
-                                        "●●● ●●● ●●● ●●●",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.black),
+                                            .bodyMedium,
                                       ),
                               ),
                             ),
                           ),
                           SizedBox(height: 16),
-                          Theme(
-                            data: ThemeData(
-                                splashFactory: NoSplash.splashFactory),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: GestureDetector(
-                                    child: MaterialButton(
-                                      onPressed: () {
-                                        setState(
-                                            () => showingKey = !showingKey);
-                                      },
-                                      color: showingKey
-                                          ? Colors.red
-                                          : Colors.black,
-                                      child: Center(
-                                        child: Text(
-                                          "${showingKey ? "Hide" : "Show"} Key",
-                                          style: TextStyle(
-                                            color: Colors.red.shade50,
-                                          ),
-                                        ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      setState(() => showingKey = !showingKey);
+                                    },
+                                    color:
+                                        showingKey ? Colors.red : Colors.black,
+                                    child: Center(
+                                      child: Text(
+                                        "${showingKey ? "Hide" : "Show"} Key",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(color: Colors.white),
                                       ),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 8),
-                                Expanded(
-                                  child: MaterialButton(
-                                    onPressed: () async {
-                                      copiedKey = true;
-                                      setState(() => {});
-                                      await Clipboard.setData(
-                                        ClipboardData(
-                                          text: snapshot.data!,
-                                        ),
-                                      );
-                                    },
-                                    color:
-                                        copiedKey ? Colors.green : Colors.black,
-                                    child: Center(
-                                      child: Text(
-                                        copiedKey ? "Copied!" : "Copy Key",
-                                        style: TextStyle(
-                                          color: Colors.green.shade50,
-                                        ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: MaterialButton(
+                                  onPressed: () async {
+                                    copiedKey = true;
+                                    setState(() => {});
+                                    await Clipboard.setData(
+                                      ClipboardData(
+                                        text: snapshot.data!,
                                       ),
+                                    );
+                                  },
+                                  color:
+                                      copiedKey ? Colors.green : Colors.black,
+                                  child: Center(
+                                    child: Text(
+                                      copiedKey ? "Copied!" : "Copy Key",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(color: Colors.white),
                                     ),
                                   ),
-                                )
-                              ],
-                            ),
+                                ),
+                              )
+                            ],
                           )
                         ],
                       ),
@@ -825,9 +840,7 @@ class _ViewState extends State<AccountView> {
                 return StatefulBuilder(builder: (context, setState) {
                   return Container(
                     padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
-                        .copyWith(
-                      top: 24,
-                    ),
+                        .copyWith(top: 18),
                     child: Column(
                       children: [
                         Row(
@@ -839,29 +852,39 @@ class _ViewState extends State<AccountView> {
                               size: 24,
                             ),
                             SizedBox(width: 16),
-                            Text("Configure Key",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .copyWith()),
+                            Text(
+                              "Configure Key",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge!
+                                  .copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
                           ],
                         ),
                         SizedBox(height: 4),
-                        Divider(),
+                        Divider(color: Colors.white10),
                         SizedBox(height: 4),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text("Full Name",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .copyWith(color: Colors.grey)),
+                            Text(
+                              "Full Name",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(color: Colors.white60),
+                            ),
                             SizedBox(width: 4),
-                            Text("${user.firstName} ${user.lastName}",
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall!),
+                            Text(
+                              "${user.firstName} ${user.lastName}",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(color: Colors.white),
+                            ),
                           ],
                         ),
                         SizedBox(height: 4),
@@ -869,15 +892,21 @@ class _ViewState extends State<AccountView> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text("Username/ID",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall!
-                                    .copyWith(color: Colors.grey)),
+                            Text(
+                              "User ID",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(color: Colors.white60),
+                            ),
                             SizedBox(width: 8),
-                            Text(user.username,
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall!),
+                            Text(
+                              user.username,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium!
+                                  .copyWith(color: Colors.white),
+                            ),
                           ],
                         ),
                         SizedBox(height: 8),
@@ -890,10 +919,12 @@ class _ViewState extends State<AccountView> {
                                   BorderSide(color: Colors.white24, width: 1.0),
                             ),
                             hintText: "●●●●●●●●●",
-                            hintStyle: TextStyle(
-                              color: Colors.grey.shade800,
-                              fontSize: 16,
-                            ),
+                            hintStyle: Theme.of(context)
+                                .textTheme
+                                .titleSmall!
+                                .copyWith(
+                                  color: Colors.grey,
+                                ),
                             enabledBorder: OutlineInputBorder(
                               borderSide:
                                   BorderSide(color: Colors.white12, width: 1.0),
@@ -907,7 +938,10 @@ class _ViewState extends State<AccountView> {
                               ),
                             ),
                           ),
-                          style: TextStyle(fontSize: 20),
+                          style:
+                              Theme.of(context).textTheme.titleLarge!.copyWith(
+                                    color: Colors.white,
+                                  ),
                           obscureText: hideKey,
                           keyboardType: TextInputType.multiline,
                           textAlign: TextAlign.center,
@@ -916,49 +950,48 @@ class _ViewState extends State<AccountView> {
                           minLines: 1,
                         ),
                         SizedBox(height: 8),
-                        Theme(
-                          data:
-                              ThemeData(splashFactory: NoSplash.splashFactory),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: MaterialButton(
-                                  color: Colors.black,
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Center(
-                                    child: Text(
-                                      "Back",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                    ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MaterialButton(
+                                color: Colors.black,
+                                onPressed: () => Navigator.pop(context),
+                                child: Center(
+                                  child: Text(
+                                    "Back",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium!
+                                        .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: MaterialButton(
-                                  color: Colors.orangeAccent,
-                                  onPressed: () => saveKey(user),
-                                  child: Center(
-                                    child: Text(
-                                      "Save",
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge!
-                                          .copyWith(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w500),
-                                    ),
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: MaterialButton(
+                                color: Colors.orangeAccent,
+                                onPressed: () =>
+                                    keyController.text == snapshot.data
+                                        ? Navigator.pop(context)
+                                        : saveKey(user),
+                                child: Center(
+                                  child: Text(
+                                    "Save",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500),
                                   ),
                                 ),
-                              )
-                            ],
-                          ),
+                              ),
+                            )
+                          ],
                         )
                       ],
                     ),
@@ -1026,25 +1059,20 @@ class _ViewState extends State<AccountView> {
               Text(
                 "Unable to get profile details. \nPlease try again after sometime.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white38,
-                ),
-              ),
-              Theme(
-                data: ThemeData(splashFactory: NoSplash.splashFactory),
-                child: MaterialButton(
-                  onPressed: () {
-                    context.once<AccountController>().logout();
-                    Navigator.pop(context);
-                  },
-                  child: Text(
-                    "Or click here to try relogin",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.orangeAccent,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Colors.white38,
                     ),
-                  ),
+              ),
+              MaterialButton(
+                onPressed: () {
+                  context.once<AccountController>().logout();
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  "Or click here to try relogin",
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        color: Colors.orangeAccent,
+                      ),
                 ),
               )
             ],

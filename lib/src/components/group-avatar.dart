@@ -28,9 +28,9 @@ class _GroupAvatarState extends State<GroupAvatar> {
                 radius: 18.0,
                 child: Text(
                   widget.users[i],
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.black,
+                      ),
                 ),
               ),
             ),
@@ -46,9 +46,9 @@ class _GroupAvatarState extends State<GroupAvatar> {
                 radius: 18.0,
                 child: Text(
                   "+${widget.users.length - 3}",
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        color: Colors.black,
+                      ),
                 ),
               ),
             ),

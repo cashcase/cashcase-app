@@ -6,6 +6,7 @@ import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/theme.dart';
 import 'package:dio/src/response.dart';
 import 'package:either_dart/either.dart';
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
 Logger log = Logger("main");
@@ -38,7 +39,8 @@ class AuthHandlers implements Auth {
 }
 
 void main(List<String> args) {
-  const PROD = true;
+  WidgetsFlutterBinding.ensureInitialized();
+  const PROD = false;
   start(
     downstreamUri: PROD
         ? Uri(
