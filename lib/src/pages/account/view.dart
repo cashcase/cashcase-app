@@ -134,7 +134,7 @@ class _ViewState extends State<AccountView> {
       Divider(color: Colors.white10),
       SizedBox(height: 8),
       Text(
-        "Connect",
+        "Connections",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: Colors.white,
             ),
@@ -164,9 +164,11 @@ class _ViewState extends State<AccountView> {
             borderSide: BorderSide(color: Colors.red, width: 1.0),
           ),
           errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: Colors.red, width: 1.0),
           ),
           enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: Colors.white10, width: 1.0),
           ),
           suffixIcon: GestureDetector(
@@ -458,14 +460,14 @@ class _ViewState extends State<AccountView> {
       decoration: BoxDecoration(
         color: Colors.orangeAccent,
         borderRadius: BorderRadius.circular(
-          4,
+          8,
         ),
       ),
       padding: EdgeInsets.all(8),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(4.0),
+            borderRadius: BorderRadius.circular(8.0),
             child: Container(
               height: 80.0,
               width: 80.0,

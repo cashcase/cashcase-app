@@ -664,6 +664,7 @@ class _ViewState extends State<ExpensesView> {
                                                       "Do you want to \ndelete this expense?",
                                                   okLabel: "No",
                                                   cancelLabel: "Yes",
+                                                  cancelColor: Colors.red,
                                                   onOk: () =>
                                                       Navigator.pop(context),
                                                   onCancel: () {

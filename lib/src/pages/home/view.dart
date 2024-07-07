@@ -160,12 +160,12 @@ class _HomePageWidgetState extends State<HomePageView> {
                             items: Pages.map((e) {
                               return BottomNavigationBarItem(
                                 icon: Padding(
-                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  padding: const EdgeInsets.only(bottom: 0.0),
                                   child: Column(
                                     children: [
                                       Container(
                                         padding:
-                                            EdgeInsets.only(top: 8, bottom: 8),
+                                            EdgeInsets.only(top: 8, bottom: 4),
                                         child: Icon(e.icon),
                                       ),
                                       Text(
