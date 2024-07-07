@@ -417,7 +417,7 @@ class _ViewState extends State<ExpensesView> {
                         Radius.circular(8),
                       ),
                       border: Border.all(
-                        color: Colors.grey.withOpacity(0.15),
+                        color: Colors.grey.withOpacity(0.1),
                       ),
                     ),
                     child: Row(
@@ -829,7 +829,7 @@ class _ViewState extends State<ExpensesView> {
               autofocus: false,
               controller: amountController,
               textAlign: TextAlign.left,
-              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     color: Colors.white,
                   ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
@@ -861,7 +861,7 @@ class _ViewState extends State<ExpensesView> {
                     value: category,
                     child: Text(
                       category.toCamelCase(),
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             color: Colors.white,
                           ),
                     ),

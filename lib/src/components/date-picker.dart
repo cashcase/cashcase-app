@@ -26,7 +26,7 @@ class _DropdownState extends State<Dropdown> {
           Radius.circular(8),
         ),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.15),
+          color: Colors.grey.withOpacity(0.1),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -216,7 +216,7 @@ class _DatePickerState extends State<DatePicker> {
                   Radius.circular(8),
                 ),
                 border: Border.all(
-                  color: Colors.grey.withOpacity(0.15),
+                  color: Colors.grey.withOpacity(0.1),
                 ),
               ),
               child: Column(

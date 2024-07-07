@@ -1,68 +1,75 @@
 import 'dart:typed_data';
-import 'dart:convert' show utf8;
-import 'package:aes_crypt_null_safe/aes_crypt_null_safe.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:word_generator/word_generator.dart';
+import "package:pointycastle/export.dart";
 
 class UserNotSetException implements Exception {
   UserNotSetException();
 }
 
 class Encrypter {
-  static final IV = '137d1fbc211e4bf4';
+  static final IV = '137d1fbc211e4bf9';
+  static final PAD = '=';
 
-  static String padStringTo32Chars(String input) {
-    while (input.length < 32) {
-      input += '=';
+  static String padStringTo32Chars(String input, {int length = 32}) {
+    while (input.length < length) {
+      input += PAD;
     }
     return input;
   }
 
   static String unpadString(String input) {
-    return input.split("=").first;
+    return input.split(PAD).first;
   }
 
   static stringToUint8list(String value) {
     List<int> list = value.codeUnits;
     Uint8List bytes = Uint8List.fromList(list);
-    Uint8List _value = Uint8List.fromList(bytes);
-    return _value;
-  }
-
-  static cleanData(String e) {
-    return e.replaceAll("0x00", '');
+    return bytes;
   }
 
   static String encrypt(String data, String key) {
-    key = padStringTo32Chars(key.replaceAll(" ", ""));
-    data = padStringTo32Chars(data);
-    Uint8List _key = stringToUint8list(key);
-    Uint8List iv = stringToUint8list(IV);
-    Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.ofb;
-    AesCrypt crypt = AesCrypt();
-    crypt.aesSetParams(_key, iv, mode);
+    try {
+      key = padStringTo32Chars(key.replaceAll(" ", ""));
+      data = padStringTo32Chars(data);
+      Uint8List _data = stringToUint8list(data);
 
-    Uint8List encrypted = crypt.aesEncrypt(_data);
-    String string = String.fromCharCodes(encrypted);
-    return cleanData(string);
+      Uint8List _key = stringToUint8list(key);
+      Uint8List iv = stringToUint8list(IV);
+      final cbc = CBCBlockCipher(AESEngine())
+        ..init(true, ParametersWithIV(KeyParameter(_key), iv)); // true=encrypt
+      Uint8List cipherText = Uint8List(_data.length); // allocate space
+      var offset = 0;
+      while (offset < data.length) {
+        offset += cbc.processBlock(_data, offset, cipherText, offset);
+      }
+      String string = new String.fromCharCodes(cipherText);
+      return string;
+    } catch (e) {
+      throw e;
+    }
   }
 
   static String decrypt(String data, String key) {
-    key = padStringTo32Chars(key.replaceAll(" ", ""));
-
-    Uint8List _key = stringToUint8list(key);
-    Uint8List iv = stringToUint8list(IV);
-    Uint8List _data = stringToUint8list(data);
-    AesMode mode = AesMode.ofb;
-    AesCrypt crypt = AesCrypt();
-    crypt.aesSetParams(_key, iv, mode);
-
-    Uint8List decrypted = crypt.aesDecrypt(_data);
-    String string = String.fromCharCodes(decrypted);
-
-    return unpadString(string);
+    try {
+      key = padStringTo32Chars(key.replaceAll(" ", ""));
+      Uint8List _key = stringToUint8list(key);
+      Uint8List iv = stringToUint8list(IV);
+      final cbc = CBCBlockCipher(AESEngine())
+        ..init(
+            false, ParametersWithIV(KeyParameter(_key), iv)); // false=decrypt
+      Uint8List _data = stringToUint8list(data);
+      Uint8List paddedPlainText = Uint8List(_data.length); // allocate space
+      var offset = 0;
+      while (offset < _data.length) {
+        offset += cbc.processBlock(_data, offset, paddedPlainText, offset);
+      }
+      String string = unpadString(String.fromCharCodes(paddedPlainText));
+      return string;
+    } catch (e) {
+      throw e;
+    }
   }
 
   static String generateRandomKey() {
