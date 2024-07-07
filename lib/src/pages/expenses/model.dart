@@ -207,7 +207,9 @@ class GroupedExpense {
             }
           }
           // If its still not a double, the decrypt failed.
-          if (double.tryParse(each.amount) == null) throw '';
+          if (double.tryParse(each.amount) == null) {
+            throw 'Invalid amount ${each.amount}';
+          }
         } catch (e) {
           each.amount = "0.0";
         }

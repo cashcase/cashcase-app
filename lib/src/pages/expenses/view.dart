@@ -76,6 +76,14 @@ class _ViewState extends State<ExpensesView> {
       body: FutureBuilder(
         future: _keyGetterFuture,
         builder: (context, keySnapshot) {
+          if (keySnapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(
+                color: Colors.orangeAccent,
+                strokeCap: StrokeCap.round,
+              ),
+            );
+          }
           return Container(
             child: Column(
               children: [
@@ -393,6 +401,7 @@ class _ViewState extends State<ExpensesView> {
   StatefulBuilder renderGroupedExpenses(ExpenseListController controller) {
     return StatefulBuilder(builder: (context, innerSetState) {
       controller.setRefresher(innerSetState);
+
       var groupedExpenses = controller.getGroupedExpenses();
       var categoryExpenses = groupedExpenses.categoryExpenses.keys.toList();
       return Stack(
