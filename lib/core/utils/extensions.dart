@@ -19,9 +19,7 @@ extension StringConverters on String {
 }
 
 extension DateTimeExtension on DateTime {
-  DateTime startOfToday() => DateTime(this.year, this.month, this.day);
-  DateTime startOfTmro() => DateTime(this.year, this.month, this.day + 1);
-
+  DateTime startOfTmro() => DateTime(this.year, this.month, this.day, 23, 59);
   DateTime startOfDay() => DateTime(
         this.year,
         this.month,

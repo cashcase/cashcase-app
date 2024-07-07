@@ -35,8 +35,7 @@ class Encrypter {
     return pbkdf2.process(Uint8List.fromList(keyBytes));
   }
 
-  static String encryptDecimalString(
-      String decimalString, String privateKey) {
+  static String encryptData(String data, String privateKey) {
     final derivedKey = deriveKey(privateKey, IV);
 
     final key = encrypt.Key(derivedKey);
@@ -45,14 +44,13 @@ class Encrypter {
     final encrypter =
         encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
 
-    final encrypted = encrypter.encrypt(decimalString, iv: iv);
+    final encrypted = encrypter.encrypt(data, iv: iv);
     final ivAndEncrypted = iv.bytes + encrypted.bytes;
 
     return base64.encode(ivAndEncrypted);
   }
 
-  static String decryptDecimalString(
-      String encryptedString, String privateKey) {
+  static String decryptData(String encryptedString, String privateKey) {
     final derivedKey = deriveKey(privateKey, IV);
 
     final key = encrypt.Key(derivedKey);

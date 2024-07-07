@@ -36,8 +36,8 @@ class _ViewState extends State<ExpensesView> {
     var currentUser = AppDb.getCurrentUser();
     var currentConn = AppDb.getCurrentPair();
     return context.once<ExpensesController>().getExpense(
-          selectedDate.startOfToday(),
-          selectedDate.startOfTmro(),
+          selectedDate.toUtc().startOfDay(),
+          selectedDate.toUtc().startOfTmro(),
           currentUser!,
           currentConn?.username,
         );
@@ -72,7 +72,7 @@ class _ViewState extends State<ExpensesView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: FutureBuilder(
         future: _keyGetterFuture,
         builder: (context, keySnapshot) {
@@ -83,6 +83,15 @@ class _ViewState extends State<ExpensesView> {
                 strokeCap: StrokeCap.round,
               ),
             );
+            // return Center(
+            //   child: Text(
+            //     "Fetching expenses for\n this day...",
+            //     textAlign: TextAlign.center,
+            //     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+            //           color: Colors.white38,
+            //         ),
+            //   ),
+            // );
           }
           return Container(
             child: Column(
@@ -179,10 +188,11 @@ class _ViewState extends State<ExpensesView> {
   ) async {
     if (expense.notes != notes) {
       context.once<AppController>().startLoading();
-      // notes = await Encrypter.encrypt(notes, controller.keys.first ?? "");
+      String encryptedNotes =
+          await Encrypter.encryptData(notes, controller.keys.first ?? "");
       context
           .once<ExpensesController>()
-          .editExpenseNotes(expense.id, notes)
+          .editExpenseNotes(expense.id, encryptedNotes)
           .then((r) {
         r.fold((err) {
           context.once<AppController>().stopLoading();
@@ -207,177 +217,181 @@ class _ViewState extends State<ExpensesView> {
       context: context,
       isScrollControlled: true,
       barrierColor: Colors.black87,
-      builder: (_) => Wrap(
-        children: [
-          Container(
-            padding: EdgeInsets.only(bottom: 40),
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  child: Container(
+      builder: (context) => SingleChildScrollView(
+        padding:
+            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        child: Container(
+          padding: EdgeInsets.only(bottom: 24),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        isSaved ? Colors.green.shade800 : Colors.red.shade800,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                "${expense.user.firstName.toCamelCase()}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium!
+                                    .copyWith(
+                                      color: Colors.white,
+                                    ),
+                              )
+                            ],
+                          ),
+                          Text(
+                            "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium!
+                                .copyWith(
+                                  color: Colors.white,
+                                ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Column(
+                children: [
+                  Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 16,
+                      vertical: 8,
                     ),
-                    decoration: BoxDecoration(
-                      color:
-                          isSaved ? Colors.green.shade800 : Colors.red.shade800,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        topRight: Radius.circular(16),
-                      ),
-                    ),
-                    child: Stack(
+                    color: Colors.black38,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  "${expense.user.firstName.toCamelCase()}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineMedium!
-                                      .copyWith(
-                                        color: Colors.white,
-                                      ),
-                                )
-                              ],
-                            ),
-                            Text(
-                              "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium!
-                                  .copyWith(
-                                    color: Colors.white,
-                                  ),
-                            )
-                          ],
+                        Text(
+                          DateFormat().format(expense.createdOn),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Colors.white),
+                        ),
+                        Text(
+                          expense.category.toCamelCase(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Colors.white),
                         ),
                       ],
                     ),
                   ),
-                ),
-                Column(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      color: Colors.black38,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            DateFormat().format(expense.createdOn),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.white),
-                          ),
-                          Text(
-                            expense.category.toCamelCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium!
-                                .copyWith(color: Colors.white),
-                          ),
-                        ],
-                      ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: TextField(
-                        autofocus: false,
-                        enabled:
-                            expense.user.username == AppDb.getCurrentUser(),
-                        controller: notesController,
-                        style:
-                            Theme.of(context).textTheme.titleMedium!.copyWith(
-                                  color: Colors.white,
-                                ),
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Notes',
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.white24, width: 1.0),
+                    child: TextField(
+                      autofocus: false,
+                      enabled: expense.user.username == AppDb.getCurrentUser(),
+                      controller: notesController,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Colors.white,
                           ),
-                          disabledBorder: InputBorder.none,
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.white12, width: 1.0),
+                      inputFormatters: <TextInputFormatter>[
+                        FilteringTextInputFormatter.allow(
+                            RegExp("[0-9a-zA-Z]")),
+                      ],
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Notes',
+                        focusedBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white24, width: 1.0),
+                        ),
+                        disabledBorder: InputBorder.none,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              BorderSide(color: Colors.white12, width: 1.0),
+                        ),
+                      ),
+                      keyboardType: TextInputType.multiline,
+                      maxLength: 20,
+                      maxLines: 5,
+                      minLines: 5,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: MaterialButton(
+                            color: Colors.black,
+                            onPressed: () => Navigator.pop(context),
+                            child: Center(
+                              child: Text(
+                                "Back",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium!
+                                    .copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                              ),
+                            ),
                           ),
                         ),
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 5,
-                        minLines: 5,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MaterialButton(
-                              color: Colors.black,
-                              onPressed: () => Navigator.pop(context),
-                              child: Center(
-                                child: Text(
-                                  "Back",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium!
-                                      .copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: MaterialButton(
+                            color: Colors.orangeAccent,
+                            onPressed: expense.user.username ==
+                                    AppDb.getCurrentUser()
+                                ? () => saveExpense(
+                                    expense, notesController.text, controller)
+                                : null,
+                            disabledColor: Colors.grey,
+                            child: Center(
+                              child: Text(
+                                "Save",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: MaterialButton(
-                              color: Colors.orangeAccent,
-                              onPressed: expense.user.username ==
-                                      AppDb.getCurrentUser()
-                                  ? () => saveExpense(
-                                      expense, notesController.text, controller)
-                                  : null,
-                              disabledColor: Colors.grey,
-                              child: Center(
-                                child: Text(
-                                  "Save",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyLarge!
-                                      .copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ],
-            ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -889,7 +903,7 @@ class _ViewState extends State<ExpensesView> {
             onPressed: () async {
               context.once<AppController>().startLoading();
               var parsedAmount = double.tryParse(amountController.text);
-              var amount = await Encrypter.encryptDecimalString(
+              var amount = await Encrypter.encryptData(
                   parsedAmount.toString(), controller.keys.first ?? "");
               if (parsedAmount == null || parsedAmount == 0) {
                 return context.once<AppController>().stopLoading();

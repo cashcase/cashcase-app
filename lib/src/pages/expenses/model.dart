@@ -199,13 +199,19 @@ class GroupedExpense {
         try {
           if (each.user.username == AppDb.getCurrentUser()) {
             if (keys.first != null) {
-              each.amount =
-                  Encrypter.decryptDecimalString(each.amount, keys.first!);
+              each.amount = Encrypter.decryptData(each.amount, keys.first!);
+              if (each.notes != null && each.notes!.isNotEmpty) {
+                each.notes =
+                    Encrypter.decryptData(each.notes ?? "", keys.first!);
+              }
             }
           } else {
             if (keys.last != null) {
-              each.amount =
-                  Encrypter.decryptDecimalString(each.amount, keys.last!);
+              each.amount = Encrypter.decryptData(each.amount, keys.last!);
+              if (each.notes != null && each.notes!.isNotEmpty) {
+                each.notes =
+                    Encrypter.decryptData(each.notes ?? "", keys.last!);
+              }
             }
           }
           // If its still not a double, the decrypt failed.
@@ -300,6 +306,8 @@ class UserExpense {
 
 class ExpenseListController {
   List<Expense> expenses;
+  // For simplicity, 0 is current user key and 1 is paired user key.
+  // TODO: Change this to object.
   List<String?> keys;
   void Function(void Function())? refresh;
   ExpenseListController({
