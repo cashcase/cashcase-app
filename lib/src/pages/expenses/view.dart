@@ -296,6 +296,7 @@ class _ViewState extends State<ExpensesView> {
                         vertical: 8,
                       ),
                       child: TextField(
+                        autofocus: false,
                         enabled:
                             expense.user.username == AppDb.getCurrentUser(),
                         controller: notesController,
@@ -837,6 +838,9 @@ class _ViewState extends State<ExpensesView> {
           Expanded(
             child: TextField(
               autofocus: false,
+              onTapOutside: ((event) {
+                FocusManager.instance.primaryFocus?.unfocus();
+              }),
               controller: amountController,
               textAlign: TextAlign.left,
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
@@ -885,7 +889,7 @@ class _ViewState extends State<ExpensesView> {
             onPressed: () async {
               context.once<AppController>().startLoading();
               var parsedAmount = double.tryParse(amountController.text);
-              var amount = await Encrypter.encrypt(
+              var amount = await Encrypter.encryptDecimalString(
                   parsedAmount.toString(), controller.keys.first ?? "");
               if (parsedAmount == null || parsedAmount == 0) {
                 return context.once<AppController>().stopLoading();

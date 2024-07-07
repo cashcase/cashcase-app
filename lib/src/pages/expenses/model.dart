@@ -199,11 +199,13 @@ class GroupedExpense {
         try {
           if (each.user.username == AppDb.getCurrentUser()) {
             if (keys.first != null) {
-              each.amount = Encrypter.decrypt(each.amount, keys.first!);
+              each.amount =
+                  Encrypter.decryptDecimalString(each.amount, keys.first!);
             }
           } else {
             if (keys.last != null) {
-              each.amount = Encrypter.decrypt(each.amount, keys.last!);
+              each.amount =
+                  Encrypter.decryptDecimalString(each.amount, keys.last!);
             }
           }
           // If its still not a double, the decrypt failed.

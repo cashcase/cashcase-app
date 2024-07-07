@@ -1,15 +1,17 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:word_generator/word_generator.dart';
 import "package:pointycastle/export.dart";
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 class UserNotSetException implements Exception {
   UserNotSetException();
 }
 
 class Encrypter {
-  static final IV = '137d1fbc211e4bf9';
+  static final IV = 'abcdefghijklmnop';
   static final PAD = '=';
 
   static String padStringTo32Chars(String input, {int length = 32}) {
@@ -23,53 +25,48 @@ class Encrypter {
     return input.split(PAD).first;
   }
 
-  static stringToUint8list(String value) {
-    List<int> list = value.codeUnits;
-    Uint8List bytes = Uint8List.fromList(list);
-    return bytes;
+  static Uint8List deriveKey(String privateKey, String salt) {
+    final saltBytes = utf8.encode(salt);
+    final keyBytes = utf8.encode(privateKey);
+
+    final pbkdf2 = PBKDF2KeyDerivator(HMac(SHA256Digest(), 64));
+    final params = Pbkdf2Parameters(saltBytes, 1000, 32);
+    pbkdf2.init(params);
+    return pbkdf2.process(Uint8List.fromList(keyBytes));
   }
 
-  static String encrypt(String data, String key) {
-    try {
-      key = padStringTo32Chars(key.replaceAll(" ", ""));
-      data = padStringTo32Chars(data);
-      Uint8List _data = stringToUint8list(data);
+  static String encryptDecimalString(
+      String decimalString, String privateKey) {
+    final derivedKey = deriveKey(privateKey, IV);
 
-      Uint8List _key = stringToUint8list(key);
-      Uint8List iv = stringToUint8list(IV);
-      final cbc = CBCBlockCipher(AESEngine())
-        ..init(true, ParametersWithIV(KeyParameter(_key), iv)); // true=encrypt
-      Uint8List cipherText = Uint8List(_data.length); // allocate space
-      var offset = 0;
-      while (offset < data.length) {
-        offset += cbc.processBlock(_data, offset, cipherText, offset);
-      }
-      String string = new String.fromCharCodes(cipherText);
-      return string;
-    } catch (e) {
-      throw e;
-    }
+    final key = encrypt.Key(derivedKey);
+    final iv =
+        encrypt.IV.fromSecureRandom(16); // Use a random IV for each encryption
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+
+    final encrypted = encrypter.encrypt(decimalString, iv: iv);
+    final ivAndEncrypted = iv.bytes + encrypted.bytes;
+
+    return base64.encode(ivAndEncrypted);
   }
 
-  static String decrypt(String data, String key) {
-    try {
-      key = padStringTo32Chars(key.replaceAll(" ", ""));
-      Uint8List _key = stringToUint8list(key);
-      Uint8List iv = stringToUint8list(IV);
-      final cbc = CBCBlockCipher(AESEngine())
-        ..init(
-            false, ParametersWithIV(KeyParameter(_key), iv)); // false=decrypt
-      Uint8List _data = stringToUint8list(data);
-      Uint8List paddedPlainText = Uint8List(_data.length); // allocate space
-      var offset = 0;
-      while (offset < _data.length) {
-        offset += cbc.processBlock(_data, offset, paddedPlainText, offset);
-      }
-      String string = unpadString(String.fromCharCodes(paddedPlainText));
-      return string;
-    } catch (e) {
-      throw e;
-    }
+  static String decryptDecimalString(
+      String encryptedString, String privateKey) {
+    final derivedKey = deriveKey(privateKey, IV);
+
+    final key = encrypt.Key(derivedKey);
+    final ivAndEncryptedBytes = base64.decode(encryptedString);
+    final iv = encrypt.IV(ivAndEncryptedBytes.sublist(0, 16));
+    final encryptedBytes = ivAndEncryptedBytes.sublist(16);
+
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+
+    final decrypted = encrypter
+        .decrypt(encrypt.Encrypted(Uint8List.fromList(encryptedBytes)), iv: iv);
+
+    return decrypted;
   }
 
   static String generateRandomKey() {
