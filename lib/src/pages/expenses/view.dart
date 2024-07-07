@@ -77,21 +77,21 @@ class _ViewState extends State<ExpensesView> {
         future: _keyGetterFuture,
         builder: (context, keySnapshot) {
           if (keySnapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(
-                color: Colors.orangeAccent,
-                strokeCap: StrokeCap.round,
-              ),
-            );
             // return Center(
-            //   child: Text(
-            //     "Fetching expenses for\n this day...",
-            //     textAlign: TextAlign.center,
-            //     style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-            //           color: Colors.white38,
-            //         ),
+            //   child: CircularProgressIndicator(
+            //     color: Colors.orangeAccent,
+            //     strokeCap: StrokeCap.round,
             //   ),
             // );
+            return Center(
+              child: Text(
+                "Fetching expenses...",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Colors.white38,
+                    ),
+              ),
+            );
           }
           return Container(
             child: Column(
@@ -316,7 +316,7 @@ class _ViewState extends State<ExpensesView> {
                           ),
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(
-                            RegExp("[0-9a-zA-Z]")),
+                            RegExp("[0-9a-zA-Z ]")),
                       ],
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
@@ -332,7 +332,7 @@ class _ViewState extends State<ExpensesView> {
                         ),
                       ),
                       keyboardType: TextInputType.multiline,
-                      maxLength: 20,
+                      maxLength: 50,
                       maxLines: 5,
                       minLines: 5,
                     ),
