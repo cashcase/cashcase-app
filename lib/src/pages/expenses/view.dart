@@ -124,6 +124,7 @@ class _ViewState extends State<ExpensesView> {
                       return Expanded(
                         child: Center(
                           child: CircularProgressIndicator(
+                            strokeCap: StrokeCap.round,
                             color: Colors.orangeAccent,
                           ),
                         ),

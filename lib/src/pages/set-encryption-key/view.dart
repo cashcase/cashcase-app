@@ -211,6 +211,7 @@ class _SetKeyViewState extends State<SetKeyView> {
         color: Colors.black,
       ),
       loadingIcon: CircularProgressIndicator(
+        strokeCap: StrokeCap.round,
         color: Colors.black,
       ),
       successIcon: Icon(
@@ -254,6 +255,7 @@ class _SetKeyViewState extends State<SetKeyView> {
         color: Colors.black,
       ),
       loadingIcon: CircularProgressIndicator(
+        strokeCap: StrokeCap.round,
         color: Colors.black,
       ),
       successIcon: Icon(

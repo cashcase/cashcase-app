@@ -64,6 +64,7 @@ class BaseApp extends StatelessWidget {
                         height: MediaQuery.of(context).size.height,
                         child: Center(
                           child: CircularProgressIndicator(
+                            strokeCap: StrokeCap.round,
                             color: Colors.orangeAccent,
                           ),
                         ),

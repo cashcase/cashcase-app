@@ -91,7 +91,10 @@ class _SignupViewState extends State<SignupView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+      ),
       body: Container(
         padding: EdgeInsets.all(16).copyWith(top: 0),
         child: SingleChildScrollView(

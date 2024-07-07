@@ -72,6 +72,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                   Scaffold(
                     body: Center(
                       child: CircularProgressIndicator(
+                        strokeCap: StrokeCap.round,
                         color: Colors.orangeAccent,
                       ),
                     ),

@@ -50,6 +50,7 @@ class _ViewState extends State<AccountView> {
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(
+                strokeCap: StrokeCap.round,
                 color: Colors.orangeAccent,
               ),
             ),
@@ -639,6 +640,7 @@ class _ViewState extends State<AccountView> {
                       height: 200,
                       child: Center(
                         child: CircularProgressIndicator(
+                          strokeCap: StrokeCap.round,
                           color: Colors.orangeAccent,
                         ),
                       ),
@@ -831,6 +833,7 @@ class _ViewState extends State<AccountView> {
                     height: 80,
                     child: Center(
                       child: CircularProgressIndicator(
+                        strokeCap: StrokeCap.round,
                         color: Colors.orangeAccent,
                       ),
                     ),
