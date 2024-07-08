@@ -78,26 +78,30 @@ class _ViewState extends State<AccountView> {
                     child: TabBarView(
                       physics: NeverScrollableScrollPhysics(),
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ...renderUserSearch(profile),
-                            if (profile.connections.isNotEmpty)
-                              ...renderConnections(profile),
-                            if (profile.received.isNotEmpty)
-                              ...renderReceivedRequests(profile),
-                            if (profile.sent.isNotEmpty)
-                              ...renderSentRequests(profile)
-                          ],
+                        SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ...renderUserSearch(profile),
+                              if (profile.connections.isNotEmpty)
+                                ...renderConnections(profile),
+                              if (profile.received.isNotEmpty)
+                                ...renderReceivedRequests(profile),
+                              if (profile.sent.isNotEmpty)
+                                ...renderSentRequests(profile)
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            renderProfileCard(profile.details),
-                            SizedBox(height: 24),
-                            renderKeySection(),
-                            SizedBox(height: 24),
-                            renderAccountDeletionSection(),
-                          ],
+                        SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              renderProfileCard(profile.details),
+                              SizedBox(height: 24),
+                              renderKeySection(),
+                              SizedBox(height: 24),
+                              renderAccountDeletionSection(),
+                            ],
+                          ),
                         ),
                       ],
                     ),
