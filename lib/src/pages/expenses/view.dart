@@ -35,9 +35,10 @@ class _ViewState extends State<ExpensesView> {
   Future<Either<AppError, ExpensesByDate>> get expensesFuture {
     var currentUser = AppDb.getCurrentUser();
     var currentConn = AppDb.getCurrentPair();
+    var date = selectedDate;
     return context.once<ExpensesController>().getExpense(
-          selectedDate.toUtc().startOfDay(),
-          selectedDate.toUtc().startOfTmro(),
+          date.startOfDay(),
+          date.startOfTmro(),
           currentUser!,
           currentConn?.username,
         );
@@ -77,12 +78,6 @@ class _ViewState extends State<ExpensesView> {
         future: _keyGetterFuture,
         builder: (context, keySnapshot) {
           if (keySnapshot.connectionState == ConnectionState.waiting) {
-            // return Center(
-            //   child: CircularProgressIndicator(
-            //     color: Colors.orangeAccent,
-            //     strokeCap: StrokeCap.round,
-            //   ),
-            // );
             return Center(
               child: Text(
                 "Fetching expenses...",
@@ -125,7 +120,8 @@ class _ViewState extends State<ExpensesView> {
                             .startOfDay(),
                         focusedDate: selectedDate,
                         onDateChange: (date, shouldReloadData) {
-                          selectedDate = date;
+                          // print("DATE >> ${date.toLocal().startOfDay()}");
+                          selectedDate = date.toLocal().startOfDay();
                           refresh(refreshData: shouldReloadData);
                         },
                       ),

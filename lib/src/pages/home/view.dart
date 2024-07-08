@@ -103,18 +103,18 @@ class _HomePageWidgetState extends State<HomePageView> {
                                 )
                               ],
                             ),
-                            ValueListenableBuilder(
-                                valueListenable: context
-                                    .once<HomePageController>()
-                                    .currentConn,
-                                builder: (context, currentConn, child) {
-                                  if (currentConn == null) return Container();
-                                  return GroupAvatar(
-                                    users: [currentConn]
-                                        .map((e) => e.getInitials())
-                                        .toList(),
-                                  );
-                                })
+                            // ValueListenableBuilder(
+                            //     valueListenable: context
+                            //         .once<HomePageController>()
+                            //         .currentConn,
+                            //     builder: (context, currentConn, child) {
+                            //       if (currentConn == null) return Container();
+                            //       return GroupAvatar(
+                            //         users: [currentConn]
+                            //             .map((e) => e.getInitials())
+                            //             .toList(),
+                            //       );
+                            //     })
                           ],
                         ),
                       ),

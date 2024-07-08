@@ -207,7 +207,8 @@ class _ViewState extends State<AccountView> {
                   r.fold(
                       (err) => context.once<AppController>().addNotification(
                           NotificationType.error,
-                          "Could not delete your account. Please try again later."),
+                          err.message ??
+                              "Could not delete account. Please try again later"),
                       (details) {
                     if (details) {
                       context.once<AppController>().addNotification(
