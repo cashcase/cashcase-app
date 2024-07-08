@@ -231,7 +231,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                     flex: 2,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.red.shade900,
+                                        color: Colors.white10,
                                         borderRadius:
                                             BorderRadius.circular(8).copyWith(
                                           topLeft: Radius.circular(0),
@@ -267,7 +267,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                       splashFactory: NoSplash
                                                           .splashFactory),
                                                   child: MaterialButton(
-                                                    color: Colors.red.shade600,
+                                                    color: Colors.red.shade700,
                                                     onPressed: () =>
                                                         context.push("/setkey"),
                                                     height: 80,

@@ -4,6 +4,7 @@ import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/components/confirm.dart';
+import 'package:cashcase/src/components/text-field.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
@@ -27,6 +28,8 @@ class _ViewState extends State<AccountView> {
   TextEditingController findUserController = TextEditingController();
   String? findUserError = null;
 
+  bool copiedUsername = false;
+
   void refresh() {
     setState(() {
       getProfile = context.once<AccountController>().getDetails();
@@ -42,60 +45,194 @@ class _ViewState extends State<AccountView> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getProfile,
-      builder: (context, snapshot) {
-        var isDone = snapshot.connectionState == ConnectionState.done;
-        if (!isDone)
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(
-                strokeCap: StrokeCap.round,
-                color: Colors.orangeAccent,
-              ),
-            ),
-          );
-
-        if (!snapshot.hasData) renderError();
-        return snapshot.data!.fold(
-          (_) => renderError(),
-          (profile) {
+    return DefaultTabController(
+      length: 2,
+      animationDuration: Duration.zero,
+      child: FutureBuilder(
+        future: getProfile,
+        builder: (context, snapshot) {
+          var isDone = snapshot.connectionState == ConnectionState.done;
+          if (!isDone)
             return Scaffold(
-              resizeToAvoidBottomInset: false,
-              body: Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 8,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      renderProfileCard(profile.details),
-                      ...renderKeySection(),
-                      ...renderUserSearch(profile),
-                      if (profile.connections.isNotEmpty)
-                        ...renderConnections(profile),
-                      if (profile.received.isNotEmpty)
-                        ...renderReceivedRequests(profile),
-                      if (profile.sent.isNotEmpty)
-                        ...renderSentRequests(profile)
-                    ],
-                  ),
+              body: Center(
+                child: CircularProgressIndicator(
+                  strokeCap: StrokeCap.round,
+                  color: Colors.orangeAccent,
                 ),
               ),
             );
-          },
+          if (!snapshot.hasData) renderError();
+          return snapshot.data!.fold(
+            (_) => renderError(),
+            (profile) {
+              return Scaffold(
+                resizeToAvoidBottomInset: false,
+                appBar: renderTabView(),
+                body: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 8,
+                  ),
+                  child: Container(
+                    height: MediaQuery.of(context).size.height,
+                    child: TabBarView(
+                      physics: NeverScrollableScrollPhysics(),
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ...renderUserSearch(profile),
+                            if (profile.connections.isNotEmpty)
+                              ...renderConnections(profile),
+                            if (profile.received.isNotEmpty)
+                              ...renderReceivedRequests(profile),
+                            if (profile.sent.isNotEmpty)
+                              ...renderSentRequests(profile)
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            renderProfileCard(profile.details),
+                            SizedBox(height: 24),
+                            renderKeySection(),
+                            SizedBox(height: 24),
+                            renderAccountDeletionSection(),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  TabBar renderTabView() {
+    return TabBar(
+      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
+      indicatorColor: Colors.transparent,
+      labelColor: Colors.orangeAccent,
+      dividerColor: Colors.transparent,
+      tabs: [
+        Tab(text: "Connections", icon: Icon(Icons.people_rounded)),
+        Tab(text: "Settings", icon: Icon(Icons.settings_rounded)),
+      ],
+    );
+  }
+
+  GestureDetector renderAccountDeletionSection() {
+    return GestureDetector(
+      onTap: confirmAccountDeletion,
+      child: Container(
+        height: 36,
+        child: Card(
+          color: Colors.transparent,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Delete Account",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.red,
+                    ),
+              ),
+              Icon(
+                Icons.delete_forever,
+                color: Colors.red,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  TextEditingController accountDeletePasswordConfirm = TextEditingController();
+  String? accountDeletePasswordError = null;
+
+  void confirmAccountDeletion() {
+    accountDeletePasswordError = null;
+    accountDeletePasswordConfirm.text = "";
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (childContext) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(childContext).viewInsets.bottom),
+          child: StatefulBuilder(builder: (_, setState) {
+            return ConfirmationDialog(
+              message: "",
+              child: Column(
+                children: [
+                  Text(
+                    "Are you sure you want to delete your account?",
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                  SizedBox(height: 16),
+                  CustomTextField(
+                    label: "Enter your password to confirm",
+                    controller: accountDeletePasswordConfirm,
+                    error: accountDeletePasswordError,
+                  )
+                ],
+              ),
+              icon: Icon(
+                Icons.warning_rounded,
+                color: Colors.red,
+                size: 100,
+              ),
+              okLabel: "No",
+              cancelLabel: "Yes",
+              cancelColor: Colors.red,
+              onOk: () => Navigator.pop(context),
+              onCancel: () {
+                accountDeletePasswordError =
+                    isValidPassword(accountDeletePasswordConfirm.text);
+                if (accountDeletePasswordError != null) {
+                  return setState(() => {});
+                }
+                context
+                    .once<AccountController>()
+                    .deleteAccount(accountDeletePasswordConfirm.text)
+                    .then((r) {
+                  r.fold(
+                      (err) => context.once<AppController>().addNotification(
+                          NotificationType.error,
+                          "Could not delete your account. Please try again later."),
+                      (details) {
+                    if (details) {
+                      context.once<AppController>().addNotification(
+                            NotificationType.success,
+                            "Account was deleted!",
+                          );
+                      AppDb.clearEncryptionKey();
+                      context.once<AccountController>().logout();
+                      Navigator.pop(context);
+                    }
+                  });
+                });
+              },
+            );
+          }),
         );
       },
     );
   }
 
-  List<Widget> renderKeySection() {
-    return [
-      SizedBox(height: 16),
-      GestureDetector(
-        onTap: showEncryptionKey,
+  GestureDetector renderKeySection() {
+    return GestureDetector(
+      onTap: showEncryptionKey,
+      child: Container(
+        height: 36,
         child: Card(
           color: Colors.transparent,
           margin: EdgeInsets.zero,
@@ -105,34 +242,23 @@ class _ViewState extends State<AccountView> {
             children: [
               Text(
                 "Encryption Key",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white,
                     ),
               ),
-              Container(
-                child: IconButton.filled(
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.orangeAccent,
-                  ),
-                  onPressed: showEncryptionKey,
-                  color: Colors.black,
-                  icon: Icon(
-                    Icons.password_rounded,
-                  ),
-                ),
+              Icon(
+                Icons.password_rounded,
+                color: Colors.orangeAccent,
               )
             ],
           ),
         ),
-      )
-    ];
+      ),
+    );
   }
 
   List<Widget> renderUserSearch(ProfileModel profile) {
     return [
-      SizedBox(height: 8),
-      Divider(color: Colors.white10),
-      SizedBox(height: 8),
       Text(
         "Connections",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
@@ -458,7 +584,7 @@ class _ViewState extends State<AccountView> {
   Widget renderProfileCard(User user) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.orangeAccent,
+        color: Colors.black12,
         borderRadius: BorderRadius.circular(
           8,
         ),
@@ -471,13 +597,12 @@ class _ViewState extends State<AccountView> {
             child: Container(
               height: 80.0,
               width: 80.0,
-              color: Colors.black87,
+              color: Colors.orangeAccent,
               child: Center(
                 child: Text(
                   user.getInitials(),
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colors.orangeAccent,
-                      ),
+                      color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -492,14 +617,40 @@ class _ViewState extends State<AccountView> {
                   maxLines: 2,
                   minFontSize: 24.0,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineSmall!
+                      .copyWith(color: Colors.white),
                 ),
-                AutoSizeText(
-                  "@${user.username}",
-                  maxLines: 1,
-                  minFontSize: 16.0,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium!,
+                Row(
+                  children: [
+                    AutoSizeText(
+                      copiedUsername ? "Copied!" : "@${user.username}",
+                      maxLines: 1,
+                      minFontSize: 16.0,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: copiedUsername ? Colors.green : Colors.white),
+                    ),
+                    SizedBox(width: 8),
+                    if (!copiedUsername)
+                      GestureDetector(
+                        onTap: () async {
+                          copiedUsername = true;
+                          setState(() => {});
+                          await Clipboard.setData(
+                            ClipboardData(
+                              text: user.username,
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.copy_rounded,
+                          color: Colors.grey.shade700,
+                          size: 16,
+                        ),
+                      )
+                  ],
                 )
               ],
             ),
@@ -527,7 +678,7 @@ class _ViewState extends State<AccountView> {
             },
             child: Icon(
               Icons.logout_rounded,
-              color: Colors.black,
+              color: Colors.red,
             ),
           )
         ],

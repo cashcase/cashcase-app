@@ -9,10 +9,12 @@ class ConfirmationDialog extends StatelessWidget {
   Color? cancelColor;
   void Function()? onOk;
   void Function()? onCancel;
+  Widget? child;
   ConfirmationDialog({
     required this.message,
     required this.okLabel,
     required this.cancelLabel,
+    this.child,
     this.icon,
     this.okColor,
     this.cancelColor,
@@ -35,13 +37,14 @@ class ConfirmationDialog extends StatelessWidget {
                     size: 100,
                   ),
               SizedBox(height: 24),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Colors.white,
-                    ),
-              ),
+              child ??
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
               SizedBox(height: 24),
               Row(
                 children: [

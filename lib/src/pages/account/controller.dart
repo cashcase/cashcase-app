@@ -62,6 +62,15 @@ class AccountController extends BaseController {
     );
   }
 
+  Future<Either<AppError, bool>> deleteAccount(String password) async {
+    Response? response =
+        await ApiHandler.delete("/profile", {"password": password});
+    return ResponseModel.respond(
+      response,
+      (data) => true,
+    );
+  }
+
   Future<Either<AppError, void>> rejectRequest(String username) async {
     Response? response = await ApiHandler.put("/request/reject/$username", {});
     return ResponseModel.respond(

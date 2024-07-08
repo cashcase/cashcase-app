@@ -45,7 +45,7 @@ class _SetKeyViewState extends State<SetKeyView> {
           padding: EdgeInsets.all(0),
           // constraints: BoxConstraints.tightFor(width: 100),
           itemBuilder: (BuildContext context) {
-            return (restoringKey ? {'Restore Key'} : {'Generate a New Key'})
+            return (!restoringKey ? {'Restore Key'} : {'Generate a New Key'})
                 .map((String choice) {
               return PopupMenuItem<String>(
                 padding: EdgeInsets.all(8),
@@ -80,9 +80,9 @@ class _SetKeyViewState extends State<SetKeyView> {
                           child: Icon(Icons.lock_rounded,
                               size: 48, color: Colors.orangeAccent),
                         ),
-                        SizedBox(height: 24),
+                        SizedBox(height: 16),
                         Text(
-                          "Set Your\n Encryption Key",
+                          "${restoringKey ? "Restore" : "Set"} Your\n Encryption Key",
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
@@ -91,10 +91,10 @@ class _SetKeyViewState extends State<SetKeyView> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 16),
                     if (!restoringKey)
                       Text(
-                        "Please copy and securely store your key. This key can only be generated once per account and cannot be recovered if lost.",
+                        "Please copy and securely store your encryption key.\n It is used to encrypt all your expenses and notes, ensuring your data's security. This key is generated only once per account and cannot be recovered if lost.",
                         textAlign: TextAlign.center,
                         style: Theme.of(context)
                             .textTheme
@@ -110,26 +110,21 @@ class _SetKeyViewState extends State<SetKeyView> {
                           color: Colors.orangeAccent,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 40),
-                                child: Text(
-                                  "${newKeyController.text}",
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  style: GoogleFonts.poppinsTextTheme()
-                                      .displayLarge!
-                                      .copyWith(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                ),
-                              ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Text(
+                              "${newKeyController.text}",
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              style: GoogleFonts.poppinsTextTheme()
+                                  .displayLarge!
+                                  .copyWith(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     if (!restoringKey) SizedBox(height: 8),
