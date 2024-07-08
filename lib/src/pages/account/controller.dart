@@ -1,10 +1,7 @@
 import 'package:cashcase/core/api/index.dart';
-import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/utils/errors.dart';
-import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
-import 'package:cashcase/src/db.dart';
 import 'package:dio/dio.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:either_dart/either.dart';
@@ -13,14 +10,6 @@ class AccountController extends BaseController {
   AccountController();
   @override
   void initListeners() {}
-
-  void logout() {
-    context.once<AppController>().startLoading();
-    AppController.clearTokens();
-    AppDb.clearCurrentUser();
-    context.clearAndReplace("/");
-    context.once<AppController>().stopLoading();
-  }
 
   Future<Either<AppError, ProfileModel>> getDetails() async {
     Response? response = await ApiHandler.get("/profile");

@@ -17,7 +17,7 @@ abstract class Auth {
     return null;
   }
 
-  bool? checkTokenExpiry(Response? response, {bool test = false}) {
+  bool? checkTokenExpired(Response? response, {bool test = false}) {
     return null;
   }
 }
@@ -48,7 +48,7 @@ class ApiHandler {
     _dio.interceptors.add(logger);
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: onRequestInterceptor(auth),
-      onError: onErrorInterceptor(auth, _dio),
+      onResponse: onResponseInterceptor(auth, _dio)
     ));
     // TODO: Do a downstream reachabiliy check here.
     return true;

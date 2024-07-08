@@ -15,11 +15,11 @@ Logger log = Logger("main");
 
 class AuthHandlers implements Auth {
   @override
-  bool? checkTokenExpiry(Response? response, {bool test = false}) {
+  bool? checkTokenExpired(Response? response, {bool test = false}) {
     return response != null &&
         response.statusCode == 401 &&
         (response.headers.value("www-authenticate${test ? '-test' : ''}") ?? '')
-            .contains('The token expired at');
+            .contains('jwt expired');
   }
 
   @override
@@ -32,10 +32,14 @@ class AuthHandlers implements Auth {
 
   @override
   Future<Either<AppError, TokenModel>?> refreshToken() async {
-    Response? response = await ApiHandler.post("/auth/refresh", {});
+    Response? response = await ApiHandler.post("/auth/refresh", {},
+        headers: {'refresh-token': Db.refreshToken});
     return ResponseModel.respond<TokenModel>(
       response,
-      (data) => TokenModel.fromJson(data),
+      (data) => TokenModel.fromJson({
+        "token": data,
+        "refreshToken": Db.refreshToken,
+      }),
     );
   }
 }

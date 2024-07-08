@@ -118,7 +118,9 @@ class _ViewState extends State<AccountView> {
   TabBar renderTabView() {
     return TabBar(
       overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
-      indicatorColor: Colors.transparent,
+      indicatorColor: Colors.orangeAccent,
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicatorWeight: 4,
       labelColor: Colors.orangeAccent,
       dividerColor: Colors.transparent,
       tabs: [
@@ -220,7 +222,7 @@ class _ViewState extends State<AccountView> {
                             "Account was deleted!",
                           );
                       AppDb.clearEncryptionKey();
-                      context.once<AccountController>().logout();
+                      context.once<AppController>().logout();
                       Navigator.pop(context);
                     }
                   });
@@ -265,7 +267,7 @@ class _ViewState extends State<AccountView> {
   List<Widget> renderUserSearch(ProfileModel profile) {
     return [
       Text(
-        "Connections",
+        "Search",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(
               color: Colors.white,
             ),
@@ -675,7 +677,7 @@ class _ViewState extends State<AccountView> {
                         okLabel: "Yes",
                         cancelLabel: "No",
                         onOk: () {
-                          context.once<AccountController>().logout();
+                          context.once<AppController>().logout();
                           Navigator.pop(context);
                         },
                         onCancel: () => Navigator.pop(context));
@@ -1226,7 +1228,7 @@ class _ViewState extends State<AccountView> {
               ),
               MaterialButton(
                 onPressed: () {
-                  context.once<AccountController>().logout();
+                  context.once<AppController>().logout();
                   Navigator.pop(context);
                 },
                 child: Text(

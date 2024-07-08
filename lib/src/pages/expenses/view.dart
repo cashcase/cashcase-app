@@ -5,6 +5,7 @@ import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/db.dart';
+import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
@@ -395,15 +396,32 @@ class _ViewState extends State<ExpensesView> {
   Widget renderError() {
     return Expanded(
       child: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 40),
-          child: Text(
-            "Unable to get your expenses. \nPlease try again after sometime.",
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: Colors.white38,
-                ),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                "Unable to get your expenses. \nPlease try again after sometime.",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Colors.white38,
+                    ),
+              ),
+            ),
+            MaterialButton(
+              onPressed: () {
+                context.once<AppController>().logout();
+                Navigator.pop(context);
+              },
+              child: Text(
+                "Or click here to try relogin",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      color: Colors.orangeAccent,
+                    ),
+              ),
+            )
+          ],
         ),
       ),
     );
