@@ -731,16 +731,14 @@ class _ViewState extends State<AccountView> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () =>
-                      {if (onLeftOption != null) onLeftOption(user)},
+                  onTap: () => {if (onLeftOption != null) onLeftOption(user)},
                   child: leftOptionIcon == null
                       ? Container()
                       : leftOptionIcon(user),
                 ),
                 SizedBox(width: 24),
                 GestureDetector(
-                  onTap: () =>
-                      {if (onRightOption != null) onRightOption(user)},
+                  onTap: () => {if (onRightOption != null) onRightOption(user)},
                   child: rightOptionIcon == null
                       ? Container()
                       : rightOptionIcon(user),
@@ -980,188 +978,196 @@ class _ViewState extends State<AccountView> {
 
   void showConnectionKey(User user) {
     bool hideKey = true;
+    var keyGetterFuture = AppDb.getEncryptionKey(username: user.username);
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) {
-        var keyGetterFuture = AppDb.getEncryptionKey(username: user.username);
-        return Wrap(children: [
-          FutureBuilder(
-              future: keyGetterFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return Container(
-                    height: 80,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeCap: StrokeCap.round,
-                        color: Colors.orangeAccent,
+        return SingleChildScrollView(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Wrap(children: [
+            FutureBuilder(
+                future: keyGetterFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    return Container(
+                      height: 80,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeCap: StrokeCap.round,
+                          color: Colors.orangeAccent,
+                        ),
                       ),
-                    ),
-                  );
-                }
-                keyController.text = snapshot.data ?? "";
-                return StatefulBuilder(builder: (context, setState) {
-                  return Container(
-                    padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16)
-                        .copyWith(top: 18),
-                    child: Column(
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.lock_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            SizedBox(width: 16),
-                            Text(
-                              "Configure Key",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge!
-                                  .copyWith(
-                                    color: Colors.white,
-                                  ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Divider(color: Colors.white10),
-                        SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Full Name",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(color: Colors.white60),
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              "${user.firstName} ${user.lastName}",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "User ID",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(color: Colors.white60),
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              user.username,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium!
-                                  .copyWith(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: keyController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white24, width: 1.0),
-                            ),
-                            hintText: "●●●●●●●●●",
-                            hintStyle: Theme.of(context)
-                                .textTheme
-                                .titleSmall!
-                                .copyWith(
-                                  color: Colors.grey,
-                                ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white12, width: 1.0),
-                            ),
-                            suffixIcon: GestureDetector(
-                              onTap: () => setState(() => hideKey = !hideKey),
-                              child: Icon(
-                                hideKey
-                                    ? Icons.visibility_rounded
-                                    : Icons.visibility_off_rounded,
+                    );
+                  }
+                  keyController.text = snapshot.data ?? "";
+                  return StatefulBuilder(builder: (context, setState) {
+                    return Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 32, horizontal: 16)
+                              .copyWith(top: 18),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.lock_rounded,
+                                color: Colors.white,
+                                size: 24,
                               ),
-                            ),
+                              SizedBox(width: 16),
+                              Text(
+                                "Configure Key",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge!
+                                    .copyWith(
+                                      color: Colors.white,
+                                    ),
+                              ),
+                            ],
                           ),
-                          style:
-                              Theme.of(context).textTheme.titleLarge!.copyWith(
-                                    color: Colors.white,
+                          SizedBox(height: 4),
+                          Divider(color: Colors.white10),
+                          SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Full Name",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(color: Colors.white60),
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                "${user.firstName} ${user.lastName}",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "User ID",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(color: Colors.white60),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                user.username,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          TextField(
+                            controller: keyController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.white24, width: 1.0),
+                              ),
+                              hintText: "●●●●●●●●●",
+                              hintStyle: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall!
+                                  .copyWith(
+                                    color: Colors.grey,
                                   ),
-                          obscureText: hideKey,
-                          keyboardType: TextInputType.multiline,
-                          textAlign: TextAlign.center,
-                          textAlignVertical: TextAlignVertical.center,
-                          maxLines: 1,
-                          minLines: 1,
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: MaterialButton(
-                                color: Colors.black,
-                                onPressed: () => Navigator.pop(context),
-                                child: Center(
-                                  child: Text(
-                                    "Back",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium!
-                                        .copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                  ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.white12, width: 1.0),
+                              ),
+                              suffixIcon: GestureDetector(
+                                onTap: () => setState(() => hideKey = !hideKey),
+                                child: Icon(
+                                  hideKey
+                                      ? Icons.visibility_rounded
+                                      : Icons.visibility_off_rounded,
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: MaterialButton(
-                                color: Colors.orangeAccent,
-                                onPressed: () =>
-                                    keyController.text == snapshot.data
-                                        ? Navigator.pop(context)
-                                        : saveKey(user),
-                                child: Center(
-                                  child: Text(
-                                    "Save",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyLarge!
-                                        .copyWith(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500),
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge!
+                                .copyWith(
+                                  color: Colors.white,
+                                ),
+                            obscureText: hideKey,
+                            keyboardType: TextInputType.multiline,
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                            maxLines: 1,
+                            minLines: 1,
+                          ),
+                          SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: MaterialButton(
+                                  color: Colors.black,
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Center(
+                                    child: Text(
+                                      "Back",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium!
+                                          .copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                });
-              })
-        ]);
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: MaterialButton(
+                                  color: Colors.orangeAccent,
+                                  onPressed: () =>
+                                      keyController.text == snapshot.data
+                                          ? Navigator.pop(context)
+                                          : saveKey(user),
+                                  child: Center(
+                                    child: Text(
+                                      "Save",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge!
+                                          .copyWith(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    );
+                  });
+                })
+          ]),
+        );
       },
     );
   }
