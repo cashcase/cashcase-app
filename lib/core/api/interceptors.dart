@@ -3,7 +3,6 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:dio/dio.dart';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/db.dart';
-import 'package:cashcase/core/utils/models.dart';
 
 PrettyDioLogger logger = PrettyDioLogger(
   requestHeader: true,
@@ -52,7 +51,6 @@ Future<void> Function(Response<dynamic>, ResponseInterceptorHandler) Function(
             handler.resolve(refreshedRepsonse);
           });
         });
-        return handler.next(resp);
       } else {
         return handler.next(resp);
       }

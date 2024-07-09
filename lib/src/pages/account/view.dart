@@ -706,21 +706,21 @@ class _ViewState extends State<AccountView> {
       shrinkWrap: true,
       itemCount: list.length,
       itemBuilder: (context, i) {
+        User user = list[i];
         return ListTile(
-          onTap: canSeeDetails ? () => showConnectionKey(list[i]) : null,
+          onTap: canSeeDetails ? () => showConnectionKey(user) : null,
           contentPadding: EdgeInsets.symmetric(horizontal: 8),
           // tileColor: Colors.black,
           leading: CircleAvatar(
             backgroundColor: Colors.orangeAccent,
             radius: 24.0,
             child: Text(
-              "${list[i].firstName[0].toUpperCase()}"
-              "${list[i].lastName[0].toUpperCase()}",
+              user.getInitials(),
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
           title: Text(
-            "${list[i].firstName} ${list[i].lastName}",
+            "${user.firstName} ${user.lastName}",
             style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   color: Colors.white,
                 ),
@@ -732,18 +732,18 @@ class _ViewState extends State<AccountView> {
               children: [
                 GestureDetector(
                   onTap: () =>
-                      {if (onLeftOption != null) onLeftOption(list[i])},
+                      {if (onLeftOption != null) onLeftOption(user)},
                   child: leftOptionIcon == null
                       ? Container()
-                      : leftOptionIcon(list[i]),
+                      : leftOptionIcon(user),
                 ),
                 SizedBox(width: 24),
                 GestureDetector(
                   onTap: () =>
-                      {if (onRightOption != null) onRightOption(list[i])},
+                      {if (onRightOption != null) onRightOption(user)},
                   child: rightOptionIcon == null
                       ? Container()
-                      : rightOptionIcon(list[i]),
+                      : rightOptionIcon(user),
                 ),
               ],
             ),

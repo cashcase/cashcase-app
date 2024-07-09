@@ -18,7 +18,7 @@ class AuthHandlers implements Auth {
   bool? checkTokenExpired(Response? response, {bool test = false}) {
     return response != null &&
         response.statusCode == 401 &&
-        (response.headers.value("www-authenticate${test ? '-test' : ''}") ?? '')
+        (response.headers.value("www-authenticate") ?? '')
             .contains('jwt expired');
   }
 
@@ -46,7 +46,7 @@ class AuthHandlers implements Auth {
 
 void main(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
-  const PROD = false;
+  const PROD = true;
   start(
     downstreamUri: PROD
         ? Uri(
