@@ -18,7 +18,9 @@ class AppController extends BaseController {
   AppController._internal();
 
   @override
-  void initListeners() {}
+  void initListeners() {
+    AppDb.init();
+  }
 
   void logout() {
     context.once<AppController>().startLoading();

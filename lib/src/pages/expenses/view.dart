@@ -57,11 +57,19 @@ class _ViewState extends State<ExpensesView> {
     setState(() => {});
   }
 
+  List<String> getSpentCategories() {
+    List<String> categories = [];
+    for (var each in AppDb.getCategories().entries) {
+      if (each.value) categories.add(each.key);
+    }
+    return categories;
+  }
+
   @override
   void initState() {
     _future = expensesFuture;
     categoryOfExpenseToAdd =
-        (isSaving ? SavingsCategories : SpentCategories)[0];
+        (isSaving ? SavingsCategories : getSpentCategories())[0];
     _keyGetterFuture = AppDb.getEncryptionKeyOfPair();
     super.initState();
   }
@@ -834,7 +842,9 @@ class _ViewState extends State<ExpensesView> {
   TextEditingController amountController = TextEditingController();
 
   Container renderFooter(ExpenseListController controller) {
-    var sortedItems = [...(isSaving ? SavingsCategories : SpentCategories)];
+    var sortedItems = [
+      ...(isSaving ? SavingsCategories : getSpentCategories())
+    ];
     sortedItems.sort((a, b) => a.toString().compareTo(b.toString()));
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -853,7 +863,7 @@ class _ViewState extends State<ExpensesView> {
             onPressed: () {
               isSaving = !isSaving;
               categoryOfExpenseToAdd =
-                  (isSaving ? SavingsCategories : SpentCategories)[0];
+                  (isSaving ? SavingsCategories : getSpentCategories())[0];
               setState(() => {});
             },
             minWidth: 8,
@@ -892,12 +902,13 @@ class _ViewState extends State<ExpensesView> {
                 value: categoryOfExpenseToAdd,
                 alignment: Alignment.centerLeft,
                 borderRadius: BorderRadius.circular(8),
-                onChanged:
-                    (isSaving ? SavingsCategories : SpentCategories).length == 1
-                        ? null
-                        : (newValue) {
-                            setState(() => categoryOfExpenseToAdd = newValue!);
-                          },
+                onChanged: (isSaving ? SavingsCategories : getSpentCategories())
+                            .length ==
+                        1
+                    ? null
+                    : (newValue) {
+                        setState(() => categoryOfExpenseToAdd = newValue!);
+                      },
                 items: sortedItems.map((e) => e).map((category) {
                   return DropdownMenuItem<String>(
                     value: category,

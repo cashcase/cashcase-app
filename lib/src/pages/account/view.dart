@@ -3,6 +3,7 @@ import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
+import 'package:cashcase/src/components/button.dart';
 import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/components/text-field.dart';
 import 'package:cashcase/src/db.dart';
@@ -96,6 +97,8 @@ class _ViewState extends State<AccountView> {
                           child: Column(
                             children: [
                               renderProfileCard(profile.details),
+                              SizedBox(height: 24),
+                              renderCategoriesSection(),
                               SizedBox(height: 24),
                               renderKeySection(),
                               SizedBox(height: 24),
@@ -235,6 +238,35 @@ class _ViewState extends State<AccountView> {
     );
   }
 
+  GestureDetector renderCategoriesSection() {
+    return GestureDetector(
+      onTap: () => context.push("/categories"),
+      child: Container(
+        height: 36,
+        child: Card(
+          color: Colors.transparent,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Manage Categories",
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              Icon(
+                Icons.category_rounded,
+                color: Colors.orangeAccent,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   GestureDetector renderKeySection() {
     return GestureDetector(
       onTap: showEncryptionKey,
@@ -266,6 +298,7 @@ class _ViewState extends State<AccountView> {
 
   List<Widget> renderUserSearch(ProfileModel profile) {
     return [
+      SizedBox(height: 12),
       Text(
         "Search",
         style: Theme.of(context).textTheme.titleLarge!.copyWith(

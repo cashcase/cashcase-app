@@ -1,4 +1,5 @@
 import 'package:cashcase/core/app/controller.dart';
+import 'package:cashcase/src/pages/categories/page.dart';
 import 'package:cashcase/src/pages/set-encryption-key/page.dart';
 import 'package:cashcase/src/pages/signin/page.dart';
 import 'package:cashcase/src/pages/signup/page.dart';
@@ -26,6 +27,12 @@ GoRouter router = GoRouter(routes: [
     path: '/setkey',
     builder: (_, state) {
       return SetKeyPage();
+    },
+  ),
+  GoRoute(
+    path: '/categories',
+    builder: (_, state) {
+      return CategoriesPage();
     },
   ),
 ]);

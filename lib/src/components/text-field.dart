@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatefulWidget {
   TextEditingController controller;
   bool isPassword;
   String? error;
   String label;
+  List<TextInputFormatter>? inputFormatters;
   CustomTextField({
     super.key,
     required this.label,
     required this.controller,
     this.isPassword = false,
     this.error,
+    this.inputFormatters,
   });
 
   @override
@@ -23,6 +26,7 @@ class Custom_TextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      inputFormatters: widget.inputFormatters,
       controller: widget.controller,
       style: Theme.of(context)
           .textTheme
@@ -63,7 +67,8 @@ class Custom_TextFieldState extends State<CustomTextField> {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.withOpacity(0.15), width: 1.0),
+          borderSide:
+              BorderSide(color: Colors.grey.withOpacity(0.15), width: 1.0),
         ),
       ),
     );

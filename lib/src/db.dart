@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/pages/account/model.dart';
+import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:word_generator/word_generator.dart';
 import "package:pointycastle/export.dart";
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -74,7 +76,7 @@ class Encrypter {
       key = "${wordGenerator.randomVerb()} "
           "${wordGenerator.randomNoun()} "
           "${wordGenerator.randomVerb()} "
-          "${wordGenerator.randomNoun()} ";
+          "${wordGenerator.randomNoun()}";
     }
     return key;
   }
@@ -83,11 +85,28 @@ class Encrypter {
 class AppDb extends Db {
   static String getEncryptionIdentifier(String user) => "__cashcase_key_$user";
   static final String CURRENT_USER_IDENTIFIER = "__cashcase_user__";
+  static String CATEGORIES_IDENTIFIER = "__cashcase_categories__";
 
-  static String CURRENT_USER_EKEY = "";
-  static String CONNECTED_USER_EKEY = "";
+  static init() {
+    if (!Db.store.containsKey(CATEGORIES_IDENTIFIER)) {
+      Map<String, bool> categories = {};
+      for (var e in SpentCategories) {
+        categories[e] = true;
+      }
+      setCategories(categories);
+    }
+  }
 
-  static Map<String, String> ekeys = {};
+  static Future<bool> setCategories(Map<String, bool> categories) async {
+    return await Db.store
+        .setString(CATEGORIES_IDENTIFIER, json.encode(categories));
+  }
+
+  static Map<String, dynamic> getCategories() {
+    String _categories = Db.store.getString(CATEGORIES_IDENTIFIER) ?? "";
+    Map<String, dynamic> categories = json.decode(_categories);
+    return categories;
+  }
 
   static Future<void> loadEncyptionKeys() async {}
   static Future<bool> setCurrentPair(User? user) async {
