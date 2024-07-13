@@ -126,7 +126,7 @@ class _DatePickerState extends State<DatePicker> {
 
   GlobalKey key = GlobalKey();
 
-  void setNewDate(DateTime date) {
+  void setNewDate(DateTime date, {bool? dontRefresh}) {
     key = GlobalKey();
 
     if (date.startOfDay().isAfter(DateTime.now().startOfDay()))
@@ -134,9 +134,9 @@ class _DatePickerState extends State<DatePicker> {
     else
       _focusDate = date;
     var shouldReloadData =
-        date.startOfDay().isAfter(widget.startDate.startOfDay()) ||
-            date.sameDay(widget.startDate);
-    widget.onDateChange(_focusDate, shouldReloadData);
+        (date.startOfDay().isAfter(widget.startDate.startOfDay()) ||
+            date.sameDay(widget.startDate));
+    if (dontRefresh != true) widget.onDateChange(_focusDate, shouldReloadData);
     setState(() => {});
   }
 
@@ -160,6 +160,44 @@ class _DatePickerState extends State<DatePicker> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              GestureDetector(
+                onTap: () {
+                  setNewDate(
+                    DateTime.now().startOfDay(),
+                    dontRefresh: _focusDate.sameDay(
+                      DateTime.now().startOfDay(),
+                    ),
+                  );
+                },
+                child: Icon(
+                  Icons.today_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              SizedBox(width: 8),
+              Container(
+                width: 60,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.1),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    "".getNumberSuffix(date.day),
+                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                          color: Colors.white38,
+                        ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8),
               Expanded(
                 child: Dropdown(
                   onChange: (month) {
@@ -177,7 +215,7 @@ class _DatePickerState extends State<DatePicker> {
                       .toList(),
                 ),
               ),
-              SizedBox(width: 16),
+              SizedBox(width: 8),
               Expanded(
                 child: Dropdown(
                   onChange: (year) {

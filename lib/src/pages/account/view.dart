@@ -3,7 +3,6 @@ import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
-import 'package:cashcase/src/components/button.dart';
 import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/components/text-field.dart';
 import 'package:cashcase/src/db.dart';
@@ -138,6 +137,7 @@ class _ViewState extends State<AccountView> {
       onTap: confirmAccountDeletion,
       child: Container(
         height: 36,
+        padding: EdgeInsets.symmetric(horizontal: 8),
         child: Card(
           color: Colors.transparent,
           margin: EdgeInsets.zero,
@@ -181,7 +181,8 @@ class _ViewState extends State<AccountView> {
               child: Column(
                 children: [
                   Text(
-                    "Are you sure you want to delete your account?",
+                    "Are you sure you want to delete your account?\n This is an irreversible action and all your data will be purged immediately!",
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           color: Colors.white,
                         ),
@@ -242,6 +243,7 @@ class _ViewState extends State<AccountView> {
     return GestureDetector(
       onTap: () => context.push("/categories"),
       child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
         height: 36,
         child: Card(
           color: Colors.transparent,
@@ -272,6 +274,7 @@ class _ViewState extends State<AccountView> {
       onTap: showEncryptionKey,
       child: Container(
         height: 36,
+        padding: EdgeInsets.symmetric(horizontal: 8),
         child: Card(
           color: Colors.transparent,
           margin: EdgeInsets.zero,

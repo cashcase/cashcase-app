@@ -118,21 +118,18 @@ class _ViewState extends State<ExpensesView> {
                         ),
                       );
                     }
-                    return Container(
-                      child: DatePicker(
-                        startDate: expenseDatePickerController
-                            .value.firstExpenseDate!
-                            .startOfDay(),
-                        endDate: expenseDatePickerController
-                            .value.lastExpenseDate!
-                            .startOfDay(),
-                        focusedDate: selectedDate,
-                        onDateChange: (date, shouldReloadData) {
-                          // print("DATE >> ${date.toLocal().startOfDay()}");
-                          selectedDate = date.toLocal().startOfDay();
-                          refresh(refreshData: shouldReloadData);
-                        },
-                      ),
+                    return DatePicker(
+                      startDate: expenseDatePickerController
+                          .value.firstExpenseDate!
+                          .startOfDay(),
+                      endDate: expenseDatePickerController
+                          .value.lastExpenseDate!
+                          .startOfDay(),
+                      focusedDate: selectedDate,
+                      onDateChange: (date, shouldReloadData) {
+                        selectedDate = date.toLocal().startOfDay();
+                        refresh(refreshData: shouldReloadData);
+                      },
                     );
                   },
                 ),
