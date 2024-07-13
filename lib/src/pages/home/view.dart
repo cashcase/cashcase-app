@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/page.dart';
@@ -157,15 +159,14 @@ class _HomePageWidgetState extends State<HomePageView> {
                             },
                             items: Pages.map((e) {
                               return BottomNavigationBarItem(
-                                icon: Padding(
-                                  padding: const EdgeInsets.only(bottom: 0.0),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        padding:
-                                            EdgeInsets.only(top: 8, bottom: 4),
-                                        child: Icon(e.icon),
-                                      ),
+                                icon: Column(
+                                  children: [
+                                    Container(
+                                      padding:
+                                          EdgeInsets.only(top: 8, bottom: 4),
+                                      child: Icon(e.icon),
+                                    ),
+                                    if (!Platform.isIOS)
                                       Text(
                                         e.label,
                                         style: Theme.of(context)
@@ -179,10 +180,9 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                       : Colors.white,
                                             ),
                                       )
-                                    ],
-                                  ),
+                                  ],
                                 ),
-                                label: "",
+                                label: Platform.isIOS ? e.label : "",
                               );
                             }).toList()),
                       ),
@@ -246,8 +246,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                     .textTheme
                                                     .headlineMedium!
                                                     .copyWith(
-                                                        color:
-                                                            Colors.white),
+                                                        color: Colors.white),
                                               ),
                                             ),
                                           ),
@@ -258,8 +257,8 @@ class _HomePageWidgetState extends State<HomePageView> {
                                             width: double.infinity,
                                             child: Theme(
                                               data: ThemeData(
-                                                  splashFactory: NoSplash
-                                                      .splashFactory),
+                                                  splashFactory:
+                                                      NoSplash.splashFactory),
                                               child: MaterialButton(
                                                 color: Colors.red.shade700,
                                                 onPressed: () =>
@@ -273,13 +272,12 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                     Container(),
                                                     Text(
                                                       "SET ENCRYPTION KEY",
-                                                      style: Theme.of(
-                                                              context)
+                                                      style: Theme.of(context)
                                                           .textTheme
                                                           .bodyLarge!
                                                           .copyWith(
-                                                              color: Colors
-                                                                  .white,
+                                                              color:
+                                                                  Colors.white,
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold),
