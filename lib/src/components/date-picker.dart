@@ -176,24 +176,34 @@ class _DatePickerState extends State<DatePicker> {
                 ),
               ),
               SizedBox(width: 8),
-              Container(
-                width: 60,
-                height: 34,
-                decoration: BoxDecoration(
-                  color: Colors.black38,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(8),
+              GestureDetector(
+                onTap: () {
+                  setNewDate(
+                    _focusDate,
+                    dontRefresh: _focusDate.sameDay(
+                      DateTime.now().startOfDay(),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 60,
+                  height: 34,
+                  decoration: BoxDecoration(
+                    color: Colors.black38,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8),
+                    ),
+                    border: Border.all(
+                      color: Colors.grey.withOpacity(0.1),
+                    ),
                   ),
-                  border: Border.all(
-                    color: Colors.grey.withOpacity(0.1),
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    "".getNumberSuffix(date.day),
-                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                          color: Colors.white38,
-                        ),
+                  child: Center(
+                    child: Text(
+                      "".getNumberSuffix(date.day),
+                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                            color: Colors.white38,
+                          ),
+                    ),
                   ),
                 ),
               ),

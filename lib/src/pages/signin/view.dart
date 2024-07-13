@@ -52,23 +52,26 @@ class _SigninViewState extends State<SigninView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                          radius: isKeyboardVisible ? 28 : 54,
-                          backgroundColor: Colors.orangeAccent,
-                          child: ClipOval(
-                            child: Image(
-                              width: 100,
-                              image: AssetImage('assets/logo.png'),
+                        if (!isKeyboardVisible)
+                          Opacity(
+                            opacity: isKeyboardVisible ? 0 : 1,
+                            child: CircleAvatar(
+                              radius: 54,
+                              backgroundColor: Colors.orangeAccent,
+                              child: ClipOval(
+                                child: Image(
+                                  width: 100,
+                                  image: AssetImage('assets/logo.png'),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
                         SizedBox(height: isKeyboardVisible ? 12 : 24),
                         Text(
                           "cashcase".toUpperCase(),
                           style: GoogleFonts.abel().copyWith(
-                            fontSize: isKeyboardVisible ? 0 : 40,
+                            fontSize: isKeyboardVisible ? 48 : 40,
                             color: Colors.orangeAccent,
-                            // fontWeight: FontWeight.bold
                           ),
                         )
                       ],

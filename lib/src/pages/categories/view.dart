@@ -28,6 +28,7 @@ class _CategoriesViewState extends State<CategoriesView> {
         .toList()
         .map((e) => CategoryModel(label: e, enabled: _categories[e]))
         .toList();
+    categories.sort((a, b) => a.label.compareTo(b.label));
     super.initState();
   }
 
@@ -41,6 +42,8 @@ class _CategoriesViewState extends State<CategoriesView> {
       await AppDb.setCategories(_categories);
     } catch (e) {
     } finally {
+      categories.sort((a, b) => a.label.compareTo(b.label));
+      setState(() => {});
       context.once<AppController>().stopLoading();
     }
   }
@@ -61,7 +64,15 @@ class _CategoriesViewState extends State<CategoriesView> {
       body: Container(
         padding: EdgeInsets.all(8),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              "Add/Remove or Enable/Disable categories from here. Disabled categories will not be displayed in the Expense screen. Categories can only be alphabets with length between 3 to 20. Categories are all stored on-device. Default categories can only be disabled.",
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+            SizedBox(height: 16),
             Container(
               width: MediaQuery.of(context).size.width,
               child: Row(
@@ -71,10 +82,10 @@ class _CategoriesViewState extends State<CategoriesView> {
                     child: CustomTextField(
                       label: "Add new category",
                       controller: newCategory,
+                      error: newCategoryError,
                       inputFormatters: <TextInputFormatter>[
                         FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),
-                      ], //
-                      // error: newCategoryError,
+                      ],
                     ),
                   ),
                   SizedBox(width: 16),
@@ -125,25 +136,24 @@ class _CategoriesViewState extends State<CategoriesView> {
                 shrinkWrap: true,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
+                  var category = categories[index];
                   return ListTile(
                     onTap: () {
-                      categories[index].enabled = !categories[index].enabled;
-                      setState(() {});
+                      category.enabled = !category.enabled;
                       saveCategories();
                     },
                     contentPadding: EdgeInsets.all(0),
                     title: Text(
-                      categories[index].label.toCamelCase(),
+                      category.label.toCamelCase(),
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                             color: Colors.white,
                           ),
                     ),
-                    trailing: SpentCategories.contains(categories[index].label)
+                    trailing: SpentCategories.contains(category.label)
                         ? null
                         : GestureDetector(
                             onTap: () {
                               categories.removeAt(index);
-                              setState(() => {});
                               saveCategories();
                             },
                             child: Icon(
@@ -156,8 +166,7 @@ class _CategoriesViewState extends State<CategoriesView> {
                       value: categories[index].enabled,
                       onChanged: (value) {
                         if (value == null) return;
-                        categories[index].enabled = value;
-                        setState(() {});
+                        category.enabled = value;
                         saveCategories();
                       },
                     ),
