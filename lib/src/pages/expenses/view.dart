@@ -612,6 +612,10 @@ class _ViewState extends State<ExpensesView> {
                               var amount = userExpense.amount;
                               if (amount == 0) return Container();
                               var expenses = userExpense.expenses;
+                              expenses.sort((a, b) => double.parse(a.amount) <=
+                                      double.parse(b.amount)
+                                  ? 1
+                                  : -1); // Sorting desc by amount
                               return ExpansionTile(
                                 dense: true,
                                 key: ValueKey<String>(userId),
