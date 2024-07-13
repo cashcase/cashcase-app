@@ -33,7 +33,7 @@ class _DropdownState extends State<Dropdown> {
         child: DropdownButton<String>(
           isExpanded: true,
           borderRadius: BorderRadius.circular(8),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: EdgeInsets.symmetric(vertical: 4),
           dropdownColor: Colors.black87,
           value: widget.initial,
           isDense: true,
@@ -195,8 +195,8 @@ class _DatePickerState extends State<DatePicker> {
         );
       },
       dayProps: const EasyDayProps(
-        width: 60.0,
-        height: 88.0,
+        width: 54.0,
+        height: 80.0,
       ),
       itemBuilder: (
         BuildContext context,
@@ -225,7 +225,7 @@ class _DatePickerState extends State<DatePicker> {
                   Flexible(
                     child: Text(
                       EasyDateFormatter.shortMonthName(date, "en_US"),
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             color: color,
                           ),
                     ),
@@ -241,7 +241,7 @@ class _DatePickerState extends State<DatePicker> {
                   Flexible(
                     child: Text(
                       EasyDateFormatter.shortDayName(date, "en_US"),
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
                             color: color,
                           ),
                     ),

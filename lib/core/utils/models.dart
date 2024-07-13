@@ -42,6 +42,12 @@ class RequestCallbacks {
 
 Logger log = Logger('ResponseModel');
 
+class ApiException implements Exception {
+  String message;
+  ApiException({required this.message});
+  String toString() => this.message;
+}
+
 class ResponseModel<T> {
   bool status;
   dynamic error;
@@ -66,14 +72,19 @@ class ResponseModel<T> {
   ) {
     try {
       if (response?.data['status']) {
-        return Right(builder(response!.data['data']));
+        return Right(builder(response!.data['data'] ?? {}));
       }
-      throw response?.data['error'];
+      throw ApiException(message: response?.data['error']);
+    } on ApiException catch (e) {
+      return Left(AppError(
+        key: AppErrorType.ApiError,
+        message: e.toString(),
+      ));
     } catch (e) {
       print(e);
       return Left(AppError(
         key: AppErrorType.ApiError,
-        message: e.toString(),
+        message: "Unknown error occurred. Please try again later.",
       ));
     }
   }

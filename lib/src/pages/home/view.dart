@@ -1,9 +1,7 @@
 import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/src/components/group-avatar.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/page.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
-import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
 
@@ -98,7 +96,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                   textAlign: TextAlign.start,
                                   style: Theme.of(context)
                                       .textTheme
-                                      .headlineLarge!
+                                      .headlineMedium!
                                       .copyWith(color: Colors.orangeAccent),
                                 )
                               ],
@@ -191,125 +189,119 @@ class _HomePageWidgetState extends State<HomePageView> {
                     ),
                   ),
                 if (noKey)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: Align(
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.black87,
+                    child: Center(
                       child: Container(
-                        padding: EdgeInsets.all(16),
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        color: Colors.black87,
-                        child: Center(
-                          child: Container(
-                            height: 400,
-                            child: Card(
-                              elevation: 1,
-                              color: Colors.black,
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.red.shade700,
-                                        borderRadius:
-                                            BorderRadius.circular(8).copyWith(
-                                          bottomLeft: Radius.circular(0),
-                                          bottomRight: Radius.circular(0),
-                                        ),
-                                      ),
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.lock_open_rounded,
-                                          size: 60,
-                                          color: Colors.red.shade100,
-                                        ),
-                                      ),
+                        height: 400,
+                        child: Card(
+                          elevation: 1,
+                          color: Colors.black,
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade700,
+                                    borderRadius:
+                                        BorderRadius.circular(8).copyWith(
+                                      bottomLeft: Radius.circular(0),
+                                      bottomRight: Radius.circular(0),
                                     ),
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white10,
-                                        borderRadius:
-                                            BorderRadius.circular(8).copyWith(
-                                          topLeft: Radius.circular(0),
-                                          topRight: Radius.circular(0),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.lock_open_rounded,
+                                      size: 60,
+                                      color: Colors.red.shade100,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 2,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white10,
+                                    borderRadius:
+                                        BorderRadius.circular(8).copyWith(
+                                      topLeft: Radius.circular(0),
+                                      topRight: Radius.circular(0),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            padding: EdgeInsets.all(8),
+                                            child: Center(
+                                              child: Text(
+                                                "You haven't set your\n encryption key!",
+                                                textAlign: TextAlign.center,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .headlineMedium!
+                                                    .copyWith(
+                                                        color:
+                                                            Colors.white),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                      child: Center(
-                                        child: Column(
-                                          children: [
-                                            Expanded(
-                                              child: Container(
-                                                padding: EdgeInsets.all(8),
-                                                child: Center(
-                                                  child: Text(
-                                                    "You haven't set your\n encryption key!",
-                                                    textAlign: TextAlign.center,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .headlineMedium!
-                                                        .copyWith(
-                                                            color:
-                                                                Colors.white),
-                                                  ),
+                                        Container(
+                                          padding: EdgeInsets.all(8),
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: Theme(
+                                              data: ThemeData(
+                                                  splashFactory: NoSplash
+                                                      .splashFactory),
+                                              child: MaterialButton(
+                                                color: Colors.red.shade700,
+                                                onPressed: () =>
+                                                    context.push("/setkey"),
+                                                height: 80,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Container(),
+                                                    Text(
+                                                      "SET ENCRYPTION KEY",
+                                                      style: Theme.of(
+                                                              context)
+                                                          .textTheme
+                                                          .bodyLarge!
+                                                          .copyWith(
+                                                              color: Colors
+                                                                  .white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold),
+                                                    ),
+                                                    Icon(
+                                                      Icons
+                                                          .keyboard_double_arrow_right,
+                                                      size: 30,
+                                                      color: Colors.white,
+                                                    )
+                                                  ],
                                                 ),
                                               ),
                                             ),
-                                            Container(
-                                              padding: EdgeInsets.all(8),
-                                              child: SizedBox(
-                                                width: double.infinity,
-                                                child: Theme(
-                                                  data: ThemeData(
-                                                      splashFactory: NoSplash
-                                                          .splashFactory),
-                                                  child: MaterialButton(
-                                                    color: Colors.red.shade700,
-                                                    onPressed: () =>
-                                                        context.push("/setkey"),
-                                                    height: 80,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                      children: [
-                                                        Container(),
-                                                        Text(
-                                                          "SET ENCRYPTION KEY",
-                                                          style: Theme.of(
-                                                                  context)
-                                                              .textTheme
-                                                              .bodyLarge!
-                                                              .copyWith(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
-                                                        ),
-                                                        Icon(
-                                                          Icons
-                                                              .keyboard_double_arrow_right,
-                                                          size: 30,
-                                                          color: Colors.white,
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ),

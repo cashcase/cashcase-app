@@ -5,7 +5,6 @@ import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/db.dart';
-import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
@@ -449,12 +448,12 @@ class _ViewState extends State<ExpensesView> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(height: 8),
+                SizedBox(height: 2),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
                     padding: EdgeInsets.symmetric(
-                      horizontal: 16,
+                      horizontal: 12,
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
@@ -541,7 +540,7 @@ class _ViewState extends State<ExpensesView> {
                       ],
                     ),
                   ),
-                SizedBox(height: 8),
+                SizedBox(height: 2),
                 if (controller.expenses.isNotEmpty)
                   Expanded(
                     child: ListView.builder(
@@ -565,6 +564,7 @@ class _ViewState extends State<ExpensesView> {
                             highlightColor: Colors.transparent,
                           ),
                           child: ExpansionTile(
+                            dense: true,
                             backgroundColor:
                                 (isSaving ? Colors.green : Colors.red)
                                     .withOpacity(0.05),
@@ -616,6 +616,7 @@ class _ViewState extends State<ExpensesView> {
                               if (amount == 0) return Container();
                               var expenses = userExpense.expenses;
                               return ExpansionTile(
+                                dense: true,
                                 key: ValueKey<String>(userId),
                                 title: Text(
                                   "${userExpense.user.firstName} ${userExpense.user.lastName}"
@@ -855,7 +856,7 @@ class _ViewState extends State<ExpensesView> {
           topRight: Radius.circular(12),
         ),
       ),
-      height: 60,
+      height: 54,
       width: MediaQuery.of(context).size.width,
       child: Row(
         children: [
@@ -962,7 +963,7 @@ class _ViewState extends State<ExpensesView> {
             // color: isSaving ? Colors.green.shade800 : Colors.red.shade800,
             minWidth: 0,
             child: const Icon(
-              Icons.check_rounded,
+              Icons.add_task_rounded,
               color: Colors.white,
             ),
             splashColor: Colors.transparent,
