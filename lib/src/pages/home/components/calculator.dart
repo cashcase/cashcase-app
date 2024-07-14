@@ -98,15 +98,38 @@ class _CalculatorState extends State<Calculator> {
                 borderRadius: BorderRadius.circular(12),
                 color: Colors.black,
               ),
-              child: Center(
-                  child: AnimatedDigitWidget(
-                value: double.parse(isLoading ? "0.0" : amount),
-                fractionDigits: 2,
-                textStyle: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colors.orangeAccent,
-                      fontWeight: FontWeight.w500,
-                    ),
-              )),
+              child: Opacity(
+                opacity: isLoading ? 0.5 : 1,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        height: 16,
+                        width: 16,
+                        child: isLoading
+                            ? CircularProgressIndicator(
+                                strokeCap: StrokeCap.round,
+                                color: Colors.orangeAccent,
+                                strokeWidth: 2,
+                              )
+                            : null,
+                      ),
+                      AnimatedDigitWidget(
+                        value: double.parse(amount),
+                        fractionDigits: 2,
+                        textStyle:
+                            Theme.of(context).textTheme.headlineMedium!.copyWith(
+                                  color: Colors.orangeAccent,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                      ),
+                      Container(),
+                    ],
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 8),
             Container(
