@@ -180,9 +180,7 @@ class _DatePickerState extends State<DatePicker> {
                 onTap: () {
                   setNewDate(
                     _focusDate,
-                    dontRefresh: _focusDate.sameDay(
-                      DateTime.now().startOfDay(),
-                    ),
+                    dontRefresh: true, // just scroll to date
                   );
                 },
                 child: Container(
