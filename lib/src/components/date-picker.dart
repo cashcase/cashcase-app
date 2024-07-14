@@ -135,7 +135,8 @@ class _DatePickerState extends State<DatePicker> {
 
   List<String> getMonths() {
     if (_focusDate.year == widget.endDate.year) {
-      return months.sublist(0, widget.endDate.month);
+      return months.sublist(
+          min(widget.startDate.month - 1, 0), widget.endDate.month);
     }
     if (_focusDate.year < widget.endDate.year && _focusDate.year > startYear) {
       return months;
@@ -269,6 +270,7 @@ class _DatePickerState extends State<DatePicker> {
         var color = isSelected ? Colors.black : Colors.white;
         var isBeforeFirstExpense = date.startOfDay().isBefore(widget.startDate);
         return InkResponse(
+          highlightColor: Colors.transparent,
           onTap: isBeforeFirstExpense ? null : onTap,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4.0),

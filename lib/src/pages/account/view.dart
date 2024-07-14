@@ -1,4 +1,3 @@
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
@@ -655,10 +654,9 @@ class _ViewState extends State<AccountView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AutoSizeText(
+                Text(
                   "${user.firstName} ${user.lastName}",
                   maxLines: 2,
-                  minFontSize: 24.0,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context)
                       .textTheme
@@ -667,10 +665,9 @@ class _ViewState extends State<AccountView> {
                 ),
                 Row(
                   children: [
-                    AutoSizeText(
+                    Text(
                       copiedUsername ? "Copied!" : "@${user.username}",
                       maxLines: 1,
-                      minFontSize: 16.0,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                           color: copiedUsername ? Colors.green : Colors.white),
@@ -785,7 +782,7 @@ class _ViewState extends State<AccountView> {
           subtitle: Text(
             "@${list[i].username}",
             style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                  color: Colors.white,
+                  color: Colors.white38,
                 ),
           ),
         );
@@ -895,7 +892,7 @@ class _ViewState extends State<AccountView> {
                               padding: EdgeInsets.all(16),
                               child: Center(
                                 child: showingKey
-                                    ? AutoSizeText(
+                                    ? Text(
                                         snapshot.data!,
                                         style: Theme.of(context)
                                             .textTheme

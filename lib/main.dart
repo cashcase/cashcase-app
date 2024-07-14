@@ -46,7 +46,7 @@ class AuthHandlers implements Auth {
 
 void main(List<String> args) {
   WidgetsFlutterBinding.ensureInitialized();
-  const PROD = false;
+  const PROD = true;
   start(
     downstreamUri: PROD
         ? Uri(
