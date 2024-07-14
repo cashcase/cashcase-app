@@ -165,11 +165,12 @@ class _CalculatorState extends State<Calculator> {
             SizedBox(height: 8),
             Expanded(
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    flex: 6,
+                    flex: 10,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Expanded(
                           child: Container(
@@ -192,9 +193,8 @@ class _CalculatorState extends State<Calculator> {
                                     wrapped: true,
                                     value: tags,
                                     alignment: WrapAlignment.start,
-                                    choiceStyle: C2ChipStyle(
-                                      backgroundOpacity: 1
-                                    ),
+                                    choiceStyle:
+                                        C2ChipStyle(backgroundOpacity: 1),
                                     onChanged: (val) =>
                                         setState(() => tags = val),
                                     choiceItems:
@@ -210,9 +210,9 @@ class _CalculatorState extends State<Calculator> {
                       ],
                     ),
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: 6),
                   Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: GestureDetector(
                       onTap: calculate,
                       child: Container(
