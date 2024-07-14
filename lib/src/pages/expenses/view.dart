@@ -36,7 +36,7 @@ class _ViewState extends State<ExpensesView> {
     var currentUser = AppDb.getCurrentUser();
     var currentConn = AppDb.getCurrentPair();
     var date = selectedDate;
-    return context.once<ExpensesController>().getExpense(
+    return context.once<ExpensesController>().getExpenses(
           date.startOfDay(),
           date.startOfTmro(),
           currentUser!,
@@ -45,7 +45,10 @@ class _ViewState extends State<ExpensesView> {
   }
 
   Future<Either<AppError, ExpensesByDate>> get expensesEmptyFuture {
-    return context.once<ExpensesController>().getEmptyExpense();
+    return context.once<ExpensesController>().getEmptyExpense(
+      expenseDatePickerController.value.firstExpenseDate!,
+      expenseDatePickerController.value.lastExpenseDate!
+    );
   }
 
   refresh({refreshData = true}) {

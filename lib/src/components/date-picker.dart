@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
@@ -86,8 +88,8 @@ class DatePicker extends StatefulWidget {
 
 class _DatePickerState extends State<DatePicker> {
   late DateTime _focusDate;
-  late DateTime lastDate;
-  final startYear = 2024;
+  // late DateTime lastDate;
+  late int startYear;
   final List<String> months = [
     'January',
     'February',
@@ -107,19 +109,10 @@ class _DatePickerState extends State<DatePicker> {
   @override
   void initState() {
     _focusDate = widget.focusedDate;
-    years = _focusDate.year == startYear
-        ? [startYear.toString()]
-        : List.generate(
-            (_focusDate.year - startYear),
-            (i) => (startYear + i).toString(),
-          );
-    lastDate = DateTime(
-      _focusDate.year,
-      _focusDate.month,
-      _focusDate.year == DateTime.now().year &&
-              _focusDate.month == DateTime.now().month
-          ? DateTime.now().day
-          : DateTime(_focusDate.year, _focusDate.month, 0).day,
+    startYear = widget.startDate.year;
+    years = List.generate(
+      (DateTime.now().year - startYear) + 1,
+      (i) => (startYear + i).toString(),
     );
     super.initState();
   }
@@ -140,14 +133,27 @@ class _DatePickerState extends State<DatePicker> {
     setState(() => {});
   }
 
+  List<String> getMonths() {
+    if (_focusDate.year == widget.endDate.year) {
+      return months.sublist(0, widget.endDate.month);
+    }
+    if (_focusDate.year < widget.endDate.year && _focusDate.year > startYear) {
+      return months;
+    }
+    return months.sublist(
+      widget.startDate.month - 1,
+      12,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return EasyInfiniteDateTimeLine(
       key: key,
       selectionMode: const SelectionMode.autoCenter(),
-      lastDate: lastDate,
+      lastDate: DateTime.now(),
       focusDate: _focusDate,
-      firstDate: DateTime(2024),
+      firstDate: widget.startDate,
       onDateChange: (date) {
         // Check if same day
         if (_focusDate.startOfDay() == date.startOfDay()) return;
@@ -211,16 +217,17 @@ class _DatePickerState extends State<DatePicker> {
                   onChange: (month) {
                     // Check if same month
                     var _month = months.indexWhere((e) => e == month) + 1;
-                    if (_focusDate.month == month) return;
-                    setNewDate(
-                        DateTime(_focusDate.year, _month, _focusDate.day));
+                    if (_focusDate.month == _month) return;
+                    _month = widget.startDate.year == _focusDate.year
+                        ? max(widget.startDate.month, _month)
+                        : _month;
+                    var day = widget.startDate.year == _focusDate.year
+                        ? max(widget.startDate.day, _focusDate.day)
+                        : _focusDate.day;
+                    setNewDate(DateTime(_focusDate.year, _month, day));
                   },
                   initial: months[_focusDate.month - 1],
-                  options: months
-                      .take(_focusDate.year == DateTime.now().year
-                          ? DateTime.now().month
-                          : 12)
-                      .toList(),
+                  options: getMonths(),
                 ),
               ),
               SizedBox(width: 8),
@@ -229,8 +236,17 @@ class _DatePickerState extends State<DatePicker> {
                   onChange: (year) {
                     // Check if same year
                     if (_focusDate.year == int.parse(year)) return;
-                    setNewDate(DateTime(
-                        int.parse(year), _focusDate.month, _focusDate.day));
+                    var date = DateTime(
+                      int.parse(year),
+                      year == startYear
+                          ? max(_focusDate.month, widget.startDate.month)
+                          : _focusDate.month,
+                      _focusDate.day,
+                    );
+                    if (date.isBefore(widget.startDate)) {
+                      date = widget.startDate;
+                    }
+                    setNewDate(date);
                   },
                   initial: _focusDate.year.toString(),
                   options: years,
@@ -251,48 +267,52 @@ class _DatePickerState extends State<DatePicker> {
         VoidCallback onTap,
       ) {
         var color = isSelected ? Colors.black : Colors.white;
+        var isBeforeFirstExpense = date.startOfDay().isBefore(widget.startDate);
         return InkResponse(
-          onTap: onTap,
+          onTap: isBeforeFirstExpense ? null : onTap,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.orangeAccent : Colors.black26,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8),
+            child: Opacity(
+              opacity: isBeforeFirstExpense ? 0.25 : 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected ? Colors.orangeAccent : Colors.black26,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.1),
+                  ),
                 ),
-                border: Border.all(
-                  color: Colors.grey.withOpacity(0.1),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        EasyDateFormatter.shortMonthName(date, "en_US"),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                              color: color,
+                            ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        date.day.toString(),
+                        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                              color: color,
+                            ),
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        EasyDateFormatter.shortDayName(date, "en_US"),
+                        style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                              color: color,
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Text(
-                      EasyDateFormatter.shortMonthName(date, "en_US"),
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: color,
-                          ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      date.day.toString(),
-                      style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                            color: color,
-                          ),
-                    ),
-                  ),
-                  Flexible(
-                    child: Text(
-                      EasyDateFormatter.shortDayName(date, "en_US"),
-                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                            color: color,
-                          ),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),

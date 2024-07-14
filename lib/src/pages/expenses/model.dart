@@ -50,10 +50,8 @@ class ExpensesByDate {
   static empty(data) {
     return ExpensesByDate(
       expenses: [],
-      firstExpenseDate:
-          Expense._parseDateTime(data['firstExpenseDate']) ?? DateTime.now(),
-      lastExpenseDate:
-          Expense._parseDateTime(data['lastExpenseDate']) ?? DateTime.now(),
+      firstExpenseDate: data['firstExpenseDate'],
+      lastExpenseDate: data['lastExpenseDate'],
     );
   }
 
@@ -62,10 +60,8 @@ class ExpensesByDate {
       expenses: ((data['expenses'] ?? []) as List)
           .map<Expense>((e) => Expense.fromJson(e))
           .toList(),
-      firstExpenseDate:
-          Expense._parseDateTime(data['firstExpenseDate']) ?? DateTime.now(),
-      lastExpenseDate:
-          Expense._parseDateTime(data['lastExpenseDate']) ?? DateTime.now(),
+      firstExpenseDate: Expense._parseDateTime(data['firstExpenseDate']),
+      lastExpenseDate: Expense._parseDateTime(data['lastExpenseDate']),
     );
   }
 }
