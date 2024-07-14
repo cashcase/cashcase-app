@@ -119,11 +119,13 @@ class _CalculatorState extends State<Calculator> {
                       AnimatedDigitWidget(
                         value: double.parse(amount),
                         fractionDigits: 2,
-                        textStyle:
-                            Theme.of(context).textTheme.headlineMedium!.copyWith(
-                                  color: Colors.orangeAccent,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        textStyle: Theme.of(context)
+                            .textTheme
+                            .headlineMedium!
+                            .copyWith(
+                              color: Colors.orangeAccent,
+                              fontWeight: FontWeight.w500,
+                            ),
                       ),
                       Container(),
                     ],
@@ -134,27 +136,30 @@ class _CalculatorState extends State<Calculator> {
             SizedBox(height: 8),
             Container(
               height: 280,
+              padding: EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.black,
               ),
-              child: CalendarDatePicker2(
-                config: CalendarDatePicker2Config(
-                  dayTextStyle:
-                      Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: Colors.white,
-                          ),
-                  selectedDayTextStyle:
-                      Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: Colors.black,
-                          ),
-                  // firstDate: widget.firstDate,
-                  lastDate: DateTime.now(),
-                  selectedDayHighlightColor: Colors.orangeAccent,
-                  calendarType: CalendarDatePicker2Type.range,
+              child: Center(
+                child: CalendarDatePicker2(
+                  config: CalendarDatePicker2Config(
+                    dayTextStyle:
+                        Theme.of(context).textTheme.titleMedium!.copyWith(
+                              color: Colors.white,
+                            ),
+                    selectedDayTextStyle:
+                        Theme.of(context).textTheme.titleMedium!.copyWith(
+                              color: Colors.black,
+                            ),
+                    // firstDate: widget.firstDate,
+                    lastDate: DateTime.now(),
+                    selectedDayHighlightColor: Colors.orangeAccent,
+                    calendarType: CalendarDatePicker2Type.range,
+                  ),
+                  value: dateRange,
+                  onValueChanged: (dates) => dateRange = dates,
                 ),
-                value: dateRange,
-                onValueChanged: (dates) => dateRange = dates,
               ),
             ),
             SizedBox(height: 8),
@@ -162,7 +167,7 @@ class _CalculatorState extends State<Calculator> {
               child: Row(
                 children: [
                   Expanded(
-                    flex: 5,
+                    flex: 6,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -175,10 +180,11 @@ class _CalculatorState extends State<Calculator> {
                             child: Theme(
                               data: ThemeData(
                                 splashFactory: NoSplash.splashFactory,
-                                unselectedWidgetColor: Colors.grey,
+                                unselectedWidgetColor: Colors.black,
                                 colorScheme: ColorScheme.dark(
                                   primary: Colors.orangeAccent,
                                   inversePrimary: Colors.orange,
+                                  outline: Colors.grey,
                                 ),
                               ),
                               child: SingleChildScrollView(
@@ -186,6 +192,9 @@ class _CalculatorState extends State<Calculator> {
                                     wrapped: true,
                                     value: tags,
                                     alignment: WrapAlignment.start,
+                                    choiceStyle: C2ChipStyle(
+                                      backgroundOpacity: 1
+                                    ),
                                     onChanged: (val) =>
                                         setState(() => tags = val),
                                     choiceItems:
@@ -201,6 +210,7 @@ class _CalculatorState extends State<Calculator> {
                       ],
                     ),
                   ),
+                  SizedBox(width: 8),
                   Expanded(
                     flex: 1,
                     child: GestureDetector(
