@@ -137,7 +137,7 @@ class _DatePickerState extends State<DatePicker> {
     if (_focusDate.year == widget.endDate.year) {
       if (widget.startDate.year == widget.endDate.year) {
         return months.sublist(
-          widget.startDate.month,
+          widget.startDate.month - 1,
           widget.endDate.month,
         );
       }

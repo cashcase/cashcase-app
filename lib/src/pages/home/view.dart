@@ -117,7 +117,7 @@ class _HomePageWidgetState extends State<HomePageView> {
                                   isScrollControlled: true,
                                   builder: (context) {
                                     return FractionallySizedBox(
-                                      heightFactor: 0.75,
+                                      heightFactor: 0.8,
                                       child: Calculator(
                                         firstDate: DateTime.now(),
                                         lastDate: DateTime.now(),
@@ -127,18 +127,6 @@ class _HomePageWidgetState extends State<HomePageView> {
                                 );
                               },
                             )
-                            // ValueListenableBuilder(
-                            //     valueListenable: context
-                            //         .once<HomePageController>()
-                            //         .currentConn,
-                            //     builder: (context, currentConn, child) {
-                            //       if (currentConn == null) return Container();
-                            //       return GroupAvatar(
-                            //         users: [currentConn]
-                            //             .map((e) => e.getInitials())
-                            //             .toList(),
-                            //       );
-                            //     })
                           ],
                         ),
                       ),

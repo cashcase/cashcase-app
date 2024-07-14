@@ -78,25 +78,34 @@ class _CalculatorState extends State<Calculator> {
     return Provider(
       create: (context) => HomePageController(),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)
+            .copyWith(bottom: 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              "Calculator",
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                    color: Colors.orangeAccent,
+                    fontWeight: FontWeight.w500,
+                  ),
+            ),
+            SizedBox(height: 8),
             Container(
               height: 80,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                color: Colors.orangeAccent,
+                color: Colors.black,
               ),
               child: Center(
                   child: AnimatedDigitWidget(
-                value: double.parse(amount),
+                value: double.parse(isLoading ? "0.0" : amount),
                 fractionDigits: 2,
-                textStyle: Theme.of(context)
-                    .textTheme
-                    .headlineMedium!
-                    .copyWith(color: Colors.black, fontWeight: FontWeight.bold),
+                textStyle: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      color: Colors.orangeAccent,
+                      fontWeight: FontWeight.w500,
+                    ),
               )),
             ),
             SizedBox(height: 8),
@@ -170,6 +179,7 @@ class _CalculatorState extends State<Calculator> {
                     ),
                   ),
                   Expanded(
+                    flex: 1,
                     child: GestureDetector(
                       onTap: calculate,
                       child: Container(
@@ -193,7 +203,7 @@ class _CalculatorState extends State<Calculator> {
                   )
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
