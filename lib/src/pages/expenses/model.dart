@@ -75,6 +75,18 @@ class ExpenseDatePickerController {
   });
 }
 
+class OnlyExpense {
+  String amount;
+  DateTime createdOn;
+  OnlyExpense({required this.amount, required this.createdOn});
+  static fromJson(dynamic data) {
+    return OnlyExpense(
+      amount: data['amount'],
+      createdOn: Expense._parseDateTime(data['date']),
+    );
+  }
+}
+
 class Expense {
   ExpenseType type;
   String amount;

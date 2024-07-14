@@ -4,6 +4,8 @@ import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/page.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
+import 'package:cashcase/src/pages/home/components/calculator.dart';
+import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
 
@@ -103,6 +105,28 @@ class _HomePageWidgetState extends State<HomePageView> {
                                 )
                               ],
                             ),
+                            GestureDetector(
+                              child: Icon(
+                                Icons.calculate_rounded,
+                                color: Colors.orangeAccent,
+                                size: 28,
+                              ),
+                              onTap: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  builder: (context) {
+                                    return FractionallySizedBox(
+                                      heightFactor: 0.75,
+                                      child: Calculator(
+                                        firstDate: DateTime.now(),
+                                        lastDate: DateTime.now(),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            )
                             // ValueListenableBuilder(
                             //     valueListenable: context
                             //         .once<HomePageController>()
@@ -246,7 +270,8 @@ class _HomePageWidgetState extends State<HomePageView> {
                                                     .textTheme
                                                     .headlineMedium!
                                                     .copyWith(
-                                                        color: Colors.white),
+                                                      color: Colors.white,
+                                                    ),
                                               ),
                                             ),
                                           ),

@@ -32,6 +32,9 @@ dependencies:
   pointycastle:
   encrypt:
   flutter_onboarding_slider:
+  chips_choice:
+  calendar_date_picker2:
+  animated_digit: 
 
 dev_dependencies:
   flutter_launcher_icons:

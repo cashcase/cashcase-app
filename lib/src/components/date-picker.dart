@@ -135,8 +135,16 @@ class _DatePickerState extends State<DatePicker> {
 
   List<String> getMonths() {
     if (_focusDate.year == widget.endDate.year) {
+      if (widget.startDate.year == widget.endDate.year) {
+        return months.sublist(
+          widget.startDate.month,
+          widget.endDate.month,
+        );
+      }
       return months.sublist(
-          min(widget.startDate.month - 1, 0), widget.endDate.month);
+        0,
+        widget.endDate.month,
+      );
     }
     if (_focusDate.year < widget.endDate.year && _focusDate.year > startYear) {
       return months;
