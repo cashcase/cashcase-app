@@ -52,7 +52,7 @@ class _CalculatorState extends State<Calculator> {
         if (r.status) {
           double total = 0.0;
           for (var each in r.data!) {
-            total += double.parse(each.amount);
+            total += each.amount;
           }
           amount = total.toString();
           setState(() => isLoading = false);

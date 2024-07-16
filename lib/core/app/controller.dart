@@ -1,8 +1,6 @@
-import 'package:cashcase/core/api/index.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/utils/debouncer.dart';
-import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:go_router/go_router.dart';
@@ -22,41 +20,14 @@ class AppController extends BaseController {
     AppDb.init();
   }
 
-  void logout() {
-    context.once<AppController>().startLoading();
-    AppController.clearTokens();
-    context.clearAndReplace("/");
-    context.once<AppController>().stopLoading();
-  }
-
-  static Future<bool> init({
-    required Uri downstreamUri,
-    required GoRouter router,
-    required Auth auth,
-  }) async {
+  static Future<bool> init({required GoRouter router}) async {
     if (ready == true) return ready;
 
-    bool apiStatus = ApiHandler.init(downstreamUri, auth);
     bool dbStatus = await Db.init();
     AppController.router = router;
 
-    ready = apiStatus && dbStatus;
+    ready = dbStatus;
     return ready;
-  }
-
-  static hasTokens() {
-    return Db.token.isNotEmpty && Db.refreshToken.isNotEmpty;
-  }
-
-  static setTokens(String token, String refreshToken) {
-    Db.token = token;
-    Db.refreshToken = refreshToken;
-  }
-
-  static clearTokens() {
-    Db.token = '';
-    Db.refreshToken = '';
-    return Db.token.isEmpty && Db.refreshToken.isEmpty;
   }
 
   addNotification(NotificationType type, String message) {

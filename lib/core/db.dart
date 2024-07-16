@@ -1,17 +1,18 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class Db {
-  static const t = 'token';
-  static const rt = 'refreshToken';
-
   static late final SharedPreferences _prefs;
   static late final FlutterSecureStorage _locker;
+  static late final Database _db;
 
   static SharedPreferences get store => _prefs;
   static FlutterSecureStorage get locker => _locker;
+  static Database get db => _db;
 
-  static bool isLoggedIn() => Db.token.isNotEmpty && Db.refreshToken.isNotEmpty;
+  static final DB_NAME = '__cashcase__';
 
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -19,16 +20,15 @@ class Db {
         aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ));
+    _db = await openDatabase(
+      join(await getDatabasesPath(), '$DB_NAME.db'),
+      onCreate: (db, version) {
+        // return db.execute(
+        //   'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)',
+        // );
+      },
+      version: 1,
+    );
     return true;
-  }
-
-  static String get token => store.getString(t) ?? '';
-  static set token(String? value) {
-    store.setString(t, value ?? '');
-  }
-
-  static String get refreshToken => store.getString(rt) ?? '';
-  static set refreshToken(String? value) {
-    store.setString(rt, value ?? '');
   }
 }

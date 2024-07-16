@@ -89,11 +89,11 @@ class OnlyExpense {
 
 class Expense {
   ExpenseType type;
-  String amount;
+  double amount;
   String category;
   DateTime createdOn;
   DateTime updatedOn;
-  User user;
+  String user;
   String id;
   String? notes;
   Expense({
@@ -116,11 +116,7 @@ class Expense {
   static fromJson(dynamic data) {
     return Expense(
       id: data['id'],
-      user: User.fromJson({
-        "username": data['username'],
-        "firstName": data['firstName'],
-        "lastName": data['lastName'],
-      }),
+      user: data['user'],
       notes: data['notes'],
       type: ExpenseType.values
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
@@ -189,9 +185,9 @@ class GroupedExpense {
 
       var userExpenses = SortedMap<String, UserExpense>(Ordering.byKey());
       if (!expense.categoryExpenses[each.category]!.userExpenses
-          .containsKey(each.user.username)) {
-        expense.categoryExpenses[each.category]!
-            .userExpenses[each.user.username] = UserExpense(
+          .containsKey(each.user)) {
+        expense.categoryExpenses[each.category]!.userExpenses[each.user] =
+            UserExpense(
           amount: 0,
           user: each.user,
           isSaving: isSaving,
@@ -200,11 +196,7 @@ class GroupedExpense {
         );
       }
 
-      if (each.amount.startsWith("\."))
-        each.amount = "0${each.amount}";
-      else if (each.amount.endsWith("\.")) each.amount = "${each.amount}0";
-
-      var amount = double.parse(each.amount);
+      var amount = each.amount;
 
       if (isSaving)
         expense.totalSaved += amount;
@@ -212,16 +204,14 @@ class GroupedExpense {
         expense.totalSpent += amount;
 
       expense.categoryExpenses[each.category]!.amount += amount;
-      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
+      expense.categoryExpenses[each.category]!.userExpenses[each.user]!
           .amount += amount;
-      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
-          .expenses
+      expense.categoryExpenses[each.category]!.userExpenses[each.user]!.expenses
           .add(each);
 
-      expense.categoryExpenses[each.category]!.userExpenses[each.user.username]!
-          .expenses
+      expense.categoryExpenses[each.category]!.userExpenses[each.user]!.expenses
           .sort((a, b) {
-        return double.parse(a.amount) > double.parse(b.amount) ? -1 : 1;
+        return a.amount > b.amount ? -1 : 1;
       });
 
       userExpenses
@@ -261,7 +251,7 @@ class CategoryExpense {
 class UserExpense {
   double amount;
   bool isSaving;
-  User user;
+  String user;
   List<Expense> expenses;
   String? notes;
   UserExpense(

@@ -219,7 +219,7 @@ class _ViewState extends State<ExpensesView> {
                           Row(
                             children: [
                               Text(
-                                "${expense.user.firstName.toCamelCase()}",
+                                expense.user.toCamelCase(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineMedium!
@@ -378,18 +378,6 @@ class _ViewState extends State<ExpensesView> {
                     ),
               ),
             ),
-            MaterialButton(
-              onPressed: () {
-                context.once<AppController>().logout();
-                Navigator.pop(context);
-              },
-              child: Text(
-                "Or click here to try relogin",
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                      color: Colors.orangeAccent,
-                    ),
-              ),
-            )
           ],
         ),
       ),
@@ -577,16 +565,14 @@ class _ViewState extends State<ExpensesView> {
                               var amount = userExpense.amount;
                               if (amount == 0) return Container();
                               var expenses = userExpense.expenses;
-                              expenses.sort((a, b) => double.parse(a.amount) <=
-                                      double.parse(b.amount)
+                              expenses.sort((a, b) => a.amount <= b.amount
                                   ? 1
                                   : -1); // Sorting desc by amount
                               return ExpansionTile(
                                 dense: true,
                                 key: ValueKey<String>(userId),
                                 title: Text(
-                                  "${userExpense.user.firstName} ${userExpense.user.lastName}"
-                                      .toCamelCase(),
+                                  userExpense.user.toCamelCase(),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium!
@@ -611,7 +597,7 @@ class _ViewState extends State<ExpensesView> {
                                     backgroundColor: Colors.orangeAccent,
                                     radius: 16.0,
                                     child: Text(
-                                      userExpense.user.getInitials(),
+                                      userExpense.user[0].toUpperCase(),
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall,
@@ -876,8 +862,9 @@ class _ViewState extends State<ExpensesView> {
           SizedBox(width: 8),
           MaterialButton(
             onPressed: () async {
+              var amount = double.tryParse(amountController.text);
+              if (amount == null) return;
               context.once<AppController>().startLoading();
-              var amount = double.parse(amountController.text);
               context
                   .once<ExpensesController>()
                   .createExpense(

@@ -16,25 +16,18 @@ dependencies:
   responsive_builder:
   upgrader:
   internet_connection_checker_plus:
-  pretty_dio_logger:
-  dio_smart_retry:
-  jwt_decoder:
   intl:
   google_fonts:
   easy_date_timeline:
-  auto_size_text:
   word_generator:
   flutter_secure_storage:
-  action_slider:
   either_dart:
   sortedmap:
   flutter_keyboard_visibility:
-  pointycastle:
-  encrypt:
-  flutter_onboarding_slider:
   chips_choice:
   calendar_date_picker2:
   animated_digit: 
+  sqflite:
 
 dev_dependencies:
   flutter_launcher_icons:

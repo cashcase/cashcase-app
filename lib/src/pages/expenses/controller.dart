@@ -25,7 +25,19 @@ class ExpensesController extends BaseController {
       String notes = "",
       required ExpenseType type,
       required String category}) async {
-    return DbResponse(status: false, data: null);
+    return DbResponse(
+      status: true,
+      data: Expense(
+        amount: amount,
+        user: "test",
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        type: type,
+        category: category,
+        notes: notes,
+        createdOn: DateTime.now(),
+        updatedOn: DateTime.now(),
+      ),
+    );
   }
 
   Future<DbResponse<String>> deleteExpense(String id) async {
