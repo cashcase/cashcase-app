@@ -25,7 +25,6 @@ class AppController extends BaseController {
   void logout() {
     context.once<AppController>().startLoading();
     AppController.clearTokens();
-    AppDb.clearCurrentUser();
     context.clearAndReplace("/");
     context.once<AppController>().stopLoading();
   }

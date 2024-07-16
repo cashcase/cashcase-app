@@ -44,28 +44,24 @@ class _CalculatorState extends State<Calculator> {
     if (dateRange.isEmpty) dateRange = [DateTime.now(), DateTime.now()];
     try {
       setState(() => isLoading = true);
-      List<String?> keys = await AppDb.getEncryptionKeyOfPair();
       HomePageController.getExpenses(
         dateRange.first!,
         dateRange.last!,
         tags,
       ).then((r) {
-        r.fold((err) {
-          setState(() => isLoading = false);
-          throw err;
-        }, (data) {
+        if (r.status) {
           double total = 0.0;
-          for (var each in data) {
-            total += double.parse(Encrypter.decryptData(
-              each.amount,
-              keys.first!,
-            ));
+          for (var each in r.data!) {
+            total += double.parse(each.amount);
           }
           amount = total.toString();
           setState(() => isLoading = false);
           previousTags = tags;
           previousDateRange = dateRange;
-        });
+        } else {
+          setState(() => isLoading = false);
+          throw Error();
+        }
       });
     } catch (e) {
       log.severe(e);

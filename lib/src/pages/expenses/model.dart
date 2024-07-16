@@ -168,10 +168,7 @@ class GroupedExpense {
     required this.categoryExpenses,
   });
 
-  static GroupedExpense fromExpenses(
-    List<Expense> expenses,
-    List<String?> keys,
-  ) {
+  static GroupedExpense fromExpenses(List<Expense> expenses) {
     var categoryExpenses = SortedMap<String, CategoryExpense>(Ordering.byKey());
     GroupedExpense expense = GroupedExpense(
       totalSaved: 0,
@@ -201,34 +198,6 @@ class GroupedExpense {
           notes: each.notes ?? "",
           expenses: [],
         );
-      }
-
-      if (double.tryParse(each.amount) == null) {
-        try {
-          if (each.user.username == AppDb.getCurrentUser()) {
-            if (keys.first != null) {
-              each.amount = Encrypter.decryptData(each.amount, keys.first!);
-              if (each.notes != null && each.notes!.isNotEmpty) {
-                each.notes =
-                    Encrypter.decryptData(each.notes ?? "", keys.first!);
-              }
-            }
-          } else {
-            if (keys.last != null) {
-              each.amount = Encrypter.decryptData(each.amount, keys.last!);
-              if (each.notes != null && each.notes!.isNotEmpty) {
-                each.notes =
-                    Encrypter.decryptData(each.notes ?? "", keys.last!);
-              }
-            }
-          }
-          // If its still not a double, the decrypt failed.
-          if (double.tryParse(each.amount) == null) {
-            throw 'Invalid amount ${each.amount}';
-          }
-        } catch (e) {
-          each.amount = "0.0";
-        }
       }
 
       if (each.amount.startsWith("\."))
@@ -314,13 +283,9 @@ class UserExpense {
 
 class ExpenseListController {
   List<Expense> expenses;
-  // For simplicity, 0 is current user key and 1 is paired user key.
-  // TODO: Change this to object.
-  List<String?> keys;
   void Function(void Function())? refresh;
   ExpenseListController({
     required this.expenses,
-    required this.keys,
     this.refresh,
   });
 
@@ -329,7 +294,7 @@ class ExpenseListController {
   }
 
   GroupedExpense getGroupedExpenses() {
-    return GroupedExpense.fromExpenses(this.expenses, this.keys);
+    return GroupedExpense.fromExpenses(this.expenses);
   }
 
   notify() {

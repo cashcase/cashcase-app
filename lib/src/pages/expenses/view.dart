@@ -1,12 +1,11 @@
 import 'package:cashcase/core/app/controller.dart';
-import 'package:cashcase/core/utils/errors.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/db.dart';
+import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
-import 'package:either_dart/either.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
@@ -22,7 +21,7 @@ class ExpensesView extends StatefulWidget {
 }
 
 class _ViewState extends State<ExpensesView> {
-  late Future<Either<AppError, ExpensesByDate>> _future;
+  late Future<DbResponse<ExpensesByDate>> _future;
 
   bool isSaving = false;
   late String categoryOfExpenseToAdd;
@@ -30,24 +29,21 @@ class _ViewState extends State<ExpensesView> {
   ValueNotifier<ExpenseDatePickerController> expenseDatePickerController =
       ValueNotifier(ExpenseDatePickerController());
   ValueNotifier<bool?> datePickerReady = ValueNotifier(false);
-  late Future<List<String?>> _keyGetterFuture;
 
-  Future<Either<AppError, ExpensesByDate>> get expensesFuture {
-    var currentUser = AppDb.getCurrentUser();
-    var currentConn = AppDb.getCurrentPair();
+  Future<DbResponse<ExpensesByDate>> get expensesFuture {
     var date = selectedDate;
-    return context.once<ExpensesController>().getExpenses(
-          date.startOfDay(),
-          date.startOfTmro(),
-          currentUser!,
-          currentConn?.username,
-        );
+    return ExpensesController.getExpenses(
+        date.startOfDay(), date.startOfTmro());
   }
 
-  Future<Either<AppError, ExpensesByDate>> get expensesEmptyFuture {
-    return context.once<ExpensesController>().getEmptyExpense(
-      expenseDatePickerController.value.firstExpenseDate!,
-      expenseDatePickerController.value.lastExpenseDate!
+  Future<DbResponse<ExpensesByDate>> get expensesEmptyFuture async {
+    return DbResponse(
+      status: true,
+      data: ExpensesByDate(
+        expenses: [],
+        lastExpenseDate: DateTime.now(),
+        firstExpenseDate: DateTime.now(),
+      ),
     );
   }
 
@@ -72,7 +68,6 @@ class _ViewState extends State<ExpensesView> {
     _future = expensesFuture;
     categoryOfExpenseToAdd =
         (isSaving ? SavingsCategories : getSpentCategories())[0];
-    _keyGetterFuture = AppDb.getEncryptionKeyOfPair();
     super.initState();
   }
 
@@ -85,102 +80,77 @@ class _ViewState extends State<ExpensesView> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      body: FutureBuilder(
-        future: _keyGetterFuture,
-        builder: (context, keySnapshot) {
-          if (keySnapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: Text(
-                "Fetching expenses...",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Colors.white38,
+      body: Container(
+        child: Column(
+          children: [
+            ValueListenableBuilder(
+              valueListenable: datePickerReady,
+              builder: (context, value, child) {
+                if (value != true) {
+                  return Container(
+                    width: double.infinity,
+                    height: 80,
+                    child: Center(
+                      child: Text(
+                        value == false ? "Loading timeline..." : "",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: Colors.white38,
+                            ),
+                      ),
                     ),
-              ),
-            );
-          }
-          return Container(
-            child: Column(
-              children: [
-                ValueListenableBuilder(
-                  valueListenable: datePickerReady,
-                  builder: (context, value, child) {
-                    if (value != true) {
-                      return Container(
-                        width: double.infinity,
-                        height: 80,
-                        child: Center(
-                          child: Text(
-                            value == false ? "Loading timeline..." : "",
-                            textAlign: TextAlign.center,
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      color: Colors.white38,
-                                    ),
-                          ),
-                        ),
-                      );
-                    }
-                    return DatePicker(
-                      startDate: expenseDatePickerController
-                          .value.firstExpenseDate!
-                          .startOfDay(),
-                      endDate: expenseDatePickerController
-                          .value.lastExpenseDate!
-                          .startOfDay(),
-                      focusedDate: selectedDate,
-                      onDateChange: (date, shouldReloadData) {
-                        selectedDate = date.toLocal().startOfDay();
-                        refresh(refreshData: shouldReloadData);
-                      },
-                    );
+                  );
+                }
+                return DatePicker(
+                  startDate: expenseDatePickerController.value.firstExpenseDate!
+                      .startOfDay(),
+                  endDate: expenseDatePickerController.value.lastExpenseDate!
+                      .startOfDay(),
+                  focusedDate: selectedDate,
+                  onDateChange: (date, shouldReloadData) {
+                    selectedDate = date.toLocal().startOfDay();
+                    refresh(refreshData: shouldReloadData);
                   },
-                ),
-                FutureBuilder(
-                  future: _future,
-                  builder: (context, snapshot) {
-                    var isDone =
-                        snapshot.connectionState == ConnectionState.done;
-                    if (!isDone)
-                      return Expanded(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            strokeCap: StrokeCap.round,
-                            color: Colors.orangeAccent,
-                          ),
-                        ),
-                      );
-                    if (isDone && !snapshot.hasData) {
-                      setDatePickerState(null);
-                      return renderError();
-                    }
-                    return snapshot.data!.fold(
-                      (_) {
-                        setDatePickerState(null);
-                        return renderError();
-                      },
-                      (data) {
-                        ExpenseListController controller =
-                            ExpenseListController(
-                          expenses: data.expenses,
-                          keys: keySnapshot.data ?? [null, null],
-                        );
-                        expenseDatePickerController.value.firstExpenseDate =
-                            data.firstExpenseDate;
-                        expenseDatePickerController.value.lastExpenseDate =
-                            data.lastExpenseDate;
-                        setDatePickerState(true);
-                        return Expanded(
-                          child: renderGroupedExpenses(controller),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+                );
+              },
             ),
-          );
-        },
+            FutureBuilder(
+              future: _future,
+              builder: (context, snapshot) {
+                var isDone = snapshot.connectionState == ConnectionState.done;
+                if (!isDone)
+                  return Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeCap: StrokeCap.round,
+                        color: Colors.orangeAccent,
+                      ),
+                    ),
+                  );
+                if (isDone && !snapshot.hasData) {
+                  setDatePickerState(null);
+                  return renderError();
+                }
+                if (snapshot.data!.status) {
+                  var data = snapshot.data!.data!;
+                  ExpenseListController controller = ExpenseListController(
+                    expenses: data.expenses,
+                  );
+                  expenseDatePickerController.value.firstExpenseDate =
+                      data.firstExpenseDate;
+                  expenseDatePickerController.value.lastExpenseDate =
+                      data.lastExpenseDate;
+                  setDatePickerState(true);
+                  return Expanded(
+                    child: renderGroupedExpenses(controller),
+                  );
+                } else {
+                  return renderError();
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -192,22 +162,18 @@ class _ViewState extends State<ExpensesView> {
   ) async {
     if (expense.notes != notes) {
       context.once<AppController>().startLoading();
-      String encryptedNotes =
-          await Encrypter.encryptData(notes, controller.keys.first ?? "");
       context
           .once<ExpensesController>()
-          .editExpenseNotes(expense.id, encryptedNotes)
+          .editExpenseNotes(expense.id, notes)
           .then((r) {
-        r.fold((err) {
-          context.once<AppController>().stopLoading();
-          Navigator.pop(context);
-          context.once<AppController>().addNotification(NotificationType.error,
-              err.message ?? "Could not edit expense. Please try again later.");
-        }, (_) {
-          context.once<AppController>().stopLoading();
+        context.once<AppController>().stopLoading();
+        if (r.status) {
           Navigator.pop(context);
           controller.update(expense, notes);
-        });
+        } else {
+          context.once<AppController>().addNotification(NotificationType.error,
+              r.error ?? "Could not edit expense. Please try again later.");
+        }
       });
     }
     return true;
@@ -313,7 +279,6 @@ class _ViewState extends State<ExpensesView> {
                     ),
                     child: TextField(
                       autofocus: false,
-                      enabled: expense.user.username == AppDb.getCurrentUser(),
                       controller: notesController,
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                             color: Colors.white,
@@ -369,11 +334,8 @@ class _ViewState extends State<ExpensesView> {
                         Expanded(
                           child: MaterialButton(
                             color: Colors.orangeAccent,
-                            onPressed: expense.user.username ==
-                                    AppDb.getCurrentUser()
-                                ? () => saveExpense(
-                                    expense, notesController.text, controller)
-                                : null,
+                            onPressed: () => saveExpense(
+                                expense, notesController.text, controller),
                             disabledColor: Colors.grey,
                             child: Center(
                               child: Text(
@@ -673,10 +635,7 @@ class _ViewState extends State<ExpensesView> {
                                 children: expenses.mapIndexed((i, expense) {
                                   return Dismissible(
                                     key: ValueKey<String>("${expense.id}-$i"),
-                                    direction: expense.user.username !=
-                                            AppDb.getCurrentUser()
-                                        ? DismissDirection.none
-                                        : DismissDirection.horizontal,
+                                    direction: DismissDirection.horizontal,
                                     background: Container(
                                       color: Colors.red.shade800,
                                       padding: EdgeInsets.symmetric(
@@ -703,67 +662,53 @@ class _ViewState extends State<ExpensesView> {
                                         ],
                                       ),
                                     ),
-                                    confirmDismiss: expense.user.username !=
-                                            AppDb.getCurrentUser()
-                                        ? null
-                                        : (direction) {
-                                            return showModalBottomSheet(
-                                              context: context,
-                                              builder: (_) {
-                                                return ConfirmationDialog(
-                                                  message:
-                                                      "Do you want to \ndelete this expense?",
-                                                  okLabel: "No",
-                                                  cancelLabel: "Yes",
-                                                  cancelColor: Colors.red,
-                                                  onOk: () =>
-                                                      Navigator.pop(context),
-                                                  onCancel: () {
+                                    confirmDismiss: (direction) {
+                                      return showModalBottomSheet(
+                                        context: context,
+                                        builder: (_) {
+                                          return ConfirmationDialog(
+                                            message:
+                                                "Do you want to \ndelete this expense?",
+                                            okLabel: "No",
+                                            cancelLabel: "Yes",
+                                            cancelColor: Colors.red,
+                                            onOk: () => Navigator.pop(context),
+                                            onCancel: () {
+                                              context
+                                                  .once<AppController>()
+                                                  .startLoading();
+                                              context
+                                                  .once<ExpensesController>()
+                                                  .deleteExpense(expense.id)
+                                                  .then(
+                                                (r) {
+                                                  if (r.status) {
+                                                    Navigator.pop(context);
+                                                    controller.remove(r.data!);
                                                     context
                                                         .once<AppController>()
-                                                        .startLoading();
+                                                        .addNotification(
+                                                            NotificationType
+                                                                .success,
+                                                            "Expense was deleted!");
+                                                  } else {
                                                     context
-                                                        .once<
-                                                            ExpensesController>()
-                                                        .deleteExpense(
-                                                            expense.id)
-                                                        .then(
-                                                      (r) {
-                                                        r.fold(
-                                                          (err) {
-                                                            context
-                                                                .once<
-                                                                    AppController>()
-                                                                .addNotification(
-                                                                    NotificationType
-                                                                        .error,
-                                                                    err.message ??
-                                                                        "Could not delete expense. Please try again later");
-                                                          },
-                                                          (_) {
-                                                            Navigator.pop(
-                                                                context);
-                                                            controller.remove(
-                                                                expense.id);
-                                                            context
-                                                                .once<
-                                                                    AppController>()
-                                                                .addNotification(
-                                                                    NotificationType
-                                                                        .success,
-                                                                    "Expense was deleted!");
-                                                          },
-                                                        );
-                                                      },
-                                                    ).whenComplete(() => context
-                                                            .once<
-                                                                AppController>()
-                                                            .stopLoading());
-                                                  },
-                                                );
-                                              },
-                                            );
-                                          },
+                                                        .once<AppController>()
+                                                        .addNotification(
+                                                            NotificationType
+                                                                .error,
+                                                            r.error ??
+                                                                "Could not delete expense. Please try again later");
+                                                  }
+                                                },
+                                              ).whenComplete(() => context
+                                                      .once<AppController>()
+                                                      .stopLoading());
+                                            },
+                                          );
+                                        },
+                                      );
+                                    },
                                     child: ListTile(
                                       onTap: () => showExpenseDetails(
                                           expense, controller),
@@ -932,12 +877,7 @@ class _ViewState extends State<ExpensesView> {
           MaterialButton(
             onPressed: () async {
               context.once<AppController>().startLoading();
-              var parsedAmount = double.tryParse(amountController.text);
-              var amount = await Encrypter.encryptData(
-                  parsedAmount.toString(), controller.keys.first ?? "");
-              if (parsedAmount == null || parsedAmount == 0) {
-                return context.once<AppController>().stopLoading();
-              }
+              var amount = double.parse(amountController.text);
               context
                   .once<ExpensesController>()
                   .createExpense(
@@ -946,22 +886,21 @@ class _ViewState extends State<ExpensesView> {
                     category: categoryOfExpenseToAdd,
                   )
                   .then((r) {
-                r.fold((err) {
-                  context.once<AppController>().stopLoading();
+                context.once<AppController>().stopLoading();
+                if (!r.status) {
                   context.once<AppController>().addNotification(
                       NotificationType.error,
-                      err.message ??
-                          "Unable to add expense. Please try again later.");
-                }, (expense) {
-                  context.once<AppController>().stopLoading();
+                      r.error ??
+                          "Unable to create expense. Please try again later.");
+                } else {
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";
                   if (selectedDate.sameDay(DateTime.now())) {
-                    controller.add(expense);
+                    controller.add(r.data!);
                     controller.notify();
                   }
-                });
+                }
               });
             },
             // color: isSaving ? Colors.green.shade800 : Colors.red.shade800,
