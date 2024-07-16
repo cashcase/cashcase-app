@@ -35,6 +35,7 @@ class _CalculatorState extends State<Calculator> {
   @override
   void initState() {
     options = AppDb.getCategories().keys.toList();
+    options.sort((a, b) => a.compareTo(b));
     super.initState();
   }
 
