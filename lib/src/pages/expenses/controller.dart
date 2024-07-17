@@ -1,6 +1,8 @@
 import 'package:cashcase/core/base/controller.dart';
+import 'package:cashcase/core/db.dart';
 import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
+import 'package:uuid/uuid.dart';
 
 class ExpensesController extends BaseController {
   @override
@@ -10,13 +12,23 @@ class ExpensesController extends BaseController {
 
   static Future<DbResponse<ExpensesByDate>> getExpenses(
       DateTime from, DateTime to) async {
+    try {
+      final transaction = await Db.db.rawQuery(
+          "SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch}");
+      return DbResponse(
+        status: true,
+        data: ExpensesByDate(
+          expenses:
+              transaction.map<Expense>((e) => Expense.fromJson(e)).toList(),
+          firstExpenseDate: DateTime.now(),
+          lastExpenseDate: DateTime.now(),
+        ),
+      );
+    } catch (e) {}
     return DbResponse(
-      status: true,
-      data: ExpensesByDate(
-        expenses: [],
-        firstExpenseDate: DateTime.now(),
-        lastExpenseDate: DateTime.now(),
-      ),
+      status: false,
+      data: null,
+      error: "Could not get expenses!",
     );
   }
 
@@ -25,26 +37,68 @@ class ExpensesController extends BaseController {
       String notes = "",
       required ExpenseType type,
       required String category}) async {
+    Expense expense = Expense(
+      amount: amount,
+      user: "__self__",
+      id: Uuid().v1(),
+      type: type,
+      category: category,
+      notes: notes,
+      createdOn: DateTime.now().millisecondsSinceEpoch,
+      updatedOn: DateTime.now().millisecondsSinceEpoch,
+    );
+    try {
+      final transaction = await Db.db.insert(
+        "expense",
+        expense.toJson(),
+      );
+      return DbResponse(
+        status: transaction > 0,
+        data: expense,
+      );
+    } catch (e) {}
     return DbResponse(
-      status: true,
-      data: Expense(
-        amount: amount,
-        user: "test",
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        type: type,
-        category: category,
-        notes: notes,
-        createdOn: DateTime.now(),
-        updatedOn: DateTime.now(),
-      ),
+      status: false,
+      data: null,
+      error: "Could not add expense!",
     );
   }
 
   Future<DbResponse<String>> deleteExpense(String id) async {
-    return DbResponse(status: true, data: id);
+    try {
+      final transaction =
+          await Db.db.delete("expense", where: 'id = ?', whereArgs: [id]);
+      return DbResponse(
+        status: transaction > 0,
+        data: id,
+      );
+    } catch (e) {}
+    return DbResponse(
+      status: false,
+      data: null,
+      error: "Could not delete expense!",
+    );
   }
 
-  Future<DbResponse<String>> editExpenseNotes(String id, String notes) async {
-    return DbResponse(status: true, data: id);
+  Future<DbResponse<Expense>> editExpenseNotes(
+      Expense expense, String notes) async {
+    try {
+      expense.notes = notes;
+      final transaction = await Db.db.update(
+        "expense",
+        expense.toJson(),
+        where: 'id = ?',
+        whereArgs: [expense.id],
+      );
+      return DbResponse(
+        status: transaction > 0,
+        data: expense,
+      );
+    } catch (e) {}
+    return DbResponse(
+      status: false,
+      data: null,
+      error: "Could not update expense!",
+    );
   }
 }

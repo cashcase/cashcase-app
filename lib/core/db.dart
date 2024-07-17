@@ -20,12 +20,25 @@ class Db {
         aOptions: AndroidOptions(
       encryptedSharedPreferences: true,
     ));
+    String path = join(await getDatabasesPath(), '$DB_NAME.db');
+    // deleteDatabase(path);
     _db = await openDatabase(
-      join(await getDatabasesPath(), '$DB_NAME.db'),
+      path,
       onCreate: (db, version) {
-        // return db.execute(
-        //   'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)',
-        // );
+        return db.execute(
+          '''
+          CREATE TABLE IF NOT EXISTS "expense" (
+            "id" text,
+            "amount" text NOT NULL,
+            "type" "type" NOT NULL,
+            "category" text NOT NULL,
+            "notes" text,
+            "createdOn" int,
+            "updatedOn" int,
+            "user" text
+          );
+          ''',
+        );
       },
       version: 1,
     );

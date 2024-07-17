@@ -41,12 +41,17 @@ class _CalculatorState extends State<Calculator> {
 
   Future<void> calculate() async {
     if (tags == previousTags && dateRange == previousDateRange) return;
-    if (dateRange.isEmpty) dateRange = [DateTime.now(), DateTime.now()];
+    if (dateRange.isEmpty) {
+      dateRange = [
+        DateTime.now().startOfDay(),
+        DateTime.now().startOfTmro(),
+      ];
+    }
     try {
       setState(() => isLoading = true);
       HomePageController.getExpenses(
-        dateRange.first!,
-        dateRange.last!,
+        dateRange.first!.startOfDay(),
+        dateRange.last!.startOfTmro(),
         tags,
       ).then((r) {
         if (r.status) {

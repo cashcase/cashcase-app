@@ -75,24 +75,12 @@ class ExpenseDatePickerController {
   });
 }
 
-class OnlyExpense {
-  String amount;
-  DateTime createdOn;
-  OnlyExpense({required this.amount, required this.createdOn});
-  static fromJson(dynamic data) {
-    return OnlyExpense(
-      amount: data['amount'],
-      createdOn: Expense._parseDateTime(data['date']),
-    );
-  }
-}
-
 class Expense {
   ExpenseType type;
   double amount;
   String category;
-  DateTime createdOn;
-  DateTime updatedOn;
+  int createdOn;
+  int updatedOn;
   String user;
   String id;
   String? notes;
@@ -107,6 +95,10 @@ class Expense {
     this.notes = "",
   });
 
+  String getUser() {
+    return user == "__self__" ? "you" : user;
+  }
+
   static _parseDateTime(String? value) {
     if (value == null) return null;
     if (value.endsWith("Z")) return DateTime.parse(value).toLocal();
@@ -120,14 +112,14 @@ class Expense {
       notes: data['notes'],
       type: ExpenseType.values
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
-      amount: data['amount'],
+      amount: double.parse(data['amount']),
       category: data['category'],
-      createdOn: _parseDateTime(data['createdOn']),
-      updatedOn: _parseDateTime(data['updatedOn']),
+      createdOn: data['createdOn'],
+      updatedOn: data['updatedOn'],
     );
   }
 
-  String toJson() {
+  Map<String, Object?> toJson() {
     return {
       "id": this.id,
       "user": this.user,
@@ -135,9 +127,9 @@ class Expense {
       "amount": this.amount,
       "notes": this.notes,
       "category": this.category,
-      "createdOn": this.createdOn.toUtc(),
-      "updatedOn": this.updatedOn.toUtc()
-    }.toString();
+      "createdOn": this.createdOn,
+      "updatedOn": this.updatedOn
+    };
   }
 }
 
@@ -260,6 +252,10 @@ class UserExpense {
       required this.amount,
       required this.expenses,
       required this.notes});
+
+  String getUser() {
+    return user == "__self__" ? "you" : user;
+  }
 
   @override
   String toString() {

@@ -33,7 +33,9 @@ class _ViewState extends State<ExpensesView> {
   Future<DbResponse<ExpensesByDate>> get expensesFuture {
     var date = selectedDate;
     return ExpensesController.getExpenses(
-        date.startOfDay(), date.startOfTmro());
+      date.startOfDay(),
+      date.startOfTmro(),
+    );
   }
 
   Future<DbResponse<ExpensesByDate>> get expensesEmptyFuture async {
@@ -52,7 +54,7 @@ class _ViewState extends State<ExpensesView> {
       _future = expensesFuture;
     else
       _future = expensesEmptyFuture;
-    setState(() => {});
+    return _future;
   }
 
   List<String> getSpentCategories() {
@@ -164,7 +166,7 @@ class _ViewState extends State<ExpensesView> {
       context.once<AppController>().startLoading();
       context
           .once<ExpensesController>()
-          .editExpenseNotes(expense.id, notes)
+          .editExpenseNotes(expense, notes)
           .then((r) {
         context.once<AppController>().stopLoading();
         if (r.status) {
@@ -219,7 +221,7 @@ class _ViewState extends State<ExpensesView> {
                           Row(
                             children: [
                               Text(
-                                expense.user.toCamelCase(),
+                                expense.getUser().toCamelCase(),
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineMedium!
@@ -256,7 +258,10 @@ class _ViewState extends State<ExpensesView> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          DateFormat().format(expense.createdOn),
+                          DateFormat().format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                expense.createdOn),
+                          ),
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
@@ -539,7 +544,10 @@ class _ViewState extends State<ExpensesView> {
                             ),
                             subtitle: userExpenses.isNotEmpty
                                 ? Text(
-                                    "${userExpenses.keys.map((e) => "@$e").join(", ")}",
+                                    "${userExpenses.keys.map((e) {
+                                      if (e == "__self__") return "@you";
+                                      return "@$e";
+                                    }).join(", ")}",
                                     style: Theme.of(context)
                                         .textTheme
                                         .titleSmall!
@@ -572,7 +580,7 @@ class _ViewState extends State<ExpensesView> {
                                 dense: true,
                                 key: ValueKey<String>(userId),
                                 title: Text(
-                                  userExpense.user.toCamelCase(),
+                                  userExpense.getUser().toCamelCase(),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium!
@@ -592,17 +600,11 @@ class _ViewState extends State<ExpensesView> {
                                 controlAffinity:
                                     ListTileControlAffinity.trailing,
                                 leading: Opacity(
-                                  opacity: 1,
+                                  opacity: 0,
                                   child: CircleAvatar(
-                                    backgroundColor: Colors.orangeAccent,
-                                    radius: 16.0,
-                                    child: Text(
-                                      userExpense.user[0].toUpperCase(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall,
-                                    ),
-                                  ),
+                                      backgroundColor: Colors.orangeAccent,
+                                      radius: 16.0,
+                                      child: Container()),
                                 ),
                                 trailing: Text(
                                   "${isSaving ? "+" : "-"} "
@@ -711,7 +713,11 @@ class _ViewState extends State<ExpensesView> {
                                       ),
                                       subtitle: Text(
                                         DateFormat('dd MMMM yyyy hh:mm a')
-                                            .format(expense.createdOn),
+                                            .format(
+                                          DateTime.fromMillisecondsSinceEpoch(
+                                            expense.createdOn,
+                                          ).toUtc(),
+                                        ),
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleSmall!

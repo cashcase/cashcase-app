@@ -28,6 +28,7 @@ dependencies:
   calendar_date_picker2:
   animated_digit: 
   sqflite:
+  uuid:
 
 dev_dependencies:
   flutter_launcher_icons:
