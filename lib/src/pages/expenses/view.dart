@@ -56,7 +56,8 @@ class _ViewState extends State<ExpensesView> {
     } else {
       _expensesFuture = expensesEmptyFuture;
     }
-    // setState(() => {});
+    setState(() => {});
+    return _expensesFuture;
   }
 
   List<String> getSpentCategories() {
