@@ -1,5 +1,7 @@
+import 'package:cashcase/core/app/notification.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
+import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:uuid/uuid.dart';
@@ -15,13 +17,19 @@ class ExpensesController extends BaseController {
     try {
       final transaction = await Db.db.rawQuery(
           "SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch}");
+      final dates = await Db.db.rawQuery(
+          "SELECT MIN(createdOn) as min, MAX(createdOn) as max from expense");
       return DbResponse(
         status: true,
         data: ExpensesByDate(
           expenses:
               transaction.map<Expense>((e) => Expense.fromJson(e)).toList(),
-          firstExpenseDate: DateTime.now(),
-          lastExpenseDate: DateTime.now(),
+          start: DateTime.fromMillisecondsSinceEpoch(
+            dates.first['min'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+          ).startOfDay(),
+          end: DateTime.fromMillisecondsSinceEpoch(
+            dates.first['max'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+          ).startOfTmro(),
         ),
       );
     } catch (e) {}
@@ -29,6 +37,29 @@ class ExpensesController extends BaseController {
       status: false,
       data: null,
       error: "Could not get expenses!",
+    );
+  }
+
+  static Future<DbResponse<DateLimits>> getDateLimits() async {
+    try {
+      final dates = await Db.db.rawQuery(
+          "SELECT MIN(createdOn) as min, MAX(createdOn) as max from expense");
+      return DbResponse(
+        status: true,
+        data: DateLimits(
+          start: DateTime.fromMillisecondsSinceEpoch(
+            dates.first['min'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+          ).startOfDay(),
+          end: DateTime.fromMillisecondsSinceEpoch(
+            dates.first['max'] as int? ?? DateTime.now().millisecondsSinceEpoch,
+          ).startOfTmro(),
+        ),
+      );
+    } catch (e) {}
+    return DbResponse(
+      status: false,
+      data: null,
+      error: "Could not get date limits of expenses!",
     );
   }
 

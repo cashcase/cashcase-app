@@ -37,21 +37,27 @@ String idGenerator() {
   return now.microsecondsSinceEpoch.toString();
 }
 
+class DateLimits {
+  DateTime start;
+  DateTime end;
+  DateLimits({required this.start, required this.end});
+}
+
 class ExpensesByDate {
-  DateTime firstExpenseDate;
-  DateTime lastExpenseDate;
+  DateTime start;
+  DateTime end;
   List<Expense> expenses;
   ExpensesByDate({
     required this.expenses,
-    required this.firstExpenseDate,
-    required this.lastExpenseDate,
+    required this.start,
+    required this.end,
   });
 
-  static empty(data) {
+  static empty() {
     return ExpensesByDate(
       expenses: [],
-      firstExpenseDate: data['firstExpenseDate'],
-      lastExpenseDate: data['lastExpenseDate'],
+      start: DateTime.now(),
+      end: DateTime.now(),
     );
   }
 
@@ -60,19 +66,10 @@ class ExpensesByDate {
       expenses: ((data['expenses'] ?? []) as List)
           .map<Expense>((e) => Expense.fromJson(e))
           .toList(),
-      firstExpenseDate: Expense._parseDateTime(data['firstExpenseDate']),
-      lastExpenseDate: Expense._parseDateTime(data['lastExpenseDate']),
+      start: Expense._parseDateTime(data['start']),
+      end: Expense._parseDateTime(data['end']),
     );
   }
-}
-
-class ExpenseDatePickerController {
-  DateTime? firstExpenseDate;
-  DateTime? lastExpenseDate;
-  ExpenseDatePickerController({
-    this.firstExpenseDate,
-    this.lastExpenseDate,
-  });
 }
 
 class Expense {

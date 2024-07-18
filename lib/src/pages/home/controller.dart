@@ -16,11 +16,11 @@ class HomePageController extends BaseController {
       late final query;
       if (categories.isEmpty) {
         query = '''
-      SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch};
+      SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch} AND type = 'SPENT';
       ''';
       } else {
         query = '''
-      SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch} AND category IN (${categories.map((e) => "'$e'").join(",")});
+      SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch} AND type = 'SPENT' AND category IN (${categories.map((e) => "'$e'").join(",")});
       ''';
       }
       transaction = await Db.db.rawQuery(query);

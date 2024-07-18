@@ -21,40 +21,42 @@ class ExpensesView extends StatefulWidget {
 }
 
 class _ViewState extends State<ExpensesView> {
-  late Future<DbResponse<ExpensesByDate>> _future;
+  late Future<DbResponse<ExpensesByDate>> _expensesFuture;
+  late Future<DbResponse<DateLimits>> _datesFuture;
+
+  ValueNotifier listRefresher = ValueNotifier<bool>(false);
+  ValueNotifier datesRefresher = ValueNotifier<bool>(false);
 
   bool isSaving = false;
   late String categoryOfExpenseToAdd;
   DateTime selectedDate = DateTime.now();
-  ValueNotifier<ExpenseDatePickerController> expenseDatePickerController =
-      ValueNotifier(ExpenseDatePickerController());
-  ValueNotifier<bool?> datePickerReady = ValueNotifier(false);
+
+  Future<DbResponse<DateLimits>> get dateLimitsFuture {
+    return ExpensesController.getDateLimits();
+  }
 
   Future<DbResponse<ExpensesByDate>> get expensesFuture {
-    var date = selectedDate;
     return ExpensesController.getExpenses(
-      date.startOfDay(),
-      date.startOfTmro(),
+      selectedDate.startOfDay(),
+      selectedDate.startOfTmro(),
     );
   }
 
   Future<DbResponse<ExpensesByDate>> get expensesEmptyFuture async {
     return DbResponse(
       status: true,
-      data: ExpensesByDate(
-        expenses: [],
-        lastExpenseDate: DateTime.now(),
-        firstExpenseDate: DateTime.now(),
-      ),
+      data: ExpensesByDate.empty(),
     );
   }
 
   refresh({refreshData = true}) {
-    if (refreshData)
-      _future = expensesFuture;
-    else
-      _future = expensesEmptyFuture;
-    return _future;
+    _datesFuture = dateLimitsFuture;
+    if (refreshData) {
+      _expensesFuture = expensesFuture;
+    } else {
+      _expensesFuture = expensesEmptyFuture;
+    }
+    // setState(() => {});
   }
 
   List<String> getSpentCategories() {
@@ -67,15 +69,11 @@ class _ViewState extends State<ExpensesView> {
 
   @override
   void initState() {
-    _future = expensesFuture;
+    _expensesFuture = expensesFuture;
+    _datesFuture = dateLimitsFuture;
     categoryOfExpenseToAdd =
         (isSaving ? SavingsCategories : getSpentCategories())[0];
     super.initState();
-  }
-
-  void setDatePickerState(bool? state) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => datePickerReady.value = state);
   }
 
   @override
@@ -85,72 +83,89 @@ class _ViewState extends State<ExpensesView> {
       body: Container(
         child: Column(
           children: [
-            ValueListenableBuilder(
-              valueListenable: datePickerReady,
-              builder: (context, value, child) {
-                if (value != true) {
-                  return Container(
-                    width: double.infinity,
-                    height: 80,
-                    child: Center(
-                      child: Text(
-                        value == false ? "Loading timeline..." : "",
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              color: Colors.white38,
-                            ),
-                      ),
-                    ),
-                  );
-                }
-                return DatePicker(
-                  startDate: expenseDatePickerController.value.firstExpenseDate!
-                      .startOfDay(),
-                  endDate: expenseDatePickerController.value.lastExpenseDate!
-                      .startOfDay(),
-                  focusedDate: selectedDate,
-                  onDateChange: (date, shouldReloadData) {
-                    selectedDate = date.toLocal().startOfDay();
-                    refresh(refreshData: shouldReloadData);
-                  },
-                );
-              },
-            ),
             FutureBuilder(
-              future: _future,
-              builder: (context, snapshot) {
-                var isDone = snapshot.connectionState == ConnectionState.done;
-                if (!isDone)
-                  return Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        strokeCap: StrokeCap.round,
-                        color: Colors.orangeAccent,
-                      ),
-                    ),
+                future: _datesFuture,
+                builder: (context, snapshot) {
+                  var isDone = snapshot.connectionState == ConnectionState.done;
+                  if ((isDone && !snapshot.hasData) ||
+                      snapshot.data?.status == false) {
+                    return renderError();
+                  }
+                  if (snapshot.data?.status == true) {
+                    return ValueListenableBuilder(
+                      valueListenable: datesRefresher,
+                      builder: (_, __, ___) {
+                        return Container(
+                          key: GlobalKey(),
+                          child: DatePicker(
+                            startDate: snapshot.data!.data!.start.startOfDay(),
+                            endDate: snapshot.data!.data!.end.startOfDay(),
+                            focusedDate: selectedDate,
+                            onDateChange: (date, shouldReloadData) {
+                              selectedDate = date.toLocal().startOfDay();
+                              listRefresher.value = !listRefresher.value;
+                              refresh();
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return renderError();
+                  }
+                }),
+            ValueListenableBuilder(
+                valueListenable: listRefresher,
+                builder: (_, __, ___) {
+                  return FutureBuilder(
+                    future: _expensesFuture,
+                    builder: (context, snapshot) {
+                      var isDone =
+                          snapshot.connectionState == ConnectionState.done;
+                      if ((isDone && !snapshot.hasData) ||
+                          snapshot.data?.status == false) {
+                        return renderError();
+                      }
+                      if (snapshot.data?.status == true) {
+                        var data = snapshot.data!.data!;
+                        ExpenseListController controller =
+                            ExpenseListController(
+                          expenses: data.expenses,
+                        );
+                        return Expanded(
+                          child: GestureDetector(
+                            onHorizontalDragEnd: (drag) {
+                              late DateTime newDate;
+                              if (drag.velocity.pixelsPerSecond.dx < 0) {
+                                newDate = selectedDate
+                                    .add(Duration(days: 1))
+                                    .startOfDay();
+                              } else {
+                                newDate = selectedDate
+                                    .subtract(Duration(days: 1))
+                                    .startOfDay();
+                              }
+                              if ((newDate.isBefore(data.end) ||
+                                      newDate.isAtSameMomentAs(data.end)) &&
+                                  (newDate.isAfter(data.start) ||
+                                      newDate.isAtSameMomentAs(
+                                        data.start,
+                                      ))) {
+                                selectedDate = newDate;
+                                listRefresher.value = !listRefresher.value;
+                                datesRefresher.value = !datesRefresher.value;
+                                refresh();
+                              }
+                            },
+                            child: renderGroupedExpenses(controller),
+                          ),
+                        );
+                      } else {
+                        return renderError();
+                      }
+                    },
                   );
-                if (isDone && !snapshot.hasData) {
-                  setDatePickerState(null);
-                  return renderError();
-                }
-                if (snapshot.data!.status) {
-                  var data = snapshot.data!.data!;
-                  ExpenseListController controller = ExpenseListController(
-                    expenses: data.expenses,
-                  );
-                  expenseDatePickerController.value.firstExpenseDate =
-                      data.firstExpenseDate;
-                  expenseDatePickerController.value.lastExpenseDate =
-                      data.lastExpenseDate;
-                  setDatePickerState(true);
-                  return Expanded(
-                    child: renderGroupedExpenses(controller),
-                  );
-                } else {
-                  return renderError();
-                }
-              },
-            ),
+                }),
           ],
         ),
       ),

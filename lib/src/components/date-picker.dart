@@ -117,11 +117,7 @@ class _DatePickerState extends State<DatePicker> {
     super.initState();
   }
 
-  GlobalKey key = GlobalKey();
-
   void setNewDate(DateTime date, {bool? dontRefresh}) {
-    key = GlobalKey();
-
     if (date.startOfDay().isAfter(DateTime.now().startOfDay()))
       _focusDate = DateTime.now().startOfDay();
     else
@@ -158,7 +154,6 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return EasyInfiniteDateTimeLine(
-      key: key,
       selectionMode: const SelectionMode.autoCenter(),
       lastDate: DateTime.now(),
       focusDate: _focusDate,
