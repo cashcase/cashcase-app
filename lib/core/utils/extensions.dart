@@ -40,11 +40,15 @@ extension StringExtension on String {
 }
 
 extension DateTimeExtension on DateTime {
-  DateTime startOfTmro() => DateTime(
+  DateTime startOfTmro() => DateTime(this.year, this.month, this.day).add(
+        Duration(days: 1),
+      );
+  DateTime endOfDay() => DateTime(
         this.year,
         this.month,
         this.day,
         23,
+        59,
         59,
       );
   DateTime startOfDay() => DateTime(

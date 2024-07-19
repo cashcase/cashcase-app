@@ -1,4 +1,3 @@
-import 'package:cashcase/core/app/notification.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/utils/extensions.dart';
@@ -15,10 +14,11 @@ class ExpensesController extends BaseController {
   static Future<DbResponse<ExpensesByDate>> getExpenses(
       DateTime from, DateTime to) async {
     try {
+      // await Future.delayed(Duration(seconds: 3));
       final transaction = await Db.db.rawQuery(
           "SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch}");
-      final dates = await Db.db.rawQuery(
-          "SELECT MIN(createdOn) as min, MAX(createdOn) as max from expense");
+      final dates =
+          await Db.db.rawQuery("SELECT MIN(createdOn) as min from expense");
       return DbResponse(
         status: true,
         data: ExpensesByDate(
@@ -27,9 +27,7 @@ class ExpensesController extends BaseController {
           start: DateTime.fromMillisecondsSinceEpoch(
             dates.first['min'] as int? ?? DateTime.now().millisecondsSinceEpoch,
           ).startOfDay(),
-          end: DateTime.fromMillisecondsSinceEpoch(
-            dates.first['max'] as int? ?? DateTime.now().millisecondsSinceEpoch,
-          ).startOfTmro(),
+          end: DateTime.now(), // End will always be today
         ),
       );
     } catch (e) {}
@@ -42,6 +40,7 @@ class ExpensesController extends BaseController {
 
   static Future<DbResponse<DateLimits>> getDateLimits() async {
     try {
+      // await Future.delayed(Duration(seconds: 1));
       final dates = await Db.db.rawQuery(
           "SELECT MIN(createdOn) as min, MAX(createdOn) as max from expense");
       return DbResponse(
@@ -75,7 +74,8 @@ class ExpensesController extends BaseController {
       type: type,
       category: category,
       notes: notes,
-      createdOn: DateTime.now().millisecondsSinceEpoch,
+      createdOn:
+          DateTime.now().subtract(Duration(days: 0)).millisecondsSinceEpoch,
       updatedOn: DateTime.now().millisecondsSinceEpoch,
     );
     try {

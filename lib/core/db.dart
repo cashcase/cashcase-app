@@ -37,6 +37,25 @@ class Db {
             "updatedOn" int,
             "user" text
           );
+          // CREATE TABLE IF NOT EXISTS "category" (
+          //   "name" text,
+          //   "enabled" int,
+          //   "isDefault" int
+          // );
+          // INSERT INTO category(name, enabled, isDefault) VALUES("housing", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("food", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("transport", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("healthcare", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("education", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("insurance", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("debt", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("travel", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("utilities", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("entertainment", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("donation", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("subscriptions", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("maintenance", 1, 1); 
+          // INSERT INTO category(name, enabled, isDefault) VALUES("misc", 1, 1); 
           ''',
         );
       },

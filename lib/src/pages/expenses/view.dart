@@ -90,7 +90,7 @@ class _ViewState extends State<ExpensesView> {
                   var isDone = snapshot.connectionState == ConnectionState.done;
                   if ((isDone && !snapshot.hasData) ||
                       snapshot.data?.status == false) {
-                    return renderError();
+                    return renderPlaceholder();
                   }
                   if (snapshot.data?.status == true) {
                     return ValueListenableBuilder(
@@ -112,7 +112,7 @@ class _ViewState extends State<ExpensesView> {
                       },
                     );
                   } else {
-                    return renderError();
+                    return renderPlaceholder(message: "Loading Timeline...");
                   }
                 }),
             ValueListenableBuilder(
@@ -125,7 +125,7 @@ class _ViewState extends State<ExpensesView> {
                           snapshot.connectionState == ConnectionState.done;
                       if ((isDone && !snapshot.hasData) ||
                           snapshot.data?.status == false) {
-                        return renderError();
+                        return renderPlaceholder();
                       }
                       if (snapshot.data?.status == true) {
                         var data = snapshot.data!.data!;
@@ -146,8 +146,7 @@ class _ViewState extends State<ExpensesView> {
                                     .subtract(Duration(days: 1))
                                     .startOfDay();
                               }
-                              if ((newDate.isBefore(data.end) ||
-                                      newDate.isAtSameMomentAs(data.end)) &&
+                              if (newDate.isBefore(data.end.startOfTmro()) &&
                                   (newDate.isAfter(data.start) ||
                                       newDate.isAtSameMomentAs(
                                         data.start,
@@ -162,7 +161,8 @@ class _ViewState extends State<ExpensesView> {
                           ),
                         );
                       } else {
-                        return renderError();
+                        return renderPlaceholder(
+                            message: "Loading Expenses...");
                       }
                     },
                   );
@@ -383,7 +383,7 @@ class _ViewState extends State<ExpensesView> {
     );
   }
 
-  Widget renderError() {
+  Widget renderPlaceholder({String? message}) {
     return Expanded(
       child: Center(
         child: Column(
@@ -392,7 +392,8 @@ class _ViewState extends State<ExpensesView> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 40),
               child: Text(
-                "Unable to get your expenses. \nPlease try again after sometime.",
+                message ??
+                    "Unable to get your expenses. \nPlease try again after sometime.",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                       color: Colors.white38,
@@ -491,24 +492,30 @@ class _ViewState extends State<ExpensesView> {
                 ),
                 if (controller.expenses.isEmpty)
                   Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Icon(
-                          Icons.event_busy_rounded,
-                          size: 80,
-                          color: Colors.white12,
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          "No expenses on this day",
-                          style:
-                              Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                    color: Colors.white24,
-                                  ),
-                        )
-                      ],
+                    child: Container(
+                      color: Colors.transparent, // Needed for swipe to work.
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Icon(
+                            Icons.event_busy_rounded,
+                            size: 80,
+                            color: Colors.white12,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "No expenses on this day",
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium!
+                                .copyWith(
+                                  color: Colors.white24,
+                                ),
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 SizedBox(height: 2),
@@ -558,20 +565,20 @@ class _ViewState extends State<ExpensesView> {
                                     color: isSaving ? Colors.green : Colors.red,
                                   ),
                             ),
-                            subtitle: userExpenses.isNotEmpty
-                                ? Text(
-                                    "${userExpenses.keys.map((e) {
-                                      if (e == "__self__") return "@you";
-                                      return "@$e";
-                                    }).join(", ")}",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleSmall!
-                                        .copyWith(
-                                          color: Colors.grey.shade600,
-                                        ),
-                                  )
-                                : null,
+                            // subtitle: userExpenses.isNotEmpty
+                            //     ? Text(
+                            //         "${userExpenses.keys.map((e) {
+                            //           if (e == "__self__") return "you";
+                            //           return "@$e";
+                            //         }).join(", ")}",
+                            //         style: Theme.of(context)
+                            //             .textTheme
+                            //             .titleSmall!
+                            //             .copyWith(
+                            //               color: Colors.grey.shade600,
+                            //             ),
+                            //       )
+                            //     : null,
                             leading: CircleAvatar(
                               radius: 16.0,
                               backgroundColor: Colors.transparent,

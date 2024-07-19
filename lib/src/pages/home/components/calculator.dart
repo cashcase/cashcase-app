@@ -44,7 +44,7 @@ class _CalculatorState extends State<Calculator> {
     if (dateRange.isEmpty) {
       dateRange = [
         DateTime.now().startOfDay(),
-        DateTime.now().startOfTmro(),
+        DateTime.now().endOfDay(),
       ];
     }
     try {
