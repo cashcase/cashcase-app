@@ -68,6 +68,14 @@ class ExpensesByDate {
       end: Expense._parseDateTime(data['end']),
     );
   }
+
+  toJson() {
+    return {
+      "start": start.millisecondsSinceEpoch,
+      "end": end.millisecondsSinceEpoch,
+      "expenses": expenses.map((e) => e.toJson())
+    };
+  }
 }
 
 class Expense {

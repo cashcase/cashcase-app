@@ -136,16 +136,19 @@ class _ViewState extends State<ExpensesView> {
                         return Expanded(
                           child: GestureDetector(
                             onHorizontalDragEnd: (drag) {
-                              late DateTime newDate;
-                              if (drag.velocity.pixelsPerSecond.dx < 0) {
-                                newDate = selectedDate
-                                    .add(Duration(days: 1))
-                                    .startOfDay();
-                              } else {
+                              DateTime? newDate;
+                              int sensitivity = 25;
+                              if ((drag.primaryVelocity ?? 0) > sensitivity) {
                                 newDate = selectedDate
                                     .subtract(Duration(days: 1))
                                     .startOfDay();
+                              } else if ((drag.primaryVelocity ?? 0) <
+                                  -sensitivity) {
+                                newDate = selectedDate
+                                    .add(Duration(days: 1))
+                                    .startOfDay();
                               }
+                              if (newDate == null) return;
                               if (newDate.isBefore(data.end.startOfTmro()) &&
                                   (newDate.isAfter(data.start) ||
                                       newDate.isAtSameMomentAs(

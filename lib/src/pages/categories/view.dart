@@ -67,7 +67,7 @@ class _CategoriesViewState extends State<CategoriesView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Add/Remove or Enable/Disable categories from here. Disabled categories will not be displayed in the Expense screen. Categories can only be alphabets with length between 3 to 20. Categories are all stored on-device. Default categories can only be disabled.",
+              "Add/Remove or Enable/Disable categories from here. Disabled categories will not be displayed in the Expense screen. Categories can only be alphabets with length between 3 to 20. Default categories can only be disabled.",
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                     color: Colors.white,
                   ),
