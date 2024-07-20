@@ -38,6 +38,7 @@ class _ViewState extends State<HeatMapView> {
   @override
   void initState() {
     options = AppDb.getCategories().keys.toList();
+    options.sort((a, b) => a.compareTo(b));
     refresh();
     super.initState();
   }
@@ -269,7 +270,7 @@ class _ViewState extends State<HeatMapView> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  // SizedBox(height: 8),
                   // Row(
                   //   children: [
                   //     Expanded(

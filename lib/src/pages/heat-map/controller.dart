@@ -1,4 +1,3 @@
-import 'package:cashcase/core/app/notification.dart';
 import 'package:cashcase/core/base/controller.dart';
 import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/utils/extensions.dart';
@@ -25,7 +24,6 @@ class HeatMapController extends BaseController {
                   "(${categories.map((e) => "'$e'").join(",")});"
               : ";");
       final transaction = await Db.db.rawQuery(query);
-      print(transaction);
       return DbResponse(
         status: true,
         data:
