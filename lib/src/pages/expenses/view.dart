@@ -6,6 +6,7 @@ import 'package:cashcase/src/components/date-picker.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
+import 'package:cashcase/src/utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cashcase/src/pages/expenses/controller.dart';
@@ -854,9 +855,7 @@ class _ViewState extends State<ExpensesView> {
                     color: Colors.white,
                   ),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9]+.?[0-9]*'))
-              ],
+              inputFormatters: [amountFormatter],
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: '0.0',

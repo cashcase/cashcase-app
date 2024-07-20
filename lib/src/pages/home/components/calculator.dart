@@ -186,7 +186,7 @@ class _CalculatorState extends State<Calculator> {
                                 unselectedWidgetColor: Colors.black,
                                 colorScheme: ColorScheme.dark(
                                   primary: Colors.orangeAccent,
-                                  inversePrimary: Colors.orange,
+                                  inversePrimary: Colors.orangeAccent,
                                   outline: Colors.grey,
                                 ),
                               ),
@@ -194,6 +194,10 @@ class _CalculatorState extends State<Calculator> {
                                 child: ChipsChoice<String>.multiple(
                                     wrapped: true,
                                     value: tags,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 16,
+                                    ),
                                     alignment: WrapAlignment.start,
                                     choiceStyle:
                                         C2ChipStyle(backgroundOpacity: 1),

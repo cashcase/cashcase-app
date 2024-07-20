@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/pages/account/page.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
+import 'package:cashcase/src/pages/heat-map/page.dart';
 import 'package:cashcase/src/pages/home/components/calculator.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
@@ -34,11 +33,11 @@ class _HomePageWidgetState extends State<HomePageView> {
   }
 
   List<HomePageViewModel> Pages = [
-    // HomePageViewModel(
-    //   label: 'Reports',
-    //   icon: Icons.timeline_rounded,
-    //   builder: (c) => ReportsView(),
-    // ),
+    HomePageViewModel(
+      label: 'Heat Map',
+      icon: Icons.bubble_chart_rounded,
+      builder: (c) => HeatMapPage(),
+    ),
     HomePageViewModel(
       label: 'Expenses',
       icon: Icons.book,

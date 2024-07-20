@@ -189,8 +189,7 @@ class _DatePickerState extends State<DatePicker> {
               GestureDetector(
                 onTap: () {
                   setNewDate(
-                    _focusDate,
-                    dontRefresh: true, // just scroll to date
+                    _focusDate
                   );
                 },
                 child: Container(

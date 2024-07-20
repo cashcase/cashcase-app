@@ -1,7 +1,7 @@
 name: cashcase
 description: "Cashcase - Official Flutter Client"
 publish_to: "none"
-version: 1.0.16+16
+version: 1.0.18+18
 
 environment:
   sdk: ">=3.3.2 <4.0.0"
@@ -26,6 +26,7 @@ dependencies:
   animated_digit: 
   sqflite:
   uuid:
+  flutter_heatmap_calendar: ^1.0.5
 
 dev_dependencies:
   flutter_launcher_icons:

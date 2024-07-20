@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 String? isValidUsername(String value) {
   if (value.isEmpty) return "Username cannot be empty";
   if (!RegExp("^(?=.{5,20}\$)(?![_.])(?!.*[_.]{2})[a-z0-9._]+(?<![_.])\$")
@@ -31,3 +33,6 @@ String? isValidKey(String value, {optional = false}) {
     return "Key must contain only lower case alphabets.";
   return null;
 }
+
+FilteringTextInputFormatter amountFormatter =
+    FilteringTextInputFormatter.allow(RegExp(r'^\d*(\.)?(\d{0,2})?$'));
