@@ -1,23 +1,19 @@
-import 'dart:async';
 import 'dart:ui';
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/app/notification.dart';
 import 'package:cashcase/core/app/theme.dart';
 import 'package:cashcase/core/utils/extensions.dart';
-import 'package:cashcase/core/utils/models.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:upgrader/upgrader.dart';
 import 'package:go_router/go_router.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
 Logger logger = Logger('App');
 
 class BaseApp extends StatelessWidget {
   late final GoRouter router;
   late final MaterialApp app;
-  late final StreamSubscription<InternetStatus>? listener;
 
   BaseApp({
     super.key,

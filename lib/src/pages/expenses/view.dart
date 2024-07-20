@@ -276,7 +276,8 @@ class _ViewState extends State<ExpensesView> {
                         Text(
                           DateFormat().format(
                             DateTime.fromMillisecondsSinceEpoch(
-                                expense.createdOn),
+                                    expense.createdOn)
+                                .toLocal(),
                           ),
                           style: Theme.of(context)
                               .textTheme
@@ -739,7 +740,7 @@ class _ViewState extends State<ExpensesView> {
                                             .format(
                                           DateTime.fromMillisecondsSinceEpoch(
                                             expense.createdOn,
-                                          ).toUtc(),
+                                          ).toLocal(),
                                         ),
                                         style: Theme.of(context)
                                             .textTheme

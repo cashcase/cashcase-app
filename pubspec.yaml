@@ -1,7 +1,7 @@
 name: cashcase
 description: "Cashcase - Official Flutter Client"
 publish_to: "none"
-version: 1.0.15+15
+version: 1.0.16+16
 
 environment:
   sdk: ">=3.3.2 <4.0.0"
@@ -15,12 +15,9 @@ dependencies:
   provider:
   responsive_builder:
   upgrader:
-  internet_connection_checker_plus:
   intl:
   google_fonts:
   easy_date_timeline:
-  word_generator:
-  flutter_secure_storage:
   either_dart:
   sortedmap:
   flutter_keyboard_visibility:
