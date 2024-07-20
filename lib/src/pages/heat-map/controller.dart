@@ -13,7 +13,6 @@ class HeatMapController extends BaseController {
   Future<DbResponse<double>> getTotalForDate(
       DateTime on, List<String> categories) async {
     try {
-      await Future.delayed(Duration(milliseconds: 500));
       String query = "SELECT SUM(amount) as total FROM"
               " expense WHERE"
               " createdOn BETWEEN "
@@ -28,7 +27,6 @@ class HeatMapController extends BaseController {
         status: true,
         data:
             transaction.isEmpty ? 0.0 : (transaction.first['total'] as double),
-        // data: transaction.first['sum'],
       );
     } catch (e) {}
     return DbResponse(
@@ -41,7 +39,6 @@ class HeatMapController extends BaseController {
   Future<DbResponse<List<Expense>>> getExpenses(
       DateTime from, DateTime to, List<String> categories) async {
     try {
-      await Future.delayed(Duration(milliseconds: 500));
       String query = "SELECT * FROM"
               " expense WHERE"
               " createdOn BETWEEN "
@@ -51,7 +48,9 @@ class HeatMapController extends BaseController {
               ? " AND category IN "
                   "(${categories.map((e) => "'$e'").join(",")});"
               : ";");
+      print(query);
       final transaction = await Db.db.rawQuery(query);
+      print(transaction.length);
       return DbResponse(
         status: true,
         data: transaction.map<Expense>((e) => Expense.fromJson(e)).toList(),

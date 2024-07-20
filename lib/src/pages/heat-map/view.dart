@@ -80,17 +80,45 @@ class _ViewState extends State<HeatMapView> {
         var date = DateTime.fromMillisecondsSinceEpoch(
           each.createdOn,
         ).startOfDay();
-        data[date] = each.amount.toInt();
+        data[date] = (data[date] ?? 0) + each.amount.toInt();
       }
     }
-    // colorsets[int.parse(
-    //   threshold.text.isEmpty ? "0" : threshold.text,
-    // )] = Colors.red;
+
+    if (threshold.text.isNotEmpty) {
+      int _threshold = int.parse(threshold.text);
+
+      for (var date in data.keys) {
+        int _amount = data[date] as int;
+
+        bool green = _amount <= _threshold / 4;
+        bool yellow = _amount > _threshold / 4 && _amount <= _threshold * 3 / 4;
+        bool orange = _amount <= (_threshold * 3 / 4);
+
+        if (_amount >= _threshold) {
+          data[date] = 100;
+        } else {
+          if (green) {
+            data[date] = 0;
+          } else if (yellow) {
+            data[date] = 50;
+          } else if (orange) {
+            data[date] = 75;
+          }
+        }
+      }
+    }
+
+    if (threshold.text.isNotEmpty) {
+      colorsets[0] = Colors.green.shade900;
+      colorsets[50] = Colors.orange.withOpacity(0.5);
+      colorsets[75] = Colors.yellow.shade800.withOpacity(0.75);
+      colorsets[100] = Colors.red.shade900;
+    }
     setState(() => loadingMap = false);
   }
 
   Map<DateTime, int> data = {};
-  Map<int, Color> colorsets = {1: Colors.red};
+  Map<int, Color> colorsets = {0: Colors.red};
 
   @override
   Widget build(BuildContext context) {
@@ -180,14 +208,15 @@ class _ViewState extends State<HeatMapView> {
                                 DateTime.now().subtract(Duration(days: 90)),
                             endDate: DateTime.now().startOfDay(),
                             datasets: data,
-                            colorMode: ColorMode.opacity,
+                            colorMode: threshold.text.isEmpty
+                                ? ColorMode.opacity
+                                : ColorMode.color,
                             showText: true,
                             scrollable: true,
                             showColorTip: false,
                             colorTipCount: 10,
                             textColor: Colors.white,
                             colorsets: colorsets,
-                            colorTipHelper: [Container(), Container()],
                             defaultColor: Colors.black,
                             size: MediaQuery.of(context).size.height / 25,
                             onClick: (value) {
@@ -270,95 +299,99 @@ class _ViewState extends State<HeatMapView> {
                       ),
                     ),
                   ),
-                  // SizedBox(height: 8),
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       flex: 3,
-                  //       child: Container(
-                  //         height: 62,
-                  //         padding: EdgeInsets.all(16),
-                  //         decoration: BoxDecoration(
-                  //           color: Colors.black38,
-                  //           borderRadius: BorderRadius.all(
-                  //             Radius.circular(8),
-                  //           ),
-                  //           border: Border.all(
-                  //             color: Colors.grey.withOpacity(0.1),
-                  //           ),
-                  //         ),
-                  //         child: Row(
-                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //           crossAxisAlignment: CrossAxisAlignment.center,
-                  //           children: [
-                  //             Text(
-                  //               "Threshold",
-                  //               textAlign: TextAlign.start,
-                  //               style: Theme.of(context)
-                  //                   .textTheme
-                  //                   .titleMedium!
-                  //                   .copyWith(color: Colors.white),
-                  //             ),
-                  //             Container(
-                  //               width: 120,
-                  //               height: 80,
-                  //               child: TextField(
-                  //                 autofocus: false,
-                  //                 onTapOutside: ((event) {
-                  //                   FocusManager.instance.primaryFocus
-                  //                       ?.unfocus();
-                  //                 }),
-                  //                 controller: threshold,
-                  //                 textAlign: TextAlign.right,
-                  //                 style: Theme.of(context)
-                  //                     .textTheme
-                  //                     .titleMedium!
-                  //                     .copyWith(
-                  //                       color: Colors.orangeAccent,
-                  //                     ),
-                  //                 keyboardType: TextInputType.numberWithOptions(
-                  //                     decimal: true),
-                  //                 inputFormatters: [amountFormatter],
-                  //                 decoration: InputDecoration(
-                  //                     border: InputBorder.none,
-                  //                     hintText: '0.0',
-                  //                     contentPadding: EdgeInsets.all(8)),
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     SizedBox(width: 8),
-                  //     GestureDetector(
-                  //       onTap: null,
-                  //       onDoubleTap: () async {
-                  //         DateTime current =
-                  //             DateTime.now().subtract(Duration(days: 90));
-                  //         int n = 0;
-                  //         while (n < 90) {
-                  //           await context
-                  //               .once<HeatMapController>()
-                  //               .createExpense(
-                  //                 amount: random.nextInt(100).toDouble(),
-                  //                 type: ExpenseType.SPENT,
-                  //                 category: "transport",
-                  //                 createdOn: current,
-                  //               );
-                  //           current = current.add(Duration(days: 1));
-                  //           n = n + 1;
-                  //         }
-                  //       },
-                  //       child: Container(
-                  //         padding: EdgeInsets.symmetric(horizontal: 16),
-                  //         child: Icon(
-                  //           Icons.currency_exchange_rounded,
-                  //           color: Colors.orangeAccent,
-                  //         ),
-                  //       ),
-                  //     )
-                  //   ],
-                  // ),
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          height: 62,
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.black38,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(8),
+                            ),
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.1),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Spending Limit",
+                                textAlign: TextAlign.start,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium!
+                                    .copyWith(color: Colors.white),
+                              ),
+                              Container(
+                                width: 120,
+                                height: 80,
+                                child: TextField(
+                                  autofocus: false,
+                                  onTapOutside: ((event) {
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
+                                  }),
+                                  controller: threshold,
+                                  textAlign: TextAlign.right,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium!
+                                      .copyWith(
+                                        color: Colors.orangeAccent,
+                                      ),
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      decimal: true),
+                                  inputFormatters: [amountFormatter],
+                                  decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: '0.0',
+                                      contentPadding: EdgeInsets.all(8)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: null,
+                        onDoubleTap: () async {
+                          if (tags.isEmpty) return;
+                          DateTime current =
+                              DateTime.now().subtract(Duration(days: 90));
+                          int n = 0;
+                          while (n < 91) {
+                            await context
+                                .once<HeatMapController>()
+                                .createExpense(
+                                  amount: random.nextInt(50).toDouble(),
+                                  type: ExpenseType.SPENT,
+                                  category: tags.first,
+                                  createdOn: current,
+                                );
+                            current = current.add(Duration(days: 1));
+                            n = n + 1;
+                          }
+                        },
+                        child: GestureDetector(
+                          onTap: refresh,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Icon(
+                              Icons.currency_exchange_rounded,
+                              color: Colors.orangeAccent,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ],
               ),
             ),

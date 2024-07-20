@@ -129,7 +129,7 @@ class _ViewState extends State<AccountView> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Sync",
+                  "Sync (Pro)",
                   style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         color: Colors.white,
                       ),
