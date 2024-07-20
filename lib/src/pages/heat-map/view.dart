@@ -48,6 +48,10 @@ class _ViewState extends State<HeatMapView> {
     refreshTotalForDate();
   }
 
+  thresholdIsNotEmptyOrZero() {
+    return threshold.text.isNotEmpty && double.parse(threshold.text) > 0;
+  }
+
   refreshTotalForDate() {
     setState(() => loadingTotal = true);
     context
@@ -84,9 +88,9 @@ class _ViewState extends State<HeatMapView> {
       }
     }
 
-    if (threshold.text.isNotEmpty) {
-      int _threshold = int.parse(threshold.text);
-
+    // Setting heatmap data
+    if (thresholdIsNotEmptyOrZero()) {
+      double _threshold = double.parse(threshold.text);
       for (var date in data.keys) {
         int _amount = data[date] as int;
 
@@ -105,17 +109,20 @@ class _ViewState extends State<HeatMapView> {
       }
     }
 
-    if (threshold.text.isNotEmpty) {
+    // Setting heatmap colors
+    if (thresholdIsNotEmptyOrZero()) {
       colorsets[0] = Colors.green.shade900;
       colorsets[50] = Colors.green.shade900;
       colorsets[75] = Colors.orange.shade800.withOpacity(0.75);
       colorsets[500] = Colors.red.shade900;
+    } else {
+      colorsets = {0: Colors.red};
     }
     setState(() => loadingMap = false);
   }
 
   Map<DateTime, int> data = {};
-  Map<int, Color> colorsets = {0: Colors.red};
+  Map<int, Color> colorsets = {0: Colors.transparent};
 
   @override
   Widget build(BuildContext context) {
@@ -205,9 +212,9 @@ class _ViewState extends State<HeatMapView> {
                                 DateTime.now().subtract(Duration(days: 90)),
                             endDate: DateTime.now().startOfDay(),
                             datasets: data,
-                            colorMode: threshold.text.isEmpty
-                                ? ColorMode.opacity
-                                : ColorMode.color,
+                            colorMode: thresholdIsNotEmptyOrZero()
+                                ? ColorMode.color
+                                : ColorMode.opacity,
                             showText: true,
                             scrollable: true,
                             showColorTip: false,
