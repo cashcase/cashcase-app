@@ -48,9 +48,7 @@ class HeatMapController extends BaseController {
               ? " AND category IN "
                   "(${categories.map((e) => "'$e'").join(",")});"
               : ";");
-      print(query);
       final transaction = await Db.db.rawQuery(query);
-      print(transaction.length);
       return DbResponse(
         status: true,
         data: transaction.map<Expense>((e) => Expense.fromJson(e)).toList(),
@@ -86,7 +84,6 @@ class HeatMapController extends BaseController {
         "expense",
         expense.toJson(),
       );
-      print(transaction);
       return DbResponse(
         status: transaction > 0,
         data: expense,

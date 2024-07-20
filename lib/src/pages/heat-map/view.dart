@@ -92,27 +92,24 @@ class _ViewState extends State<HeatMapView> {
 
         bool green = _amount <= _threshold / 4;
         bool yellow = _amount > _threshold / 4 && _amount <= _threshold * 3 / 4;
-        bool orange = _amount <= (_threshold * 3 / 4);
 
         if (_amount >= _threshold) {
-          data[date] = 100;
+          data[date] = 500;
         } else {
-          if (green) {
-            data[date] = 0;
-          } else if (yellow) {
-            data[date] = 50;
-          } else if (orange) {
-            data[date] = 75;
-          }
+          data[date] = green
+              ? 0
+              : yellow
+                  ? 50
+                  : 75;
         }
       }
     }
 
     if (threshold.text.isNotEmpty) {
       colorsets[0] = Colors.green.shade900;
-      colorsets[50] = Colors.orange.withOpacity(0.5);
-      colorsets[75] = Colors.yellow.shade800.withOpacity(0.75);
-      colorsets[100] = Colors.red.shade900;
+      colorsets[50] = Colors.green.shade900;
+      colorsets[75] = Colors.orange.shade800.withOpacity(0.75);
+      colorsets[500] = Colors.red.shade900;
     }
     setState(() => loadingMap = false);
   }
