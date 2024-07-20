@@ -78,6 +78,8 @@ class _ViewState extends State<ExpensesView> {
     super.initState();
   }
 
+  DatePickerController dateTimelineController = DatePickerController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,91 +88,90 @@ class _ViewState extends State<ExpensesView> {
         child: Column(
           children: [
             FutureBuilder(
-                future: _datesFuture,
-                builder: (context, snapshot) {
-                  var isDone = snapshot.connectionState == ConnectionState.done;
-                  if ((isDone && !snapshot.hasData) ||
-                      snapshot.data?.status == false) {
-                    return renderPlaceholder();
-                  }
-                  if (snapshot.data?.status == true) {
-                    return ValueListenableBuilder(
-                      valueListenable: datesRefresher,
-                      builder: (_, __, ___) {
-                        return Container(
-                          key: GlobalKey(),
-                          child: DatePicker(
-                            startDate: snapshot.data!.data!.start.startOfDay(),
-                            endDate: snapshot.data!.data!.end.startOfDay(),
-                            focusedDate: selectedDate,
-                            onDateChange: (date, shouldReloadData) {
-                              selectedDate = date.toLocal().startOfDay();
-                              listRefresher.value = !listRefresher.value;
-                              refresh();
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return renderPlaceholder(message: "Loading Timeline...");
-                  }
-                }),
-            ValueListenableBuilder(
-                valueListenable: listRefresher,
-                builder: (_, __, ___) {
-                  return FutureBuilder(
-                    future: _expensesFuture,
-                    builder: (context, snapshot) {
-                      var isDone =
-                          snapshot.connectionState == ConnectionState.done;
-                      if ((isDone && !snapshot.hasData) ||
-                          snapshot.data?.status == false) {
-                        return renderPlaceholder();
-                      }
-                      if (snapshot.data?.status == true) {
-                        var data = snapshot.data!.data!;
-                        ExpenseListController controller =
-                            ExpenseListController(
-                          expenses: data.expenses,
-                        );
-                        return Expanded(
-                          child: GestureDetector(
-                            onHorizontalDragEnd: (drag) {
-                              DateTime? newDate;
-                              int sensitivity = 25;
-                              if ((drag.primaryVelocity ?? 0) > sensitivity) {
-                                newDate = selectedDate
-                                    .subtract(Duration(days: 1))
-                                    .startOfDay();
-                              } else if ((drag.primaryVelocity ?? 0) <
-                                  -sensitivity) {
-                                newDate = selectedDate
-                                    .add(Duration(days: 1))
-                                    .startOfDay();
-                              }
-                              if (newDate == null) return;
-                              if (newDate.isBefore(data.end.startOfTmro()) &&
-                                  (newDate.isAfter(data.start) ||
-                                      newDate.isAtSameMomentAs(
-                                        data.start,
-                                      ))) {
-                                selectedDate = newDate;
-                                listRefresher.value = !listRefresher.value;
-                                datesRefresher.value = !datesRefresher.value;
-                                refresh();
-                              }
-                            },
-                            child: renderGroupedExpenses(controller),
-                          ),
-                        );
-                      } else {
-                        return renderPlaceholder(
-                            message: "Loading Expenses...");
-                      }
+              future: _datesFuture,
+              builder: (context, snapshot) {
+                var isDone = snapshot.connectionState == ConnectionState.done;
+                if ((isDone && !snapshot.hasData) ||
+                    snapshot.data?.status == false) {
+                  return renderPlaceholder();
+                }
+                if (snapshot.data?.status == true) {
+                  return ValueListenableBuilder(
+                    valueListenable: datesRefresher,
+                    builder: (_, __, ___) {
+                      return DatePicker(
+                        controller: dateTimelineController,
+                        startDate: snapshot.data!.data!.start.startOfDay(),
+                        endDate: snapshot.data!.data!.end.startOfDay(),
+                        focusedDate: selectedDate,
+                        onDateChange: (date, shouldReloadData) {
+                          selectedDate = date.toLocal().startOfDay();
+                          _expensesFuture = expensesFuture;
+                          listRefresher.value = !listRefresher.value;
+                        },
+                      );
                     },
                   );
-                }),
+                } else {
+                  return renderPlaceholder(message: "Loading Timeline...");
+                }
+              },
+            ),
+            ValueListenableBuilder(
+              valueListenable: listRefresher,
+              builder: (_, __, ___) {
+                return FutureBuilder(
+                  future: _expensesFuture,
+                  builder: (context, snapshot) {
+                    var isDone =
+                        snapshot.connectionState == ConnectionState.done;
+                    if ((isDone && !snapshot.hasData) ||
+                        snapshot.data?.status == false) {
+                      return renderPlaceholder();
+                    }
+                    if (snapshot.data?.status == true) {
+                      var data = snapshot.data!.data!;
+                      ExpenseListController controller = ExpenseListController(
+                        expenses: data.expenses,
+                      );
+                      return Expanded(
+                        child: GestureDetector(
+                          onHorizontalDragEnd: (drag) {
+                            DateTime? newDate;
+                            int sensitivity = 25;
+                            if ((drag.primaryVelocity ?? 0) > sensitivity) {
+                              newDate = selectedDate
+                                  .subtract(Duration(days: 1))
+                                  .startOfDay();
+                            } else if ((drag.primaryVelocity ?? 0) <
+                                -sensitivity) {
+                              newDate = selectedDate
+                                  .add(Duration(days: 1))
+                                  .startOfDay();
+                            }
+                            if (newDate == null) return;
+                            if (newDate.isBefore(data.end.startOfTmro()) &&
+                                (newDate.isAfter(data.start) ||
+                                    newDate.isAtSameMomentAs(
+                                      data.start,
+                                    ))) {
+                              selectedDate = newDate;
+                              dateTimelineController.setDate!(selectedDate);
+                              datesRefresher.value = !datesRefresher.value;
+                              listRefresher.value = !listRefresher.value;
+                              _expensesFuture = expensesFuture;
+                            }
+                          },
+                          child: renderGroupedExpenses(controller),
+                        ),
+                      );
+                    } else {
+                      return renderPlaceholder(message: "Loading Expenses...");
+                    }
+                  },
+                );
+              },
+            ),
           ],
         ),
       ),

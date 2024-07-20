@@ -71,22 +71,30 @@ class _DropdownState extends State<Dropdown> {
   }
 }
 
+class DatePickerController {
+  late void Function(DateTime date)? setDate;
+  DatePickerController({this.setDate});
+}
+
 class DatePicker extends StatefulWidget {
   DateTime focusedDate;
   DateTime startDate;
   DateTime endDate;
   Function(DateTime, bool) onDateChange;
-  DatePicker({
-    required this.onDateChange,
-    required this.focusedDate,
-    required this.startDate,
-    required this.endDate,
-  });
+  DatePickerController controller;
+  DatePicker(
+      {required this.onDateChange,
+      required this.focusedDate,
+      required this.startDate,
+      required this.endDate,
+      required this.controller});
   @override
   State<DatePicker> createState() => _DatePickerState();
 }
 
 class _DatePickerState extends State<DatePicker> {
+  EasyInfiniteDateTimelineController dateTimelineController =
+      EasyInfiniteDateTimelineController();
   late DateTime _focusDate;
   // late DateTime lastDate;
   late int startYear;
@@ -114,10 +122,11 @@ class _DatePickerState extends State<DatePicker> {
       (DateTime.now().year - startYear) + 1,
       (i) => (startYear + i).toString(),
     );
+    widget.controller.setDate = setNewDate;
     super.initState();
   }
 
-  void setNewDate(DateTime date, {bool? dontRefresh}) {
+  void setNewDate(DateTime date) {
     if (date.startOfDay().isAfter(DateTime.now().startOfDay()))
       _focusDate = DateTime.now().startOfDay();
     else
@@ -125,7 +134,8 @@ class _DatePickerState extends State<DatePicker> {
     var shouldReloadData =
         (date.startOfDay().isAfter(widget.startDate.startOfDay()) ||
             date.sameDay(widget.startDate));
-    if (dontRefresh != true) widget.onDateChange(_focusDate, shouldReloadData);
+    widget.onDateChange(_focusDate, shouldReloadData);
+    dateTimelineController.animateToFocusDate();
     setState(() => {});
   }
 
@@ -154,6 +164,7 @@ class _DatePickerState extends State<DatePicker> {
   @override
   Widget build(BuildContext context) {
     return EasyInfiniteDateTimeLine(
+      controller: dateTimelineController,
       selectionMode: const SelectionMode.autoCenter(),
       lastDate: DateTime.now(),
       focusDate: _focusDate,
@@ -172,12 +183,7 @@ class _DatePickerState extends State<DatePicker> {
             children: [
               GestureDetector(
                 onTap: () {
-                  setNewDate(
-                    DateTime.now().startOfDay(),
-                    dontRefresh: _focusDate.sameDay(
-                      DateTime.now().startOfDay(),
-                    ),
-                  );
+                  dateTimelineController.animateToCurrentData();
                 },
                 child: Icon(
                   Icons.today_rounded,
@@ -188,9 +194,7 @@ class _DatePickerState extends State<DatePicker> {
               SizedBox(width: 8),
               GestureDetector(
                 onTap: () {
-                  setNewDate(
-                    _focusDate
-                  );
+                  dateTimelineController.animateToFocusDate();
                 },
                 child: Container(
                   width: 60,
