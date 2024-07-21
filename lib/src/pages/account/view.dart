@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cashcase/src/components/confirm.dart';
+import 'package:cashcase/src/pages/categories/page.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:path/path.dart' as p;
@@ -306,7 +307,21 @@ class _ViewState extends State<AccountView> {
 
   GestureDetector renderCategoriesSection() {
     return GestureDetector(
-      onTap: () => context.push("/categories"),
+      onTap: () {
+        context.push("/categories");
+        // GoRoute(
+        //   path: '/categories',
+        //   pageBuilder: (_, state) {
+        //     return CustomTransitionPage(
+        //       key: state.pageKey,
+        //       child: CategoriesPage(),
+        //       transitionDuration: Duration(seconds: 2),
+        //       transitionsBuilder: (_, a, __, c) =>
+        //           FadeTransition(opacity: a, child: c),
+        //     );
+        //   },
+        // );
+      },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 8),
         height: 36,

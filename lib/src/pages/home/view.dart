@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cashcase/src/pages/account/page.dart';
+import 'package:cashcase/src/pages/checklist/page.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
 import 'package:cashcase/src/pages/heat-map/page.dart';
 import 'package:cashcase/src/pages/home/components/calculator.dart';
@@ -43,6 +44,13 @@ class _HomePageWidgetState extends State<HomePageView> {
       icon: Icons.book,
       builder: (c) {
         return ExpensesPage();
+      },
+    ),
+    HomePageViewModel(
+      label: 'Checklist',
+      icon: Icons.checklist_rounded,
+      builder: (c) {
+        return ChecklistPage();
       },
     ),
     HomePageViewModel(

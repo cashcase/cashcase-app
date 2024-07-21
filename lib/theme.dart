@@ -10,4 +10,9 @@ ThemeData themeData = ThemeData(
   splashFactory: NoSplash.splashFactory,
   // textTheme: GoogleFonts.exoTextTheme(),
   textTheme: GoogleFonts.gafataTextTheme(),
+  pageTransitionsTheme: PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+    },
+  ),
 );
