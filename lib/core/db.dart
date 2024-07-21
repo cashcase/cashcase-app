@@ -10,10 +10,13 @@ class Db {
   static Database get db => _db;
 
   static final DB_NAME = '__cashcase__';
+  static final DB_EXTENSION = 'ccdb';
+
+  static dbPath() async => join(await getDatabasesPath(), '$DB_NAME.db');
 
   static Future<bool> init() async {
     _prefs = await SharedPreferences.getInstance();
-    String path = join(await getDatabasesPath(), '$DB_NAME.db');
+    String path = await dbPath();
     // deleteDatabase(path);
     _db = await openDatabase(
       path,

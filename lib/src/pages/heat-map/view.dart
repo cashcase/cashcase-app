@@ -210,7 +210,7 @@ class _ViewState extends State<HeatMapView> {
                           child: HeatMap(
                             startDate:
                                 DateTime.now().subtract(Duration(days: 90)),
-                            endDate: DateTime.now().startOfDay(),
+                            endDate: DateTime.now().endOfDay(),
                             datasets: data,
                             colorMode: thresholdIsNotEmptyOrZero()
                                 ? ColorMode.color

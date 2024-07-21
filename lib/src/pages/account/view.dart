@@ -1,8 +1,17 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as p;
+import 'package:cashcase/core/app/controller.dart';
+import 'package:cashcase/core/db.dart';
 import 'package:cashcase/core/utils/extensions.dart';
+import 'package:cashcase/core/utils/models.dart';
 import 'package:cashcase/src/connection.dart';
+import 'package:cashcase/src/pages/account/controller.dart';
 import 'package:cashcase/src/pages/account/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
+import 'package:sqflite/sqflite.dart';
 
 class AccountView extends StatefulWidget {
   AccountPageData? data;
@@ -64,6 +73,10 @@ class _ViewState extends State<AccountView> {
                 renderCategoriesSection(),
                 SizedBox(height: 24),
                 renderSyncSection(),
+                SizedBox(height: 24),
+                renderExportSection(),
+                SizedBox(height: 24),
+                renderImportSection(),
                 // Container(
                 //   child: Row(
                 //     children: [
@@ -111,7 +124,7 @@ class _ViewState extends State<AccountView> {
         ),
       ),
     );
-  } 
+  }
 
   Widget renderSyncSection() {
     return Opacity(
@@ -140,6 +153,92 @@ class _ViewState extends State<AccountView> {
                 )
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  GestureDetector renderExportSection() {
+    return GestureDetector(
+      onTap: () async {
+        try {
+          if (!await FlutterFileDialog.isPickDirectorySupported()) {
+            return;
+          }
+          final pickedDirectory = await FlutterFileDialog.pickDirectory();
+          if (pickedDirectory != null) {
+            setState(context.once<AppController>().startLoading);
+            context.once<AccountController>().export(pickedDirectory);
+            context.once<AppController>().addNotification(
+                NotificationType.success, "Exported database!");
+          }
+        } catch (e) {
+          print(e);
+        } finally {
+          setState(context.once<AppController>().stopLoading);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        height: 36,
+        child: Card(
+          color: Colors.transparent,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Export Data",
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              Icon(
+                Icons.cloud_download,
+                color: Colors.orangeAccent,
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  GestureDetector renderImportSection() {
+    return GestureDetector(
+      onTap: () async {
+        try {
+          setState(context.once<AppController>().startLoading);
+          context.once<AccountController>().import();
+        } catch (e) {
+          print(e);
+        } finally {
+          setState(context.once<AppController>().stopLoading);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 8),
+        height: 36,
+        child: Card(
+          color: Colors.transparent,
+          margin: EdgeInsets.zero,
+          elevation: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Import Data",
+                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Colors.white,
+                    ),
+              ),
+              Icon(
+                Icons.save,
+                color: Colors.orangeAccent,
+              )
+            ],
           ),
         ),
       ),
