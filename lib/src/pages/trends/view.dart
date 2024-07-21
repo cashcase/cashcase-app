@@ -8,7 +8,6 @@ import 'package:cashcase/src/pages/trends/model.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
@@ -26,7 +25,8 @@ class _ViewState extends State<TrendsView> {
   List<String> tags = [];
   List<String> options = [];
 
-  TextEditingController threshold = TextEditingController();
+  TextEditingController thresholdController = TextEditingController();
+  String threshold = "";
 
   DateTime selectedDate = DateTime.now().startOfDay();
 
@@ -49,7 +49,7 @@ class _ViewState extends State<TrendsView> {
   }
 
   thresholdIsNotEmptyOrZero() {
-    return threshold.text.isNotEmpty && double.parse(threshold.text) > 0;
+    return threshold.isNotEmpty && double.parse(threshold) > 0;
   }
 
   refreshTotalForDate() {
@@ -64,7 +64,6 @@ class _ViewState extends State<TrendsView> {
   }
 
   refreshTrends() async {
-    print(">>> REFRESHING");
     data = {};
     setState(() => {});
     DbResponse<List<Expense>> response =
@@ -91,7 +90,7 @@ class _ViewState extends State<TrendsView> {
 
     // Setting Trends data
     if (thresholdIsNotEmptyOrZero()) {
-      double _threshold = double.parse(threshold.text);
+      double _threshold = double.parse(thresholdController.text);
       for (var date in data.keys) {
         int _amount = data[date] as int;
 
@@ -342,7 +341,7 @@ class _ViewState extends State<TrendsView> {
                                     FocusManager.instance.primaryFocus
                                         ?.unfocus();
                                   }),
-                                  controller: threshold,
+                                  controller: thresholdController,
                                   textAlign: TextAlign.right,
                                   style: Theme.of(context)
                                       .textTheme
@@ -366,7 +365,15 @@ class _ViewState extends State<TrendsView> {
                       ),
                       SizedBox(width: 8),
                       GestureDetector(
-                        onTap: null,
+                        onTap: () {
+                          if (double.tryParse(thresholdController.text) !=
+                              null) {
+                            threshold = thresholdController.text;
+                          } else {
+                            threshold = "";
+                          }
+                          refresh();
+                        },
                         onDoubleTap: () async {
                           if (tags.isEmpty) return;
                           DateTime current =
@@ -385,14 +392,11 @@ class _ViewState extends State<TrendsView> {
                             n = n + 1;
                           }
                         },
-                        child: GestureDetector(
-                          onTap: refresh,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Icon(
-                              Icons.currency_exchange_rounded,
-                              color: Colors.orangeAccent,
-                            ),
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: Icon(
+                            Icons.currency_exchange_rounded,
+                            color: Colors.orangeAccent,
                           ),
                         ),
                       )
