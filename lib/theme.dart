@@ -8,11 +8,5 @@ ThemeData themeData = ThemeData(
     seedColor: const Color.fromARGB(255, 0, 23, 172),
   ),
   splashFactory: NoSplash.splashFactory,
-  // textTheme: GoogleFonts.exoTextTheme(),
   textTheme: GoogleFonts.gafataTextTheme(),
-  pageTransitionsTheme: PageTransitionsTheme(
-    builders: {
-      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-    },
-  ),
 );

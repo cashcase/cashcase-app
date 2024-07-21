@@ -3,8 +3,8 @@ import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/src/db.dart';
 import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
-import 'package:cashcase/src/pages/heat-map/controller.dart';
-import 'package:cashcase/src/pages/heat-map/model.dart';
+import 'package:cashcase/src/pages/trends/controller.dart';
+import 'package:cashcase/src/pages/trends/model.dart';
 import 'package:cashcase/src/utils.dart';
 import 'package:chips_choice/chips_choice.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +15,14 @@ import 'dart:math';
 
 Random random = new Random();
 
-class HeatMapView extends StatefulWidget {
-  HeatMapPageData? data;
-  HeatMapView({this.data});
+class TrendsView extends StatefulWidget {
+  TrendsPageData? data;
+  TrendsView({this.data});
   @override
-  State<HeatMapView> createState() => _ViewState();
+  State<TrendsView> createState() => _ViewState();
 }
 
-class _ViewState extends State<HeatMapView> {
+class _ViewState extends State<TrendsView> {
   List<String> tags = [];
   List<String> options = [];
 
@@ -44,7 +44,7 @@ class _ViewState extends State<HeatMapView> {
   }
 
   refresh() {
-    refreshHeatmap();
+    refreshTrends();
     refreshTotalForDate();
   }
 
@@ -55,7 +55,7 @@ class _ViewState extends State<HeatMapView> {
   refreshTotalForDate() {
     setState(() => loadingTotal = true);
     context
-        .once<HeatMapController>()
+        .once<TrendsController>()
         .getTotalForDate(selectedDate, tags)
         .then((response) {
       totalForDate = response.data ?? 0.0;
@@ -63,9 +63,12 @@ class _ViewState extends State<HeatMapView> {
     });
   }
 
-  refreshHeatmap() async {
+  refreshTrends() async {
+    print(">>> REFRESHING");
+    data = {};
+    setState(() => {});
     DbResponse<List<Expense>> response =
-        await context.once<HeatMapController>().getExpenses(
+        await context.once<TrendsController>().getExpenses(
               DateTime.now()
                   .subtract(
                     Duration(days: 90),
@@ -86,7 +89,7 @@ class _ViewState extends State<HeatMapView> {
       }
     }
 
-    // Setting heatmap data
+    // Setting Trends data
     if (thresholdIsNotEmptyOrZero()) {
       double _threshold = double.parse(threshold.text);
       for (var date in data.keys) {
@@ -107,7 +110,7 @@ class _ViewState extends State<HeatMapView> {
       }
     }
 
-    // Setting heatmap colors
+    // Setting Trends colors
     if (thresholdIsNotEmptyOrZero()) {
       colorsets[0] = Colors.green.shade900;
       colorsets[50] = Colors.green.shade900;
@@ -220,7 +223,7 @@ class _ViewState extends State<HeatMapView> {
                             textColor: Colors.white,
                             colorsets: colorsets,
                             defaultColor: Colors.black,
-                            size: MediaQuery.of(context).size.height / 25,
+                            size: 30,
                             onClick: (value) {
                               selectedDate = value;
                               setState(() => {});
@@ -351,9 +354,10 @@ class _ViewState extends State<HeatMapView> {
                                       decimal: true),
                                   inputFormatters: [amountFormatter],
                                   decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: '0.0',
-                                      contentPadding: EdgeInsets.all(8)),
+                                    border: InputBorder.none,
+                                    hintText: '0.0',
+                                    contentPadding: EdgeInsets.all(8),
+                                  ),
                                 ),
                               ),
                             ],
@@ -370,7 +374,7 @@ class _ViewState extends State<HeatMapView> {
                           int n = 0;
                           while (n < 91) {
                             await context
-                                .once<HeatMapController>()
+                                .once<TrendsController>()
                                 .createExpense(
                                   amount: random.nextInt(50).toDouble(),
                                   type: ExpenseType.SPENT,

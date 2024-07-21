@@ -65,6 +65,7 @@ class _ChecklistViewState extends State<ChecklistView> {
                     child: Container(
                       width: 40,
                       height: 40,
+                      color: Colors.transparent,
                       child: Icon(
                         Icons.add_rounded,
                         color: Colors.orangeAccent,

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cashcase/src/pages/account/page.dart';
 import 'package:cashcase/src/pages/checklist/page.dart';
 import 'package:cashcase/src/pages/expenses/page.dart';
-import 'package:cashcase/src/pages/heat-map/page.dart';
+import 'package:cashcase/src/pages/trends/page.dart';
 import 'package:cashcase/src/pages/home/components/calculator.dart';
 import 'package:cashcase/src/pages/home/model.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class _HomePageWidgetState extends State<HomePageView> {
     HomePageViewModel(
       label: 'Trends',
       icon: Icons.pie_chart_rounded,
-      builder: (c) => HeatMapPage(),
+      builder: (c) => TrendsPage(),
     ),
     HomePageViewModel(
       label: 'Expenses',

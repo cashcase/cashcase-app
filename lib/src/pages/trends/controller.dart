@@ -5,8 +5,8 @@ import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:uuid/uuid.dart';
 
-class HeatMapController extends BaseController {
-  HeatMapController();
+class TrendsController extends BaseController {
+  TrendsController();
   @override
   void initListeners() {}
 

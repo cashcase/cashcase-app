@@ -1,4 +1,4 @@
-class HeatMapPageData {}
+class TrendsPageData {}
 
 class User {
   String firstName;
