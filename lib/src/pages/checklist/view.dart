@@ -27,7 +27,6 @@ class _ChecklistViewState extends State<ChecklistView> {
   List<CategoryModel> Checklist = [];
 
   int selectedIndex = 0;
-  int count = 0;
 
   Widget checklistCircle(int index, bool selected) {
     return GestureDetector(
@@ -37,10 +36,11 @@ class _ChecklistViewState extends State<ChecklistView> {
         height: 40,
         margin: EdgeInsets.only(top: 8),
         decoration: BoxDecoration(
-          color: selected
-              ? Colors.orangeAccent
-              : Colors.orangeAccent.withOpacity(0.1),
+          color: selected ? Colors.orangeAccent : Colors.black26,
           borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: Colors.grey.withOpacity(0.1),
+          ),
         ),
         child: Center(
           child: Text(
@@ -61,25 +61,27 @@ class _ChecklistViewState extends State<ChecklistView> {
 
   final List<CheckList> checklists = [];
 
+  generateNewCheckList(int index) {
+    return CheckList(
+      id: Uuid().v1(),
+      index: index,
+      title: generateRandomString(10),
+      items: List.generate(
+        Random().nextInt(15) + 1,
+        (int index) => CheckListItem(
+          label: generateRandomString(
+            Random().nextInt(100) + 20,
+          ),
+          checked: Random().nextInt(50).isEven,
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     List<int>.generate(4, (int index) => index).forEach((each) {
-      checklists.add(
-        CheckList(
-          id: Uuid().v1(),
-          index: each,
-          title: generateRandomString(10),
-          items: List.generate(
-            Random().nextInt(15) + 1,
-            (int index) => CheckListItem(
-              label: generateRandomString(
-                Random().nextInt(100) + 20,
-              ),
-              checked: Random().nextInt(50).isEven,
-            ),
-          ),
-        ),
-      );
+      checklists.add(generateNewCheckList(each));
     });
     super.initState();
   }
@@ -92,18 +94,29 @@ class _ChecklistViewState extends State<ChecklistView> {
           Material(
             elevation: 20,
             child: Container(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.all(8).copyWith(top: 0),
               child: Column(
                 children: [
                   GestureDetector(
-                    onTap: () => setState(() => count += 1),
+                    onTap: () {
+                      checklists.add(generateNewCheckList(
+                        checklists.length,
+                      ));
+                      setState(() => {});
+                    },
                     child: Container(
                       width: 40,
                       height: 40,
-                      color: Colors.transparent,
                       child: Icon(
                         Icons.add_rounded,
                         color: Colors.orangeAccent,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.grey.withOpacity(0.1),
+                        ),
                       ),
                     ),
                   ),
@@ -196,102 +209,93 @@ class _ChecklistViewState extends State<ChecklistView> {
                         ),
                         SizedBox(height: 16),
                         Expanded(
-                          child: Container(
-                            child: ReorderableListView(
-                              children:
-                                  checklists[selectedIndex].items.map((each) {
-                                return StatefulBuilder(
-                                    key: Key(each.label),
-                                    builder: (context, innerSetState) {
-                                      return Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              child: Transform.scale(
-                                                scale: 1.2,
-                                                child: Checkbox(
-                                                  shape: CircleBorder(),
-                                                  side: BorderSide(
-                                                    width: 0.001,
-                                                  ),
-                                                  checkColor: Colors.black,
-                                                  fillColor: WidgetStateProperty
-                                                      .all<Color>(
-                                                          Colors.orangeAccent),
-                                                  value: each.checked,
-                                                  onChanged: (value) {
-                                                    each.checked = !each.checked;
-                                                    innerSetState(() => {});
-                                                  },
-                                                ),
-                                              ),
+                          child: ReorderableListView(
+                            children:
+                                checklists[selectedIndex].items.map((each) {
+                              return StatefulBuilder(
+                                  key: Key(each.label),
+                                  builder: (context, innerSetState) {
+                                    return Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Transform.translate(
+                                          offset: const Offset(-8, 0),
+                                          child: Checkbox(
+                                            shape: CircleBorder(),
+                                            side: BorderSide(
+                                              width: 0.001,
                                             ),
-                                            SizedBox(width: 4),
-                                            Expanded(
-                                              child: Container(
-                                                child: Row(
-                                                  children: <Widget>[
-                                                    Flexible(
-                                                      child: TextField(
-                                                        maxLines: null,
-                                                        controller:
-                                                            TextEditingController(
-                                                          text: each.label,
-                                                        ),
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .titleMedium!
-                                                            .copyWith(
-                                                              color: each
-                                                                      .checked
-                                                                  ? Colors.grey
-                                                                  : Colors
-                                                                      .white,
-                                                              decorationThickness:
-                                                                  1,
-                                                              decorationColor:
-                                                                  Colors.grey.shade300,
-                                                              decoration: each
-                                                                      .checked
-                                                                  ? TextDecoration
-                                                                      .lineThrough
-                                                                  : null,
-                                                            ),
-                                                        decoration:
-                                                            InputDecoration(
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                          focusedBorder:
-                                                              InputBorder.none,
-                                                          disabledBorder:
-                                                              InputBorder.none,
-                                                          enabledBorder:
-                                                              InputBorder.none,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            )
-                                          ],
+                                            checkColor: Colors.black,
+                                            fillColor:
+                                                WidgetStateProperty.all<Color>(
+                                                    Colors.orangeAccent),
+                                            value: each.checked,
+                                            onChanged: (value) {
+                                              each.checked = !each.checked;
+                                              innerSetState(() => {});
+                                            },
+                                          ),
                                         ),
-                                      );
-                                    });
-                              }).toList(),
-                              onReorder: (int oldIndex, int newIndex) {
-                                // setState(() {
-                                //   if (oldIndex < newIndex) {
-                                //     newIndex -= 1;
-                                //   }
-                                //   final int item = _items.removeAt(oldIndex);
-                                //   _items.insert(newIndex, item);
-                                // });
-                              },
-                            ),
+                                        Expanded(
+                                          child: Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Flexible(
+                                                  child: TextField(
+                                                    maxLines: null,
+                                                    controller:
+                                                        TextEditingController(
+                                                      text: each.label,
+                                                    ),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .titleMedium!
+                                                        .copyWith(
+                                                          color: each.checked
+                                                              ? Colors
+                                                                  .grey.shade700
+                                                              : Colors.white,
+                                                          decorationThickness:
+                                                              1,
+                                                          decorationColor:
+                                                              Colors.grey
+                                                                  .shade500,
+                                                          decoration: each
+                                                                  .checked
+                                                              ? TextDecoration
+                                                                  .lineThrough
+                                                              : null,
+                                                        ),
+                                                    decoration: InputDecoration(
+                                                      border:
+                                                          OutlineInputBorder(),
+                                                      focusedBorder:
+                                                          InputBorder.none,
+                                                      disabledBorder:
+                                                          InputBorder.none,
+                                                      enabledBorder:
+                                                          InputBorder.none,
+                                                    ),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    );
+                                  });
+                            }).toList(),
+                            onReorder: (int oldIndex, int newIndex) {
+                              // setState(() {
+                              //   if (oldIndex < newIndex) {
+                              //     newIndex -= 1;
+                              //   }
+                              //   final int item = _items.removeAt(oldIndex);
+                              //   _items.insert(newIndex, item);
+                              // });
+                            },
                           ),
                         )
                       ],
