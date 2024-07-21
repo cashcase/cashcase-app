@@ -34,8 +34,8 @@ class _HomePageWidgetState extends State<HomePageView> {
 
   List<HomePageViewModel> Pages = [
     HomePageViewModel(
-      label: 'Heat Map',
-      icon: Icons.bubble_chart_rounded,
+      label: 'Trends',
+      icon: Icons.pie_chart_rounded,
       builder: (c) => HeatMapPage(),
     ),
     HomePageViewModel(

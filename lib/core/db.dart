@@ -24,7 +24,7 @@ class Db {
         return db.execute(
           '''
           CREATE TABLE IF NOT EXISTS "expense" (
-            "id" text,
+            "id" text UNIQUE,
             "amount" text NOT NULL,
             "type" "type" NOT NULL,
             "category" text NOT NULL,

@@ -6,6 +6,7 @@ import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class AccountController extends BaseController {
   AccountController();
@@ -28,7 +29,7 @@ class AccountController extends BaseController {
     );
   }
 
-  Future<void> import() async {
+  Future<List<Expense>> import() async {
     final params = OpenFileDialogParams(
       fileExtensionsFilter: [Db.DB_EXTENSION],
       dialogType: OpenFileDialogType.document,
@@ -40,13 +41,11 @@ class AccountController extends BaseController {
         readOnly: true,
         singleInstance: false,
       );
-      final transaction =
-          await db.rawQuery("SELECT count(*) as count from expense;");
-      print(transaction.first['count']);
-      // Confirmation for whose data this is
-      // Confirmation with total count
+      final transaction = await db.rawQuery("SELECT * from expense;");
       db.close();
+      return transaction.map<Expense>((e) => Expense.fromJson(e)).toList();
     }
+    return [];
   }
 
   Future<void> export(DirectoryLocation dir) async {
@@ -57,7 +56,27 @@ class AccountController extends BaseController {
       directory: dir,
       data: file.readAsBytesSync(),
       fileName: name,
+      mimeType: 'application/sql',
       replace: true,
+    );
+  }
+
+  Future<DbResponse<Expense>> createExpense(Expense expense) async {
+    try {
+      final transaction = await Db.db.insert(
+        "expense",
+        expense.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+      return DbResponse(
+        status: transaction > 0,
+        data: expense,
+      );
+    } catch (e) {}
+    return DbResponse(
+      status: false,
+      data: null,
+      error: "Could not add expense!",
     );
   }
 }

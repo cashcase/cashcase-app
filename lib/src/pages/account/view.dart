@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:cashcase/src/components/confirm.dart';
+import 'package:cashcase/src/pages/expenses/model.dart';
+import 'package:cashcase/src/pages/home/controller.dart';
 import 'package:path/path.dart' as p;
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/db.dart';
@@ -22,8 +25,6 @@ class AccountView extends StatefulWidget {
 
 class _ViewState extends State<AccountView> {
   // late final Peer peer;
-  String message = "";
-
   // DataConnection? conn;
 
   TextEditingController to = TextEditingController();
@@ -72,11 +73,11 @@ class _ViewState extends State<AccountView> {
                 SizedBox(height: 24),
                 renderCategoriesSection(),
                 SizedBox(height: 24),
-                renderSyncSection(),
-                SizedBox(height: 24),
                 renderExportSection(),
                 SizedBox(height: 24),
                 renderImportSection(),
+                SizedBox(height: 24),
+                renderSyncSection(),
                 // Container(
                 //   child: Row(
                 //     children: [
@@ -206,12 +207,63 @@ class _ViewState extends State<AccountView> {
     );
   }
 
+  Future<void> confirmImport(List<Expense> expenses) async {
+    return showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return ConfirmationDialog(
+          message:
+              "Do you want to import ${expenses.length} expenses? Existing ones will be overwritten.",
+          okLabel: "No",
+          cancelLabel: "Yes",
+          cancelColor: Colors.green,
+          onOk: () => Navigator.pop(context),
+          onCancel: () async {
+            setState(context.once<AppController>().startLoading);
+            Navigator.pop(context);
+            await Future.wait(expenses
+                    .map((context.once<AccountController>().createExpense)))
+                .then((results) {
+              var errCount = 0;
+              for (var each in results) {
+                if (!each.status) errCount += 1;
+              }
+              setState(context.once<AppController>().stopLoading);
+              if (errCount == 0) {
+                context.once<AppController>().addNotification(
+                    NotificationType.success,
+                    "Import was successfully completed!");
+              } else if (errCount > 0 && errCount < expenses.length) {
+                context.once<AppController>().addNotification(
+                    NotificationType.warn,
+                    "Some expenses were not imported. Please try again.");
+              } else {
+                context.once<AppController>().addNotification(
+                    NotificationType.warn,
+                    "All imports failed. Please try again.");
+              }
+            }).catchError((err) {
+              print(err);
+            });
+            ;
+          },
+        );
+      },
+    );
+  }
+
   GestureDetector renderImportSection() {
     return GestureDetector(
       onTap: () async {
         try {
           setState(context.once<AppController>().startLoading);
-          context.once<AccountController>().import();
+          List<Expense> expenses =
+              await context.once<AccountController>().import();
+          if (expenses.isNotEmpty)
+            confirmImport(expenses);
+          else
+            context.once<AppController>().addNotification(
+                NotificationType.info, "The imported DB was empty/invalid.");
         } catch (e) {
           print(e);
         } finally {
