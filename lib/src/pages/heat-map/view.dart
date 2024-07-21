@@ -64,8 +64,6 @@ class _ViewState extends State<HeatMapView> {
   }
 
   refreshHeatmap() async {
-    data = {};
-    setState(() => loadingMap = true);
     DbResponse<List<Expense>> response =
         await context.once<HeatMapController>().getExpenses(
               DateTime.now()
