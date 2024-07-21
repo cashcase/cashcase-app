@@ -155,7 +155,10 @@ class _HomePageWidgetState extends State<HomePageView> {
                           children: [
                             Container(
                               padding: EdgeInsets.only(top: 8, bottom: 4),
-                              child: Icon(e.icon),
+                              child: Icon(
+                                e.icon,
+                                size: 24,
+                              ),
                             ),
                             if (!Platform.isIOS)
                               Text(

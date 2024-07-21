@@ -55,6 +55,14 @@ class _ViewState extends State<AccountView> {
     return unit8List;
   }
 
+  List<Widget> divider() {
+    return [
+      Divider(
+        color: Colors.transparent,
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -70,13 +78,12 @@ class _ViewState extends State<AccountView> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 24),
                 renderCategoriesSection(),
-                SizedBox(height: 24),
+                ...divider(),
                 renderExportSection(),
-                SizedBox(height: 24),
+                ...divider(),
                 renderImportSection(),
-                SizedBox(height: 24),
+                ...divider(),
                 renderSyncSection(),
                 // Container(
                 //   child: Row(
@@ -144,7 +151,7 @@ class _ViewState extends State<AccountView> {
               children: [
                 Text(
                   "Sync (Pro)",
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
                         color: Colors.white,
                       ),
                 ),
@@ -192,7 +199,7 @@ class _ViewState extends State<AccountView> {
             children: [
               Text(
                 "Export Data",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white,
                     ),
               ),
@@ -282,7 +289,7 @@ class _ViewState extends State<AccountView> {
             children: [
               Text(
                 "Import Data",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white,
                     ),
               ),
@@ -312,7 +319,7 @@ class _ViewState extends State<AccountView> {
             children: [
               Text(
                 "Manage Categories",
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
                       color: Colors.white,
                     ),
               ),
