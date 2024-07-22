@@ -66,6 +66,7 @@ class _ChecklistViewState extends State<ChecklistView> {
   Future<void> deleteList(String id) async {
     checklists.removeWhere((e) => e.id == id);
     if (checklists.isNotEmpty) selectedList = checklists[0].id;
+    else selectedList = "";
     setState(() => {});
   }
 
@@ -223,51 +224,52 @@ class _ChecklistViewState extends State<ChecklistView> {
                                   },
                                 ),
                               SizedBox(width: 8),
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      deleteList(selectedList);
-                                    },
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      child: Icon(
-                                        Icons.delete_rounded,
-                                        color: Colors.red,
+                              if (selectedList.isNotEmpty)
+                                Row(
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        deleteList(selectedList);
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        child: Icon(
+                                          Icons.delete_rounded,
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  GestureDetector(
-                                    onTap: () {
-                                      reset();
-                                    },
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      child: Icon(
-                                        Icons.restore_rounded,
-                                        color: Colors.orangeAccent,
+                                    SizedBox(width: 16),
+                                    GestureDetector(
+                                      onTap: () {
+                                        reset();
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        child: Icon(
+                                          Icons.restore_rounded,
+                                          color: Colors.orangeAccent,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  GestureDetector(
-                                    onTap: () {
-                                      add();
-                                    },
-                                    child: Container(
-                                      width: 20,
-                                      height: 20,
-                                      child: Icon(
-                                        Icons.add_rounded,
-                                        color: Colors.green,
+                                    SizedBox(width: 16),
+                                    GestureDetector(
+                                      onTap: () {
+                                        add();
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        child: Icon(
+                                          Icons.add_rounded,
+                                          color: Colors.green,
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              )
+                                    )
+                                  ],
+                                )
                             ],
                           ),
                         ),
