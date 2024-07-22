@@ -201,7 +201,6 @@ class _ViewState extends State<TrendsView> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 8),
                   Stack(
                     children: [
                       Container(

@@ -97,8 +97,11 @@ class _CalculatorState extends State<Calculator> {
             Container(
               height: 80,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: Colors.black,
+                color: Colors.black38,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.1),
+                ),
               ),
               child: Opacity(
                 opacity: isLoading ? 0.5 : 1,
@@ -140,8 +143,11 @@ class _CalculatorState extends State<Calculator> {
               height: 280,
               padding: EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
+                color: Colors.black38,
                 borderRadius: BorderRadius.circular(8),
-                color: Colors.black,
+                border: Border.all(
+                  color: Colors.grey.withOpacity(0.1),
+                ),
               ),
               child: Center(
                 child: CalendarDatePicker2(
@@ -177,8 +183,11 @@ class _CalculatorState extends State<Calculator> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
+                              color: Colors.black38,
                               borderRadius: BorderRadius.circular(8),
-                              color: Colors.black,
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.1),
+                              ),
                             ),
                             child: Theme(
                               data: ThemeData(
