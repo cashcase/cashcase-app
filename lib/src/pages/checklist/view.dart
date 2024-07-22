@@ -1,6 +1,7 @@
 import 'package:cashcase/core/app/controller.dart';
 import 'package:cashcase/core/utils/extensions.dart';
 import 'package:cashcase/core/utils/models.dart';
+import 'package:cashcase/src/components/confirm.dart';
 import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/checklist/controller.dart';
 import 'package:cashcase/src/pages/checklist/model.dart';
@@ -79,25 +80,55 @@ class _ChecklistViewState extends State<ChecklistView> {
 
   CheckList get selected => checklists.where((e) => e.id == selectedList).first;
 
-  Future<void> delete(CheckListItem item) async {
-    final response = await ChecklistController.deleteChecklistItem(item.id);
-    if (!response.status) {
-      return context.once<AppController>().addNotification(
-          NotificationType.error, "Could not delete check list item");
-    }
-    selected.items.remove(item);
-    setState(() => {});
+  Future<bool?> delete(CheckListItem item) async {
+    return showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return ConfirmationDialog(
+          message: "Are you sure you want to delete this item?",
+          okLabel: "No",
+          cancelLabel: "Yes",
+          cancelColor: Colors.red,
+          onOk: () => Navigator.pop(context),
+          onCancel: () async {
+            final response =
+                await ChecklistController.deleteChecklistItem(item.id);
+            if (!response.status) {
+              return context.once<AppController>().addNotification(
+                  NotificationType.error, "Could not delete check list item");
+            }
+            selected.items.remove(item);
+            setState(() => {});
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   Future<void> deleteList(String id) async {
-    final response = await ChecklistController.deleteChecklist(id);
-    if (!response.status) {
-      return context.once<AppController>().addNotification(
-          NotificationType.error, "Could not delete check list");
-    }
-    checklists.removeWhere((e) => e.id == id);
-    setSelectedList(checklists.isNotEmpty ? checklists[0].id : "");
-    setState(() => {});
+    return showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return ConfirmationDialog(
+          message: "Are you sure you want to delete this list?",
+          okLabel: "No",
+          cancelLabel: "Yes",
+          cancelColor: Colors.red,
+          onOk: () => Navigator.pop(context),
+          onCancel: () async {
+            final response = await ChecklistController.deleteChecklist(id);
+            if (!response.status) {
+              return context.once<AppController>().addNotification(
+                  NotificationType.error, "Could not delete check list");
+            }
+            checklists.removeWhere((e) => e.id == id);
+            setSelectedList(checklists.isNotEmpty ? checklists[0].id : "");
+            setState(() => {});
+          },
+        );
+      },
+    );
   }
 
   Future<void> addList() async {
@@ -414,8 +445,8 @@ class _ChecklistViewState extends State<ChecklistView> {
                                                       background: Container(
                                                           color: Colors
                                                               .red.shade800),
-                                                      onDismissed: (_) {
-                                                        delete(each);
+                                                      confirmDismiss: (_) {
+                                                        return delete(each);
                                                       },
                                                       child: Row(
                                                         crossAxisAlignment:

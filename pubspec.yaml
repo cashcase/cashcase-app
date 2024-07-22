@@ -1,6 +1,6 @@
 name: cashcase
 description: "Cashcase - Official Flutter Client"
-version: 1.0.31+31
+version: 1.0.32+32
 
 environment:
   sdk: ">=3.3.2 <4.0.0"
