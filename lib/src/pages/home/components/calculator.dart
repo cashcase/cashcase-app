@@ -97,10 +97,10 @@ class _CalculatorState extends State<Calculator> {
             Container(
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.black38,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withOpacity(0.2),
                 ),
               ),
               child: Opacity(
@@ -143,7 +143,7 @@ class _CalculatorState extends State<Calculator> {
               height: 280,
               padding: EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.black38,
+                color: Colors.black,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: Colors.grey.withOpacity(0.1),
@@ -183,7 +183,7 @@ class _CalculatorState extends State<Calculator> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.black38,
+                              color: Colors.black54,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: Colors.grey.withOpacity(0.1),

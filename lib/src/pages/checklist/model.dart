@@ -13,7 +13,7 @@ class CheckListItem {
     return CheckListItem(
       id: data['id'],
       label: data['label'],
-      checked: data['checked'],
+      checked: data['checked'] == 1,
     );
   }
 }
@@ -21,17 +21,19 @@ class CheckListItem {
 class CheckList {
   String id;
   List<CheckListItem> items;
-  String title;
+  String label;
   CheckList({
-    required this.title,
+    required this.label,
     required this.id,
     required this.items,
   });
   static CheckList fromJson(dynamic data) {
     return CheckList(
-      title: data['title'],
+      label: data['label'],
       id: data['id'],
-      items: data['items'].map((e) => CheckListItem.fromJson(e)),
+      items: (data['items'] ?? [])
+          .map<CheckListItem>((e) => CheckListItem.fromJson(e))
+          .toList(),
     );
   }
 }
