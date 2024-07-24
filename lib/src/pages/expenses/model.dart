@@ -87,6 +87,7 @@ class Expense {
   String user;
   String id;
   String? notes;
+  int date;
   Expense({
     required this.id,
     required this.user,
@@ -95,6 +96,7 @@ class Expense {
     required this.category,
     required this.createdOn,
     required this.updatedOn,
+    required this.date,
     this.notes = "",
   });
 
@@ -113,6 +115,7 @@ class Expense {
       id: data['id'],
       user: data['user'],
       notes: data['notes'],
+      date: data['date'],
       type: ExpenseType.values
           .firstWhere((e) => e.toString() == 'ExpenseType.' + data['type']),
       amount: double.parse(data['amount']),
@@ -131,7 +134,8 @@ class Expense {
       "notes": this.notes,
       "category": this.category,
       "createdOn": this.createdOn,
-      "updatedOn": this.updatedOn
+      "updatedOn": this.updatedOn,
+      "date": this.date
     };
   }
 }
@@ -169,6 +173,7 @@ class GroupedExpense {
 
     for (var each in expenses.toList()) {
       var isSaving = each.type == ExpenseType.SAVED;
+      print(each.category);
 
       if (!expense.categoryExpenses.containsKey(each.category)) {
         expense.categoryExpenses[each.category] = CategoryExpense(

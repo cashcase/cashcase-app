@@ -5,34 +5,82 @@ import 'package:cashcase/src/models.dart';
 import 'package:cashcase/src/pages/expenses/model.dart';
 import 'package:uuid/uuid.dart';
 
+class Trend {
+  DateTime highestSpendDate;
+  double highestSpend;
+  DateTime lowestSpendDate;
+  double lowestSpend;
+  double total;
+  Trend({
+    required this.highestSpend,
+    required this.highestSpendDate,
+    required this.lowestSpendDate,
+    required this.lowestSpend,
+    required this.total,
+  });
+}
+
 class TrendsController extends BaseController {
   TrendsController();
   @override
   void initListeners() {}
 
-  Future<DbResponse<double>> getTotalForDate(
-      DateTime on, List<String> categories) async {
+  var getSpendQuery = (List<String> categories, bool min) =>
+      '''
+        WITH secondary AS 
+            (SELECT 
+              date, SUM(amount) as amount
+              FROM expense
+              WHERE
+                type = 'SPENT'
+            ''' +
+      (categories.isNotEmpty
+          ? "AND category IN "
+              "(${categories.map((e) => "'$e'").join(",")})"
+          : "") +
+      '''
+              GROUP BY date
+            )
+    SELECT ''' +
+      (min ? "MIN(amount)" : "MAX(amount)") +
+      ''' as amount, date as createdOn
+    from secondary;
+  ''';
+
+  Future<DbResponse<Trend?>> getKeyMetrics(
+      DateTime selectedDate, List<String> categories) async {
     try {
-      String query = "SELECT SUM(amount) as total FROM"
-              " expense WHERE"
+      var batch = Db.db.batch();
+      batch.rawQuery("SELECT SUM(amount) as total FROM"
+              " expense WHERE type = 'SPENT' AND "
               " createdOn BETWEEN "
-              "${on.startOfDay().millisecondsSinceEpoch} AND "
-              "${on.endOfDay().millisecondsSinceEpoch}" +
+              "${selectedDate.startOfDay().millisecondsSinceEpoch} AND "
+              "${selectedDate.endOfDay().millisecondsSinceEpoch}" +
           (categories.isNotEmpty
               ? " AND category IN "
                   "(${categories.map((e) => "'$e'").join(",")});"
-              : ";");
-      final transaction = await Db.db.rawQuery(query);
+              : ";"));
+      batch.rawQuery(getSpendQuery(categories, true));
+      batch.rawQuery(getSpendQuery(categories, false));
+      var transaction = await batch.commit() as dynamic;
       return DbResponse(
         status: true,
-        data:
-            transaction.isEmpty ? 0.0 : (transaction.first['total'] as double),
+        data: Trend(
+          total: transaction[0][0]['total'] ?? 0.0,
+          lowestSpend: transaction[1][0]['amount'] as double,
+          lowestSpendDate: DateTime.fromMillisecondsSinceEpoch(
+              transaction[1][0]['createdOn']),
+          highestSpend: transaction[2][0]['amount'] as double,
+          highestSpendDate: DateTime.fromMillisecondsSinceEpoch(
+            transaction[2][0]['createdOn'],
+          ),
+        ),
       );
     } catch (e) {}
     return DbResponse(
       status: false,
       data: null,
-      error: "Could not get expenses!",
+      error: "Could not get trends!",
     );
   }
 
@@ -61,12 +109,12 @@ class TrendsController extends BaseController {
     );
   }
 
-  Future<DbResponse<Expense>> createExpense({
+  static Future<DbResponse<Expense>> createExpense({
     required double amount,
     String notes = "",
     required ExpenseType type,
     required String category,
-    DateTime? createdOn,
+    required DateTime createdOn,
   }) async {
     Expense expense = Expense(
       amount: amount,
@@ -75,9 +123,9 @@ class TrendsController extends BaseController {
       type: type,
       category: category,
       notes: notes,
-      createdOn: createdOn?.millisecondsSinceEpoch ??
-          DateTime.now().millisecondsSinceEpoch,
-      updatedOn: DateTime.now().millisecondsSinceEpoch,
+      date: createdOn.startOfDay().millisecondsSinceEpoch,
+      createdOn: createdOn.millisecondsSinceEpoch,
+      updatedOn: createdOn.millisecondsSinceEpoch,
     );
     try {
       final transaction = await Db.db.insert(
@@ -88,7 +136,8 @@ class TrendsController extends BaseController {
         status: transaction > 0,
         data: expense,
       );
-    } catch (e) {}
+    } catch (e) {
+    }
     return DbResponse(
       status: false,
       data: null,

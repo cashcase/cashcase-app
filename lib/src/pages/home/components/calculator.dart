@@ -80,7 +80,7 @@ class _CalculatorState extends State<Calculator> {
     return Provider(
       create: (context) => HomePageController(),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16)
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12)
             .copyWith(bottom: 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -95,12 +95,12 @@ class _CalculatorState extends State<Calculator> {
             ),
             SizedBox(height: 8),
             Container(
-              height: 80,
+              height: 72,
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Colors.black38,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Colors.grey.withOpacity(0.2),
+                  color: Colors.grey.withOpacity(0.1),
                 ),
               ),
               child: Opacity(
@@ -143,7 +143,7 @@ class _CalculatorState extends State<Calculator> {
               height: 280,
               padding: EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.black,
+                color: Colors.black38,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: Colors.grey.withOpacity(0.1),
@@ -183,7 +183,7 @@ class _CalculatorState extends State<Calculator> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.black54,
+                              color: Colors.black38,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
                                 color: Colors.grey.withOpacity(0.1),

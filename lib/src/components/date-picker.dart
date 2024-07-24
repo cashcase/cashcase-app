@@ -135,7 +135,7 @@ class _DatePickerState extends State<DatePicker> {
         (date.startOfDay().isAfter(widget.startDate.startOfDay()) ||
             date.sameDay(widget.startDate));
     widget.onDateChange(_focusDate, shouldReloadData);
-    dateTimelineController.animateToFocusDate();
+    dateTimelineController.jumpToDate(_focusDate);
     setState(() => {});
   }
 
@@ -231,7 +231,7 @@ class _DatePickerState extends State<DatePicker> {
                     var day = widget.startDate.year == _focusDate.year
                         ? max(widget.startDate.day, _focusDate.day)
                         : _focusDate.day;
-                    setNewDate(DateTime(_focusDate.year, _month, day));
+                    setNewDate(DateTime(_focusDate.year, _month, day));;
                   },
                   initial: months[_focusDate.month - 1],
                   options: getMonths(),

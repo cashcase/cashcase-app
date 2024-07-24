@@ -105,7 +105,7 @@ class _ViewState extends State<ExpensesView> {
                         endDate: snapshot.data!.data!.end.startOfDay(),
                         focusedDate: selectedDate,
                         onDateChange: (date, shouldReloadData) {
-                          selectedDate = date.toLocal().startOfDay();
+                          selectedDate = date.startOfDay();
                           _expensesFuture = expensesFuture;
                           listRefresher.value = !listRefresher.value;
                         },
@@ -234,26 +234,13 @@ class _ViewState extends State<ExpensesView> {
                       topRight: Radius.circular(16),
                     ),
                   ),
-                  child: Stack(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                expense.getUser().toCamelCase(),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium!
-                                    .copyWith(
-                                      color: Colors.white,
-                                    ),
-                              )
-                            ],
-                          ),
                           Text(
-                            "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
+                            expense.getUser().toCamelCase(),
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium!
@@ -263,6 +250,15 @@ class _ViewState extends State<ExpensesView> {
                           )
                         ],
                       ),
+                      Text(
+                        "${isSaved ? "+" : "-"} ${expense.amount.toString()}",
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium!
+                            .copyWith(
+                              color: Colors.white,
+                            ),
+                      )
                     ],
                   ),
                 ),
@@ -453,7 +449,7 @@ class _ViewState extends State<ExpensesView> {
                               "Saved",
                               style: Theme.of(context)
                                   .textTheme
-                                  .headlineSmall!
+                                  .titleLarge!
                                   .copyWith(
                                     color: Colors.green.shade800,
                                   ),
@@ -476,7 +472,7 @@ class _ViewState extends State<ExpensesView> {
                               "Spent",
                               style: Theme.of(context)
                                   .textTheme
-                                  .headlineSmall!
+                                  .titleLarge!
                                   .copyWith(
                                     color: Colors.red.shade800,
                                   ),
@@ -556,8 +552,9 @@ class _ViewState extends State<ExpensesView> {
                               categoryExpenses[index].toCamelCase(),
                               style: Theme.of(context)
                                   .textTheme
-                                  .titleLarge!
+                                  .headlineSmall!
                                   .copyWith(
+                                    fontSize: 20,
                                     color: Colors.white,
                                   ),
                             ),
@@ -568,6 +565,7 @@ class _ViewState extends State<ExpensesView> {
                                   .textTheme
                                   .titleLarge!
                                   .copyWith(
+                                    fontSize: 20,
                                     color: isSaving ? Colors.green : Colors.red,
                                   ),
                             ),

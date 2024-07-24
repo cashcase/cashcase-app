@@ -125,6 +125,7 @@ class _ChecklistViewState extends State<ChecklistView> {
             checklists.removeWhere((e) => e.id == id);
             setSelectedList(checklists.isNotEmpty ? checklists[0].id : "");
             setState(() => {});
+            Navigator.pop(context);
           },
         );
       },

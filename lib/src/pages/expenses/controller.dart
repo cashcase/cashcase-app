@@ -16,9 +16,9 @@ class ExpensesController extends BaseController {
     try {
       // await Future.delayed(Duration(seconds: 3));
       final transaction = await Db.db.rawQuery(
-          "SELECT * from expense WHERE createdOn BETWEEN ${from.millisecondsSinceEpoch} AND ${to.millisecondsSinceEpoch}");
+          "SELECT * from expense WHERE date = ${from.millisecondsSinceEpoch}");
       final dates =
-          await Db.db.rawQuery("SELECT MIN(createdOn) as min from expense");
+          await Db.db.rawQuery("SELECT MIN(date) as min from expense");
       return DbResponse(
         status: true,
         data: ExpensesByDate(
@@ -67,6 +67,7 @@ class ExpensesController extends BaseController {
       String notes = "",
       required ExpenseType type,
       required String category}) async {
+    var now = DateTime.now();
     Expense expense = Expense(
       amount: amount,
       user: "__self__",
@@ -74,9 +75,9 @@ class ExpensesController extends BaseController {
       type: type,
       category: category,
       notes: notes,
-      createdOn:
-          DateTime.now().subtract(Duration(days: 0)).millisecondsSinceEpoch,
-      updatedOn: DateTime.now().millisecondsSinceEpoch,
+      date: now.startOfDay().microsecondsSinceEpoch,
+      createdOn: now.millisecondsSinceEpoch,
+      updatedOn: now.millisecondsSinceEpoch,
     );
     try {
       final transaction = await Db.db.insert(

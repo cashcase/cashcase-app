@@ -183,7 +183,6 @@ class _ViewState extends State<AccountView> {
                 NotificationType.success, "Exported database!");
           }
         } catch (e) {
-          print(e);
         } finally {
           setState(context.once<AppController>().stopLoading);
         }
@@ -273,7 +272,6 @@ class _ViewState extends State<AccountView> {
             context.once<AppController>().addNotification(
                 NotificationType.info, "The imported DB was empty/invalid.");
         } catch (e) {
-          print(e);
         } finally {
           setState(context.once<AppController>().stopLoading);
         }
