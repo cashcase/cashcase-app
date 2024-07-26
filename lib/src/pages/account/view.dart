@@ -76,59 +76,84 @@ class _ViewState extends State<AccountView> {
             horizontal: 8,
             vertical: 8,
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                renderCategoriesSection(),
-                ...divider(),
-                renderExportSection(),
-                ...divider(),
-                renderImportSection(),
-                ...divider(),
-                renderSyncSection(),
-                // Container(
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: TextField(
-                //           controller: to,
-                //           style: TextStyle(color: Colors.white),
-                //         ),
-                //       ),
-                //       MaterialButton(
-                //         onPressed: () {
-                //           conn = peer.connect(to.text);
-                //         },
-                //         child: Text("Connect"),
-                //         color: Colors.green,
-                //       )
-                //     ],
-                //   ),
-                // ),
-                // Container(
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: TextField(
-                //           controller: msg,
-                //           style: TextStyle(color: Colors.white),
-                //         ),
-                //       ),
-                //       MaterialButton(
-                //         onPressed: () {
-                //           if (conn == null) return;
-                //           print("Sending data");
-                //           conn!.send(msg.text);
-                //           // conn!.sendBinary(convertStringToUint8List(msg.text));
-                //         },
-                //         child: Text("Send"),
-                //         color: Colors.green,
-                //       )
-                //     ],
-                //   ),
-                // )
-              ],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  renderCategoriesSection(),
+                  ...divider(),
+                  renderExportSection(),
+                  ...divider(),
+                  renderImportSection(),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: 24,
+                      width: 24,
+                      child: Image.asset('assets/logo.png'),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      "CASHCASE v${AppController.version} (${AppController.buildNumber})",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white24,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              // ...divider(),
+              // renderSyncSection(),
+              // Container(
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: TextField(
+              //           controller: to,
+              //           style: TextStyle(color: Colors.white),
+              //         ),
+              //       ),
+              //       MaterialButton(
+              //         onPressed: () {
+              //           conn = peer.connect(to.text);
+              //         },
+              //         child: Text("Connect"),
+              //         color: Colors.green,
+              //       )
+              //     ],
+              //   ),
+              // ),
+              // Container(
+              //   child: Row(
+              //     children: [
+              //       Expanded(
+              //         child: TextField(
+              //           controller: msg,
+              //           style: TextStyle(color: Colors.white),
+              //         ),
+              //       ),
+              //       MaterialButton(
+              //         onPressed: () {
+              //           if (conn == null) return;
+              //           print("Sending data");
+              //           conn!.send(msg.text);
+              //           // conn!.sendBinary(convertStringToUint8List(msg.text));
+              //         },
+              //         child: Text("Send"),
+              //         color: Colors.green,
+              //       )
+              //     ],
+              //   ),
+              // )
+            ],
           ),
         ),
       ),
