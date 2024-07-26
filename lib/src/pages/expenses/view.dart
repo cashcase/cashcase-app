@@ -101,7 +101,7 @@ class _ViewState extends State<ExpensesView> {
                     builder: (_, __, ___) {
                       return DatePicker(
                         controller: dateTimelineController,
-                        startDate: snapshot.data!.data!.start.startOfDay(),
+                        startDate: DateTime(2024, 1, 1).startOfDay(),
                         endDate: snapshot.data!.data!.end.startOfDay(),
                         focusedDate: selectedDate,
                         onDateChange: (date, shouldReloadData) {
@@ -899,6 +899,7 @@ class _ViewState extends State<ExpensesView> {
               context
                   .once<ExpensesController>()
                   .createExpense(
+                    date: selectedDate,
                     amount: amount,
                     type: isSaving ? ExpenseType.SAVED : ExpenseType.SPENT,
                     category: categoryOfExpenseToAdd,
@@ -914,10 +915,8 @@ class _ViewState extends State<ExpensesView> {
                   context.once<AppController>().addNotification(
                       NotificationType.success, "Added Expense");
                   amountController.text = "";
-                  if (selectedDate.sameDay(DateTime.now())) {
-                    controller.add(r.data!);
-                    controller.notify();
-                  }
+                  controller.add(r.data!);
+                  controller.notify();
                 }
               });
             },

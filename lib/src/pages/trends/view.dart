@@ -387,7 +387,8 @@ class _ViewState extends State<TrendsView> {
                     bottom: 0,
                     height: 72,
                     width: MediaQuery.of(context).size.width,
-                    child: Padding(
+                    child: Container(
+                      color: Theme.of(context).scaffoldBackgroundColor,
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
                       child: Row(
                         children: [
@@ -449,7 +450,7 @@ class _ViewState extends State<TrendsView> {
                               ),
                             ),
                           ),
-                          SizedBox(width: 8) ,
+                          SizedBox(width: 8),
                           Expanded(
                             flex: 1,
                             child: Container(
@@ -479,7 +480,8 @@ class _ViewState extends State<TrendsView> {
                                           category: tags.first,
                                           createdOn: current,
                                         );
-                                        current = current.add(Duration(days: 1));
+                                        current =
+                                            current.add(Duration(days: 1));
                                         n = n + 1;
                                       }
                                     },

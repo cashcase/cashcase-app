@@ -173,7 +173,6 @@ class GroupedExpense {
 
     for (var each in expenses.toList()) {
       var isSaving = each.type == ExpenseType.SAVED;
-      print(each.category);
 
       if (!expense.categoryExpenses.containsKey(each.category)) {
         expense.categoryExpenses[each.category] = CategoryExpense(

@@ -64,10 +64,10 @@ class ExpensesController extends BaseController {
 
   Future<DbResponse<Expense>> createExpense(
       {required double amount,
+      required DateTime date,
       String notes = "",
       required ExpenseType type,
       required String category}) async {
-    var now = DateTime.now();
     Expense expense = Expense(
       amount: amount,
       user: "__self__",
@@ -75,9 +75,9 @@ class ExpensesController extends BaseController {
       type: type,
       category: category,
       notes: notes,
-      date: now.startOfDay().microsecondsSinceEpoch,
-      createdOn: now.millisecondsSinceEpoch,
-      updatedOn: now.millisecondsSinceEpoch,
+      date: date.startOfDay().millisecondsSinceEpoch,
+      createdOn: date.millisecondsSinceEpoch,
+      updatedOn: date.millisecondsSinceEpoch,
     );
     try {
       final transaction = await Db.db.insert(
