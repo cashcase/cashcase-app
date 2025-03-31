@@ -18,7 +18,24 @@ A simple yet powerful expense tracker app for **iOS & Android**. Track your expe
 ✅ **Import/Export data** – Backup and restore your expenses.  
 
 ## 📸 Screenshots  
-
+<p align="center">
+<img src="images/addexpense.jpeg" width="20%"/>
+&nbsp;&nbsp;
+<img src="images/addincome.jpeg"  width="20%"/>
+&nbsp;&nbsp;
+<img src="images/calc.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+<img src="images/categories.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+<img src="images/export.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+<img src="images/notes.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+<img src="images/showexpenses.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+<img src="images/trends1.jpeg" width="20%"/>
+ &nbsp;&nbsp;
+</p>
 
 ## 📥 Installation  
 
